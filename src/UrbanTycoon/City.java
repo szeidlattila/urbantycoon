@@ -215,4 +215,24 @@ class City {
         }
         //TODO
     }
+    
+    public void yearElapsed(){
+        for(Field[] row:fields){
+            for(Field field:row){
+                if(!field.isFree()){
+                    budget += field.getBuilding().getAnnualTax();
+                    budget -= field.getBuilding().getAnnualFee();
+                }
+            }
+        }
+        if(budget < 0) negativeBudgetNthYear++;
+        else negativeBudgetNthYear = 0;
+    }
+    public void performTicks(int ticks){
+        for(Field[] row:fields){
+            for(Field field:row){
+                if(!field.isFree()) field.getBuilding().progressBuilding(ticks);
+            }
+        }
+    }
 }

@@ -39,8 +39,10 @@ class GameEngine extends JPanel{
     private Date time;
     private boolean paused = false;
     private int speed = 1;
+    private final int[] minutesPerSecondIfSpeedIsIndex = {180,2880,43200}; // 3 ora, 2 nap, 30 nap
     private Image background;
     private Timer newFrameTimer;
+    private Timer gameTickTimer;
     
 //----------------------------
     //fv-ek
@@ -49,7 +51,6 @@ class GameEngine extends JPanel{
     public GameEngine() {
         super();
         background = new ImageIcon("data/graphics/tempBackground.jpeg").getImage(); // ide majd valami más háttér kerül
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE);
         
         addMouseListener(new MouseAdapter() {
             @Override
@@ -59,9 +60,7 @@ class GameEngine extends JPanel{
                 }
             }
         });
-        
-        newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
-        newFrameTimer.start();
+        newGame();
     }
     
     @Override
@@ -74,11 +73,14 @@ class GameEngine extends JPanel{
     private void newGame() {
         city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE);
         // date alaphelyzetbe
+        time = new Date(1980,1,1,0,0);
         paused = false;
-        speed = 1;
+        speed = 3;
         
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
+        gameTickTimer = new Timer(1000,new GameTickListener());
+        gameTickTimer.start();
     }
     
     private void saveGame() {
@@ -166,6 +168,20 @@ class GameEngine extends JPanel{
             if(!paused){
                 
                 repaint();
+            }
+        }
+    }
+    class GameTickListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent ae){
+            if(!paused){
+                int howManyMinutes = minutesPerSecondIfSpeedIsIndex[speed-1];
+                Date prevTime = new Date(time.getYear(),time.getMonth(),time.getDay(),time.getHour(),time.getMinute());
+                time.nMinutesElapsed(howManyMinutes);
+                if(prevTime.getYear() != time.getYear()) city.yearElapsed();
+                int modelPerformTicks = time.howManyDaysPassed(prevTime);
+                System.out.println(modelPerformTicks);
+                city.performTicks(modelPerformTicks);
             }
         }
     }

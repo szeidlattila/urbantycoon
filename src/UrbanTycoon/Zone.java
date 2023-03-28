@@ -17,6 +17,7 @@ abstract class Zone extends Buildable{
     protected int selectPrice;
     protected int annualTax;
     protected double refund;
+    protected int buildProgress = 0;
     protected boolean builtUp;
     protected boolean onFire = false;
     protected double chanceOfFire;
@@ -63,6 +64,16 @@ abstract class Zone extends Buildable{
         }
     }
     
+    @Override
+    public void progressBuilding(int progressInDays){
+        if(buildProgress != 100){
+            buildProgress += progressInDays * 25;
+            if(buildProgress >= 100){
+                buildProgress = 100;
+                builtUp=true;
+            }
+        }
+    }
     public int getPeopleNum() {
         return peopleNum;
     }

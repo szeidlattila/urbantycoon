@@ -14,6 +14,7 @@ abstract class Buildable extends Sprite {
     protected Buildable(int x, int y, int width, int height, Image image){
         super(x, y, width, height, image);
     }
+    public void progressBuilding(int progressInDays){}
     
     protected abstract void destroy();
     

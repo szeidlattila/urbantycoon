@@ -27,25 +27,30 @@ class Date {
         if (year >= 0) {
             this.year = year;
         } else {
-            throw new IllegalArgumentException("Invalid year format!");
+            throw new IllegalArgumentException("Invalid year format!" + year);
         }
         
         if (1 <= month && month <= 12) {
             this.month = month;
         } else {
-           throw new IllegalArgumentException("Invalid month format!");     
+           throw new IllegalArgumentException("Invalid month format!" + month);     
         }
         
         if (1 <= day && day <= maxDaysInMonth(month)) {
             this.day = day;
         } else {
-            throw new IllegalArgumentException("Invalid day format!");
+            throw new IllegalArgumentException("Invalid day format!" + day);
+        }
+        if(0 <= hour && hour <= 23) {
+            this.hour = hour;
+        } else {
+            throw new IllegalArgumentException("Invalid hour format!" + hour);
         }
         
         if (0 <= minute && minute < 60) {
             this.minute = minute;
         } else {
-           throw new IllegalArgumentException("Invalid minute format!");
+           throw new IllegalArgumentException("Invalid minute format!"+ minute);
         }
     }
 
@@ -107,11 +112,12 @@ class Date {
      * @param n how many days add to current time
      */
     public void nDaysElapsed(int n) {
+        if(n<0) throw new IllegalArgumentException(" "+ n);
         int currentDay = day + n;
         if (currentDay > maxDaysInMonth(month)) {
-            nMinutesElapsed(1);
+            nMonthsElapsed(1);
             day = 1;
-            nDaysElapsed(currentDay - maxDaysInMonth(month));
+            nDaysElapsed(currentDay - maxDaysInMonth((month+10)%12+1)-1);
         } else {
             day += n;
         }
@@ -128,7 +134,7 @@ class Date {
         if (currentMonth > 12) {
             year++;
             month = 1;
-            nMonthsElapsed(currentMonth - 12);
+            nMonthsElapsed(currentMonth - 13);
         } else {
             month += n;
         }
@@ -154,9 +160,33 @@ class Date {
             case 10 -> maxDaysInMonth = 31;
             case 11 -> maxDaysInMonth = 30;
             case 12 -> maxDaysInMonth = 31;
-            default -> throw new IllegalArgumentException("Invalid month format!");
+            default -> throw new IllegalArgumentException("Invalid month format!"+ month);
         }
         
         return maxDaysInMonth;
+    }
+    public int howManyDaysPassed(Date other){
+        if(year == other.getYear() && month == other.getMonth())
+            return day-other.getDay();
+        else if(year == other.getYear()){
+            int i=month - other.getMonth();
+            int days = day - other.getDay();
+            while(i>0){
+                days += maxDaysInMonth(month-i);
+                i--;
+            }
+            return days;
+        }
+        else {
+            int years = year - other.getYear();
+            int days = day-other.getDay();
+            if(years>1) days += (years - 1) * 365;
+            int months = month - other.getMonth() + 12;
+            while(months>0){
+                days += maxDaysInMonth((((month-months)+11)%12)+1);
+                months--;
+            }
+            return days;
+        }
     }
 }
