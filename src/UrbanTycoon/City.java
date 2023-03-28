@@ -181,6 +181,34 @@ class City {
         //TODO
     }
     
+    public void buildRoad(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        //TODO
+    }
+    
+    public void buildPoliceStation(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        //TODO
+    }
+    
+    public void buildFireStation(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        //TODO
+    }
+    
+    public void buildStadium(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        //TODO
+    }
+    
     public void tryDenominateOrDestroyZone(){
         if(selectedField == null){
             throw new IllegalArgumentException("Trying to get info when selectedField is null");

@@ -138,6 +138,22 @@ class GameEngine extends JPanel{
         city.nominateAsResidentialZone();
     }
     
+    private void buildRoad(){
+        city.buildRoad();
+    }
+    
+    private void buildPoliceStation(){
+        city.buildPoliceStation();
+    }
+    
+    private void buildFireStation(){
+        
+    }
+    
+    private void buildStadium(){
+        city.buildStadium();
+    }
+    
     private void tryDenominateOrDestroyZone(){
         city.tryDenominateOrDestroyZone();
     }
