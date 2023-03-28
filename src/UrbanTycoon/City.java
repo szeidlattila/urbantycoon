@@ -13,10 +13,12 @@ import java.util.ArrayList;
 class City {
     private ArrayList<Resident> residents;
     private Field[][] fields;
+    private Field selectedField = null;
+    private boolean showFieldInfoPopup = false;
     private int satisfaction = 0;
     private int criticalSatisfaction;
     private long budget;
-    private int negativeBudgetNthYear = 0;;
+    private int negativeBudgetNthYear = 0;
     
     /**
      * initialize the city with the given information
@@ -32,13 +34,13 @@ class City {
         if (residentsNum > 0) {
             this.residents = new ArrayList<>(residentsNum);
             for (int i = 0; i < residentsNum; i++) {
-                this.residents.add(new Resident(0, null, null)); // TODO: paramétereket átírni
+                this.residents.add(new Resident(18, null, null)); // TODO: paramétereket átírni
             }
         } else {
             throw new IllegalArgumentException("Invalid value! Residents number must be greater than 0!");
         }
         
-        if (fieldRowsNum > 0 || fieldColsNum > 0) {
+        if (fieldRowsNum > 0 && fieldColsNum > 0) {
             this.fields = new Field[fieldRowsNum][fieldColsNum];
             for (int i = 0; i < fieldRowsNum; i++) {
                 for (int j = 0; j < fieldColsNum; j++) {
@@ -109,12 +111,7 @@ class City {
      * @param resident 
      */
     public void removeResident(Resident resident){
-        for (Resident otherResident : residents) {
-            if (resident == otherResident) {
-                residents.remove(resident);
-                break;
-            }
-        }
+        residents.remove(resident);
     }
 
     /**
@@ -134,5 +131,60 @@ class City {
             sumSatisfaction += resident.getSatisfaction();
         }
         this.satisfaction = sumSatisfaction / residents.size();
+    }
+    
+    public void increaseTax(){
+        //TODO
+    }
+    
+    public void lowerTax(){
+        //TODO
+    }
+    
+    public void fieldSelect(int x,int y){
+        if(selectedField != null && selectedField == fields[x][y]){
+            selectedField = null;
+            showFieldInfoPopup = false;
+        } else {
+            selectedField = fields[x][y];
+            showFieldInfoPopup = true;
+        }
+    }
+    
+    //Itt minden a selectedField-del dolgozik.
+    
+    public String getFieldInfo(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        return selectedField.getInfo();
+    }
+    
+    public void nominateAsIndustrialZone(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        //TODO
+    }
+    
+    public void nominateAsServiceZone(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        //TODO
+    }
+    
+    public void nominateAsResidentialZone(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        //TODO
+    }
+    
+    public void tryDenominateOrDestroyZone(){
+        if(selectedField == null){
+            throw new IllegalArgumentException("Trying to get info when selectedField is null");
+        }
+        //TODO
     }
 }

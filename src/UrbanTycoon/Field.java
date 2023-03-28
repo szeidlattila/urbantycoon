@@ -33,4 +33,8 @@ class Field {
     public void setBuilding(Buildable building) {
         this.building = building;
     }
+    public String getInfo(){
+        // TODO
+        return null;
+    }
 }

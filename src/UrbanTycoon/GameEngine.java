@@ -54,7 +54,9 @@ class GameEngine extends JPanel{
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                System.out.println("Clicked! Position: x = " + e.getX() + " y = " + e.getY());
+                if(!paused){
+                    System.out.println("Clicked! Position: x = " + e.getX() + " y = " + e.getY());
+                }
             }
         });
         
@@ -100,15 +102,55 @@ class GameEngine extends JPanel{
     }
     
     private void togglePause() {
-        paused = paused ? false : true;
+        paused = !paused;
     }
     
+    private void increaseTax(){
+        city.increaseTax();
+    }
+    
+    private void lowerTax(){
+        city.lowerTax();
+    }
+    
+    private void fieldSelect(int mouseX, int mouseY){
+        int fieldIndexX=0,fieldIndexY=0;
+        // TODO math magic required
+        city.fieldSelect(fieldIndexX,fieldIndexY);
+    }
+    
+    // itt minden a ( city.selectedField : Field )-del dolgozik
+    
+    private void showFieldInfo(){
+        String fieldInfo = city.getFieldInfo();
+        //TODO csinálni vele vmit. pl uj jFrame-ben, vagy másik grafikus popup-ban
+    }
+    
+    private void nominateAsIndustrialZone(){
+        city.nominateAsIndustrialZone();
+    }
+    
+    private void nominateAsServiceZone(){
+        city.nominateAsServiceZone();
+    }
+    
+    private void nominateAsResidentialZone(){
+        city.nominateAsResidentialZone();
+    }
+    
+    private void tryDenominateOrDestroyZone(){
+        city.tryDenominateOrDestroyZone();
+    }
+    
+            
     class NewFrameListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            
-            repaint();
+            if(!paused){
+                
+                repaint();
+            }
         }
     }
 }
