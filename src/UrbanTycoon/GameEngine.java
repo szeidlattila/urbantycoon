@@ -52,6 +52,8 @@ class GameEngine extends JPanel{
         super();
         background = new ImageIcon("data/graphics/tempBackground.jpeg").getImage(); // ide majd valami más háttér kerül
         
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
+        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -60,6 +62,10 @@ class GameEngine extends JPanel{
                 }
             }
         });
+        
+        newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
+        newFrameTimer.start();
+        
         newGame();
     }
     
@@ -71,7 +77,7 @@ class GameEngine extends JPanel{
     }
     
     private void newGame() {
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE);
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
         // date alaphelyzetbe
         time = new Date(1980,1,1,0,0);
         paused = false;
