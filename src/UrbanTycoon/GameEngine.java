@@ -49,7 +49,7 @@ class GameEngine extends JPanel{
     public GameEngine() {
         super();
         background = new ImageIcon("data/graphics/tempBackground.jpeg").getImage(); // ide majd valami más háttér kerül
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE);
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
         
         addMouseListener(new MouseAdapter() {
             @Override
@@ -72,7 +72,7 @@ class GameEngine extends JPanel{
     }
     
     private void newGame() {
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE);
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
         // date alaphelyzetbe
         paused = false;
         speed = 1;
