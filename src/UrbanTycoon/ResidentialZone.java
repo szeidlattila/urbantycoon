@@ -11,7 +11,7 @@ import java.awt.Image;
  * @author Felhasználó
  */
 class ResidentialZone extends Zone {
-    double moveInChance = 0.0;
+    double moveInChance = 0.5;
     
     public ResidentialZone(double moveInChance, int capacity, int annualTax, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(capacity, 0, true, annualTax, refund, chanceOfFire, x, y, width, height, image);
