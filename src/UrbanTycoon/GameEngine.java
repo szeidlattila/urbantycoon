@@ -38,7 +38,7 @@ class GameEngine extends JPanel{
     private City city;
     private Date time;
     private boolean paused = false;
-    private int speed = 1;
+    private int speed;
     private final int[] minutesPerSecondIfSpeedIsIndex = {180,2880,43200}; // 3 ora, 2 nap, 30 nap
     private Image background;
     private Timer newFrameTimer;
@@ -81,7 +81,7 @@ class GameEngine extends JPanel{
         // date alaphelyzetbe
         time = new Date(1980,1,1,0,0);
         paused = false;
-        speed = 3;
+        speed = 1;
         
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
@@ -186,7 +186,6 @@ class GameEngine extends JPanel{
                 time.nMinutesElapsed(howManyMinutes);
                 if(prevTime.getYear() != time.getYear()) city.yearElapsed();
                 int modelPerformTicks = time.howManyDaysPassed(prevTime);
-                System.out.println(modelPerformTicks);
                 city.performTicks(modelPerformTicks);
             }
         }

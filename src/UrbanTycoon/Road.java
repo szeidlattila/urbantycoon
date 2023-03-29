@@ -17,10 +17,11 @@ public class Road extends PlayerBuildIt{
     }
 
     @Override
-    protected void destroy() {
-        if (true /* TODO: Ha egy felépített épület nem lenne elérhető bontás után */) {
-            return;
+    protected int destroy() {
+        if (false /* TODO: Ha egy felépített épület nem lenne elérhető bontás után */) {
+            return 0;
         } else {
+            return buildingPrice;
             /* TODO: destroy */
         }  
     }

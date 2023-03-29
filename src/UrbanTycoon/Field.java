@@ -42,4 +42,13 @@ class Field {
         // TODO
         return null;
     }
+    public int destroyOrDenominate(){
+        if(!free){
+            int d = building.destroy();
+            if(d!=0)
+                setBuilding(null);
+            return d;
+        }
+        return 0;
+    }
 }

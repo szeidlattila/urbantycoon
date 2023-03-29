@@ -11,9 +11,11 @@ import java.awt.Image;
  * @author Felhasználó
  */
 abstract class Zone extends Buildable{
+    
     protected final int capacity;
     protected int peopleNum = 0;
     protected int safety;
+    protected int satisfactionBonus = 0;
     protected int selectPrice;
     protected int annualTax;
     protected double refund;
@@ -21,6 +23,7 @@ abstract class Zone extends Buildable{
     protected boolean builtUp;
     protected boolean onFire = false;
     protected double chanceOfFire;
+    
     protected Zone(int capacity, int selectPrice, boolean builtUp, int annualTax, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(x ,y, width, height, image);
         
@@ -38,17 +41,26 @@ abstract class Zone extends Buildable{
             throw new IllegalArgumentException("Invalid value! Annual tax must be at least 0!");
         }
         
-        if (0.0 < refund && refund < 1.0) {
+        if (0.0 <= refund && refund <= 1.0) {
             this.refund = refund;
         } else {
             throw new IllegalArgumentException("Invalid value! Refund must be greater than 0.0 and lower than 1.0!");
         }
         
-        if (0.0 < refund && refund < 0.5) {
+        if (0.0 <= chanceOfFire && chanceOfFire <= 0.5) {
             this.chanceOfFire = chanceOfFire;
         } else {
             throw new IllegalArgumentException("Invalid value! Chance of fire must be greater than 0.0 and lower than 0.5!");
         }    
+    }
+
+    public int getSatisfactionBonus() {
+        return satisfactionBonus;
+    }
+
+    public void setSatisfactionBonus(int satisfactionBonus) {
+        if(satisfactionBonus > 10 || satisfactionBonus < -10) throw new IllegalArgumentException("Satisfaction Bonus out of range");
+        else this.satisfactionBonus = satisfactionBonus;
     }
 
     @Override
@@ -66,7 +78,7 @@ abstract class Zone extends Buildable{
     
     @Override
     public void progressBuilding(int progressInDays){
-        if(buildProgress != 100){
+        if(!builtUp){
             buildProgress += progressInDays * 25;
             if(buildProgress >= 100){
                 buildProgress = 100;
@@ -150,9 +162,9 @@ abstract class Zone extends Buildable{
         }
     }
     
-    public void destroy() {
-        if(builtUp) return;
-        /* TODO: Lebontani + refund */
+    public int destroy() {
+        if(builtUp) return 0;
+        return selectPrice;
     }
     
     protected int calculateSafety() {

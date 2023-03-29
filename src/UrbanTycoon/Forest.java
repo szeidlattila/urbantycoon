@@ -39,7 +39,7 @@ public class Forest extends PlayerBuildIt{
     }
     
     @Override
-    protected void destroy() {
-        return;
+    protected int destroy() {
+        return buildingPrice;
     }
 }

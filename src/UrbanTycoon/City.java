@@ -12,8 +12,15 @@ import java.util.Random;
  * @author Felhasználó
  */
 class City {
+    
     private ArrayList<Resident> residents;
     private Field[][] fields;
+    
+    private final double REFUND;
+    private final int RADIUS;
+    private final int POLICESTATIONSAFETY = 10;
+    private final int STADIUMSATBONUS = 10;
+    
     private Field selectedField = null;
     private boolean showFieldInfoPopup = false;
     private int satisfaction = 0;
@@ -83,10 +90,12 @@ class City {
         if (refund <= 0.0 || refund >= 1.0) {
             throw new IllegalArgumentException("Invalid value! Refund must be greater than 0.0 and lower than 1.0!");
         }
+        REFUND = refund;
         
         if (radius <= 0) {
             throw new IllegalArgumentException("Invalid value! Radius must be greater than 0!");
         }
+        RADIUS = radius;
         
         // initialize fields:
         // calculate how many Residential zone and Workplace (Service zone and Industrial zone) needed depends on residentNum and zone capacities
@@ -293,7 +302,57 @@ class City {
         if(selectedField == null){
             throw new IllegalArgumentException("Trying to get info when selectedField is null");
         }
-        //TODO
+        if(!selectedField.isFree()){
+            boolean recalculateSafety = false,recalculateSatisfactionBonus = false;
+            if(selectedField.getBuilding() instanceof PoliceStation) recalculateSafety = true;
+            else if(selectedField.getBuilding() instanceof Stadium) recalculateSatisfactionBonus = true;
+            int refund = (int)(selectedField.destroyOrDenominate() * REFUND);
+            if(refund != 0){
+                budget += refund;
+                if(recalculateSafety) lowerSafetyAround(selectedField);
+                else if(recalculateSatisfactionBonus) lowerSatisfactionBonusAround(selectedField);
+            }
+        } else throw new IllegalArgumentException("Trying to destroy a free zone!");
+    }
+    
+    private void lowerSafetyAround(Field dps /*DestroyedPoliceStation*/){
+        int x=-1,y=-1;
+        for(int i=0;i<fields.length;i++){
+            for(int j=0;j<fields[i].length;j++){
+                if(fields[i][j] == dps)
+                    x=i;y=j;
+            }
+        }
+        if(y == -1 && x == -1) throw new IllegalArgumentException("Destroyed police station not found");
+        for(int i=Math.max(0,x-(int)(RADIUS/2));i<=Math.min(fields.length-1,x+(int)(RADIUS/2));i++){
+            for(int j=Math.max(0,y-(int)(RADIUS/2));i<=Math.min(fields[i].length-1,y+(int)(RADIUS/2));i++){
+                if(!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone){
+                    ((Zone)(fields[i][j].getBuilding())).setSafety(Math.min(-10,((Zone)fields[i][j].getBuilding()).getSafety() - POLICESTATIONSAFETY));
+                }
+            }
+        }
+    }
+    private void lowerSatisfactionBonusAround(Field dst/*destroyedStadium*/){
+        int x=-1,y=-1;
+        for(int i=0;i<fields.length;i++){
+            for(int j=0;j<fields.length;j++){
+                if(fields[i][j] == dst)
+                    x=i;y=j;
+            }
+        }
+        if(y == -1 && x == -1) throw new IllegalArgumentException("Destroyed stadium not found");
+        
+        //stadion 2x2 es, mind a 4 mezo (instanceof Stadium), itt elpozicionál a bal felső sarkába
+        if(x-1 >= 0 && fields[x-1][y].getBuilding() instanceof Stadium) x--;
+        if(y-1 >= 0 && fields[x][y-1].getBuilding() instanceof Stadium) y--;
+        
+        for(int i=Math.max(0,x-(int)(RADIUS/2));i<=Math.min(fields.length-1,x+1+(int)(RADIUS/2));i++){
+            for(int j=Math.max(0,y-(int)(RADIUS/2));i<=Math.min(fields[i].length-1,y+1+(int)(RADIUS/2));i++){
+                if(!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone){
+                    ((Zone)(fields[i][j].getBuilding())).setSatisfactionBonus(Math.min(-10,((Zone)fields[i][j].getBuilding()).getSatisfactionBonus() - STADIUMSATBONUS));
+                }
+            }
+        }
     }
     
     public void yearElapsed(){
@@ -311,8 +370,12 @@ class City {
     public void performTicks(int ticks){
         for(Field[] row:fields){
             for(Field field:row){
-                if(!field.isFree()) field.getBuilding().progressBuilding(ticks);
+                if(!field.isFree() && accessibleOnRoad(field)) field.getBuilding().progressBuilding(ticks);
             }
         }
+    }
+    private boolean accessibleOnRoad(Field field){
+        //TODO
+        return true;
     }
 }

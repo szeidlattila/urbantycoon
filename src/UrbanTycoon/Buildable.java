@@ -16,7 +16,7 @@ abstract class Buildable extends Sprite {
     }
     public void progressBuilding(int progressInDays){}
     
-    protected abstract void destroy();
+    protected abstract int destroy();
     
     protected int getDistance(Buildable other) {
         /* TODO: Visszaadja 'this' és 'other' közti távolságot */
