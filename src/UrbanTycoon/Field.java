@@ -15,11 +15,7 @@ class Field {
     
     public Field(Buildable building) {
         this.building = building;
-        if (building == null) {
-            this.free = true;
-        } else {
-            this.free = false;
-        }
+        this.free = building == null;
     }
     
     public boolean isFree() {
@@ -32,11 +28,7 @@ class Field {
     
     public void setBuilding(Buildable building) {
         this.building = building;
-        if (building == null) {
-            this.free = true;
-        } else {
-            this.free = false;
-        }
+        this.free = building == null;
     }
     public String getInfo(){
         // TODO
