@@ -28,6 +28,11 @@ class GameEngine extends JPanel{
     private final int INITIALMONEY = 1000;
     private final int INITIALRESIDENT = 20;
     private final int ZONEPRICE = 250;
+    private final int ROADPRICE = 75;
+    private final int STADIUMPRICE = 1000;
+    private final int POLICESTATIONPRICE = 750;
+    private final int FIRESTATIONPRICE = 750;
+    private final double ANNUALFEEPERCENTAGE = 0.3; // playerBuildIt annualFee = price * ANNUALFEEPERCENTAGE
     private final int RESIDENTCAPACITY = 5;
     private final int WORKPLACECAPACITY = 18;
     private final double REFUND = 0.4;
@@ -52,7 +57,7 @@ class GameEngine extends JPanel{
         super();
         background = new ImageIcon("data/graphics/tempBackground.jpeg").getImage(); // ide majd valami más háttér kerül
         
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
         
         addMouseListener(new MouseAdapter() {
             @Override
@@ -77,7 +82,7 @@ class GameEngine extends JPanel{
     }
     
     private void newGame() {
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
         // date alaphelyzetbe
         time = new Date(1980,1,1,0,0);
         paused = false;
