@@ -11,7 +11,7 @@ import java.awt.Image;
  * @author Felhasználó
  */
 public class ServiceZone extends Workplace{
-    public ServiceZone(int capacity, int annualTax, double refund, double chanceOfFire,int x,int y,int width, int height,Image image){
-        super(capacity,annualTax,refund,chanceOfFire,x,y,width,height,image);
+    public ServiceZone(int capacity, int selectPrice, int annualTax, double refund, double chanceOfFire,int x,int y,int width, int height,Image image){
+        super(capacity, selectPrice, annualTax, refund, chanceOfFire, x, y, width, height, image);
     }
 }

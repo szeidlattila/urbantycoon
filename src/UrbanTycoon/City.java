@@ -26,6 +26,7 @@ class City {
     private int satisfaction = 0;
     private int criticalSatisfaction;
     private long budget;
+    private int zonePrice;
     private int roadPrice;
     private int stadiumPrice;
     private int policeStationPrice;
@@ -33,6 +34,9 @@ class City {
     private double annualFeePercentage; // playerBuildIt -> annualFee = price * annualFeePercentage
     private int negativeBudgetNthYear = 0;
     private int tax = 0;
+    private int residentCapacity;
+    private int workplaceCapacity;
+    private double moveInChance;
     
     /**
      * initialize the city with the given information
@@ -79,7 +83,9 @@ class City {
         
         this.budget = budget;
         
-        if (zonePrice <= 0) {
+        if (zonePrice > 0) {
+            this.zonePrice = zonePrice;
+        } else {
             throw new IllegalArgumentException("Invalid value! Zone price must be greater than 0!");
         }
         
@@ -113,23 +119,29 @@ class City {
             throw new IllegalArgumentException("Invalid value! Annual fee percentage must be greater than 0.0!");
         }
         
-        if (residentCapacity <= 0) {
+        if (residentCapacity > 0) {
+            this.residentCapacity = residentCapacity;
+        } else {
             throw new IllegalArgumentException("Invalid value! Residential zone capacity must be greater than 0!");
-        } 
+        }
         
-        if (workplaceCapacity <= 0) {
+        if (workplaceCapacity > 0) {
+            this.workplaceCapacity = workplaceCapacity;
+        } else {
             throw new IllegalArgumentException("Invalid value! Workplace zone capacity must be greater than 0!");
         }
         
-        if (refund <= 0.0 || refund >= 1.0) {
+        if (0.0 < refund && refund < 1.0) {
+            REFUND = refund;
+        } else {
             throw new IllegalArgumentException("Invalid value! Refund must be greater than 0.0 and lower than 1.0!");
         }
-        REFUND = refund;
         
-        if (radius <= 0) {
+        if (radius > 0) {
+            RADIUS = radius;
+        } else {
             throw new IllegalArgumentException("Invalid value! Radius must be greater than 0!");
         }
-        RADIUS = radius;
         
         initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
         initResidents(residentsNum);
@@ -227,6 +239,10 @@ class City {
      */
     public int getAnnualFee(int price) {
         return (int)Math.ceil(price * annualFeePercentage);
+    }
+    
+    public int getRefund(int price) {
+        return (int)Math.ceil(price * REFUND);
     }
     
     public void fieldSelect(int x,int y){
@@ -417,7 +433,7 @@ class City {
                 freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
                 freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
             }
-            fields[freeRow][freeCol].setBuilding(new ResidentialZone(0.5, residentCapacity, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
+            fields[freeRow][freeCol].setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
         }
         
         while (serviceZoneNum-- > 0) {
@@ -425,7 +441,7 @@ class City {
                 freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
                 freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
             }
-            fields[freeRow][freeCol].setBuilding(new ServiceZone(workplaceCapacity, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
+            fields[freeRow][freeCol].setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
         }
         
         while (industrialZoneNum-- > 0) {
@@ -433,7 +449,7 @@ class City {
                 freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
                 freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
             }
-            fields[freeRow][freeCol].setBuilding(new IndustrialZone(workplaceCapacity, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
+            fields[freeRow][freeCol].setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
         }
     }
     
@@ -477,36 +493,52 @@ class City {
     
     /**
      * Build a Buildable
-     * if the selected field is not free or there is no enough money the method return with an error message (String)
-     * if the selected field is free and there is enough money the budged will be decrease with the price and build the chosen building
-     * if everything is ok (there is no error message) return with 'null'
+     * budget decrease by the price and build the chosen building
      * @param selectedField
      * @param playerBuildItClass
      * @return error message (field is not free / do not have enough money) otherwise null
      */
-    public String build(Field selectedField, Class playerBuildItClass) {
-        if (!selectedField.isFree())                    return "The selected field is not free!";
-        if (!playerBuildItClass.isAssignableFrom(PlayerBuildIt.class))  throw new IllegalArgumentException("Building must be playerBuiltIt subclass!"); // BAJ !!!!
+    public void build(Field selectedField, Class playerBuildItClass) {
+        if (!playerBuildItClass.isAssignableFrom(PlayerBuildIt.class))  throw new IllegalArgumentException("Building must be playerBuiltIt subclass!");
         int price = -1;
-        if (playerBuildItClass == Road.class)           price = roadPrice;
-        if (playerBuildItClass == Stadium.class)        price = stadiumPrice;
-        if (playerBuildItClass == PoliceStation.class)  price = policeStationPrice;
-        if (playerBuildItClass == FireStation.class)    price = fireStationPrice;
-        if (price < -1)                                 throw new IllegalArgumentException("Invalid value! Price must be greater than 0!");
-        if (budget < price)                             return "You do not have enough money!";
+        if (playerBuildItClass == Road.class)                   price = roadPrice;
+        else if (playerBuildItClass == Stadium.class)           price = stadiumPrice;
+        else if (playerBuildItClass == PoliceStation.class)     price = policeStationPrice;
+        else if (playerBuildItClass == FireStation.class)       price = fireStationPrice;
+        if (price < -1)                                         throw new IllegalArgumentException("Invalid value! Price must be greater than 0!");
         
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
-            selectedField.build(new Road(price, getAnnualFee(price), 0, 0, 0, 0, null));
+            selectedField.build(new Road(price, getAnnualFee(price), 0, 0, 0, 0, null));                          // TODO: x, y, width, height, image
         } else if (playerBuildItClass == Stadium.class) {
-            selectedField.build(new Stadium(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));
+            selectedField.build(new Stadium(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));         // TODO: x, y, width, height, image
         } else if  (playerBuildItClass == PoliceStation.class) {
-            selectedField.build(new PoliceStation(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));
+            selectedField.build(new PoliceStation(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));   // TODO: x, y, width, height, image
         } else if  (playerBuildItClass == FireStation.class) {
-            selectedField.build(new FireStation(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));
+            selectedField.build(new FireStation(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));     // TODO: x, y, width, height, image
         }
         
         budget -= price;
-        return null;
+    }
+    
+    /**
+     * player select free field (residential-, industrial-, service zone) and residents can build on this automatically
+     * budget decrease by the price of zone select
+     * @param selectedField
+     * @param zoneClass 
+     */
+    public void selectField(Field selectedField, Class zoneClass) {
+        if (!selectedField.isFree())    return;
+        if (!zoneClass.isAssignableFrom(Zone.class))  throw new IllegalArgumentException("Selected zone class must be Zone subclass!");
+        
+        if (zoneClass == ResidentialZone.class) {
+            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0.0, 0, 0, 0, 0, null));    // TODO: x, y, width, height, image
+        } else if (zoneClass == IndustrialZone.class) {
+            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, 0, 0, 0, 0, null));                   // TODO: x, y, width, height, image
+        } else if (zoneClass == ServiceZone.class) {
+            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, 0, 0, 0, 0, null));                      // TODO: x, y, width, height, image
+        }
+        
+        budget -= zonePrice;
     }
 }

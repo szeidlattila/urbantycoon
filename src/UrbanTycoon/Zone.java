@@ -121,9 +121,13 @@ abstract class Zone extends Buildable{
             throw new IllegalArgumentException("Invalid value! Select price must be more than 0!");
         }
     }
-
-    public double getRefund() {
-        return refund;
+    
+    /**
+     * 
+     * @return money for refund
+     */
+    public int getRefundValue() {
+        return (int)Math.ceil(selectPrice * refund);
     }
 
     public void setRefund(double refund) {
