@@ -162,6 +162,14 @@ abstract class Zone extends Buildable{
         }
     }
     
+    /**
+     * 
+     * @return true if the zone is full otherwise false
+     */
+    public boolean isFull() {
+        return capacity == peopleNum; 
+    }
+    
     public int destroy() {
         if(builtUp) return 0;
         return selectPrice;
