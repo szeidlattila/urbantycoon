@@ -31,9 +31,7 @@ class City {
     
     /**
      * initialize the city with the given information
-     * create new residents and fields
-     * calculate how many Residential zone and Workplace (Service zone and Industrial zone) needed depends on residentNum and zone capacities
-     * fill fields with the right zones
+     * initialize fields and residents
      * @param residentsNum
      * @param fieldSize
      * @param fieldRowsNum
@@ -49,9 +47,6 @@ class City {
     public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction, int budget, int zonePrice, int residentCapacity, int workplaceCapacity, double refund, int radius) {
         if (residentsNum > 0) {
             this.residents = new ArrayList<>(residentsNum);
-            for (int i = 0; i < residentsNum; i++) {
-                this.residents.add(new Resident(18, null, null)); // TODO: paramétereket átírni
-            }
         } else {
             throw new IllegalArgumentException("Invalid value! Residents number must be greater than 0!");
         }
@@ -97,52 +92,8 @@ class City {
         }
         RADIUS = radius;
         
-        // initialize fields:
-        // calculate how many Residential zone and Workplace (Service zone and Industrial zone) needed depends on residentNum and zone capacities
-        int residentialZoneNum = (int)Math.ceil(residentsNum / residentCapacity);
-        int workplaceNum = (int)Math.ceil(residentsNum / workplaceCapacity);
-        int serviceZoneNum = (int)Math.ceil(workplaceNum / 2.0);
-        int industrialZoneNum = (int)Math.floor(workplaceNum / 2.0); 
-        
-        if (residentialZoneNum + workplaceNum > fieldRowsNum * fieldColsNum) {
-            throw new IllegalArgumentException("There are more zones than fields!");
-        }
-        
-        // fill fields with empty fields
-        for (int row = 0; row < fieldRowsNum; row++) {
-            for (int col = 0; col < fieldColsNum; col++) {
-                fields[row][col] = new Field(null);
-            }
-        }
-        
-        // change empty fields with residential zone and workplace (service zone and industrial zone)
-        Random r = new Random();    // r.nextInt((max - min) + 1) + min; => random number [min, max]
-        int freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
-        int freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
-        
-        while (residentialZoneNum-- > 0) {
-            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
-                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
-                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
-            }
-            fields[freeRow][freeCol].setBuilding(new ResidentialZone(0.5, residentCapacity, tax, refund, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
-        }
-        
-        while (serviceZoneNum-- > 0) {
-            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
-                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
-                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
-            }
-            fields[freeRow][freeCol].setBuilding(new ServiceZone(workplaceCapacity, tax, refund, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
-        }
-        
-        while (industrialZoneNum-- > 0) {
-            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
-                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
-                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
-            }
-            fields[freeRow][freeCol].setBuilding(new IndustrialZone(workplaceCapacity, tax, refund, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
-        }
+        initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
+        initResidents(residentsNum);
     }
     
     public ArrayList<Resident> getResidents(){
@@ -374,8 +325,105 @@ class City {
             }
         }
     }
+    
     private boolean accessibleOnRoad(Field field){
         //TODO
         return true;
+    }
+    
+    /**
+     * initialize fields
+     * calculate how many Residential zone and Workplace (Service zone and Industrial zone) needed depends on residentNum and zone capacities
+     * fill fields with the right zones
+     * @param residentsNum
+     * @param homeCapacity
+     * @param workplaceCapacity
+     * @param fieldRowsNum
+     * @param fieldColsNum 
+     */
+    private void initFields(int residentsNum, int residentCapacity, int workplaceCapacity, int fieldRowsNum, int fieldColsNum) {
+        // calculate how many Residential zone and Workplace (Service zone and Industrial zone) needed depends on residentNum and zone capacities
+        int residentialZoneNum = (int)Math.ceil(residentsNum / residentCapacity);
+        int workplaceNum = (int)Math.ceil(residentsNum / workplaceCapacity);
+        int serviceZoneNum = (int)Math.ceil(workplaceNum / 2.0);
+        int industrialZoneNum = (int)Math.floor(workplaceNum / 2.0); 
+        
+        if (residentialZoneNum + workplaceNum > fieldRowsNum * fieldColsNum) {
+            throw new IllegalArgumentException("There are more zones than fields!");
+        }
+        
+        // fill fields with empty fields
+        for (int row = 0; row < fieldRowsNum; row++) {
+            for (int col = 0; col < fieldColsNum; col++) {
+                fields[row][col] = new Field(null);
+            }
+        }
+        
+        // change empty fields with residential zone and workplace (service zone and industrial zone)
+        Random r = new Random();    // r.nextInt((max - min) + 1) + min; => random number [min, max]
+        int freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
+        int freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
+        
+        while (residentialZoneNum-- > 0) {
+            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
+                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
+                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
+            }
+            fields[freeRow][freeCol].setBuilding(new ResidentialZone(0.5, residentCapacity, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
+        }
+        
+        while (serviceZoneNum-- > 0) {
+            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
+                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
+                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
+            }
+            fields[freeRow][freeCol].setBuilding(new ServiceZone(workplaceCapacity, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
+        }
+        
+        while (industrialZoneNum-- > 0) {
+            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
+                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
+                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
+            }
+            fields[freeRow][freeCol].setBuilding(new IndustrialZone(workplaceCapacity, tax, REFUND, 0, 10, 10, 10, 10, null)); // TODO: Minden spriteos cucc beállítása
+        }
+    }
+    
+    /**
+     * initialize residents
+     * initialize resident with a random age between 18 and 60, home which is not full, workplace which is not full
+     * @param residentsNum 
+     */
+    private void initResidents(int residentsNum) {
+        Random r = new Random();
+        for (int i = 0; i < residentsNum; i++) {
+            ResidentialZone home = null;
+            Workplace workplace = null;
+            for (Field[] row : fields) {
+                for (Field field : row) {
+                    if (!field.isFree()) {
+                        if (field.getBuilding() instanceof ResidentialZone freeResidentialZone && !freeResidentialZone.isFull()) {
+                            home = freeResidentialZone;
+                        } else if (field.getBuilding() instanceof Workplace freeWorkplace && !freeWorkplace.isFull()) {
+                            workplace = freeWorkplace;
+                        }
+                        
+                        if (home != null && workplace != null) {
+                            break;
+                        }
+                    }
+                    
+                    if (home != null && workplace != null) {
+                        break;
+                    }
+                }
+            }
+            
+            if (home != null && workplace != null) {
+                this.residents.add(new Resident((int)r.nextInt((60 - 18) + 1) + 18, home, workplace));
+            } else {
+                throw new IllegalArgumentException("Home and workplace cannot be null!");
+            }       
+        }
     }
 }
