@@ -26,6 +26,11 @@ class City {
     private int satisfaction = 0;
     private int criticalSatisfaction;
     private long budget;
+    private int roadPrice;
+    private int stadiumPrice;
+    private int policeStationPrice;
+    private int fireStationPrice;
+    private double annualFeePercentage; // playerBuildIt -> annualFee = price * annualFeePercentage
     private int negativeBudgetNthYear = 0;
     private int tax = 0;
     
@@ -39,12 +44,16 @@ class City {
      * @param criticalSatisfaction
      * @param budget
      * @param zonePrice
+     * @param roadPrice
+     * @param stadiumPrice
+     * @param policeStationPrice
+     * @param fireStationPrice
      * @param residentCapacity
      * @param workplaceCapacity
      * @param refund
      * @param radius
      */
-    public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction, int budget, int zonePrice, int residentCapacity, int workplaceCapacity, double refund, int radius) {
+    public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction, int budget, int zonePrice, int roadPrice, int stadiumPrice, int policeStationPrice, int fireStationPrice, double annualFeePercentage, int residentCapacity, int workplaceCapacity, double refund, int radius) {
         if (residentsNum > 0) {
             this.residents = new ArrayList<>(residentsNum);
         } else {
@@ -74,9 +83,39 @@ class City {
             throw new IllegalArgumentException("Invalid value! Zone price must be greater than 0!");
         }
         
+        if (roadPrice > 0) {
+            this.roadPrice = roadPrice;
+        } else {
+            throw new IllegalArgumentException("Invalid value! Road price must be greater than 0!");
+        }
+        
+        if (stadiumPrice > 0) {
+            this.stadiumPrice = stadiumPrice;
+        } else {
+            throw new IllegalArgumentException("Invalid value! Stadium price must be greater than 0!");
+        }
+        
+        if (policeStationPrice > 0) {
+            this.policeStationPrice = policeStationPrice;
+        } else {
+            throw new IllegalArgumentException("Invalid value! Police station price must be greater than 0!");
+        }
+        
+        if (fireStationPrice > 0) {
+            this.fireStationPrice = fireStationPrice;
+        } else {
+            throw new IllegalArgumentException("Invalid value! Fire station price must be greater than 0!");
+        }
+        
+        if (0.0 < annualFeePercentage) {
+            this.annualFeePercentage = annualFeePercentage;
+        } else {
+            throw new IllegalArgumentException("Invalid value! Annual fee percentage must be greater than 0.0!");
+        }
+        
         if (residentCapacity <= 0) {
             throw new IllegalArgumentException("Invalid value! Residential zone capacity must be greater than 0!");
-        }
+        } 
         
         if (workplaceCapacity <= 0) {
             throw new IllegalArgumentException("Invalid value! Workplace zone capacity must be greater than 0!");
@@ -179,6 +218,15 @@ class City {
     
     public void lowerTax(){
         //TODO
+    }
+    
+    /**
+     * 
+     * @param price
+     * @return price * annualFeePercentage 
+     */
+    public int getAnnualFee(int price) {
+        return (int)Math.ceil(price * annualFeePercentage);
     }
     
     public void fieldSelect(int x,int y){
@@ -425,5 +473,40 @@ class City {
                 throw new IllegalArgumentException("Home and workplace cannot be null!");
             }       
         }
+    }
+    
+    /**
+     * Build a Buildable
+     * if the selected field is not free or there is no enough money the method return with an error message (String)
+     * if the selected field is free and there is enough money the budged will be decrease with the price and build the chosen building
+     * if everything is ok (there is no error message) return with 'null'
+     * @param selectedField
+     * @param playerBuildItClass
+     * @return error message (field is not free / do not have enough money) otherwise null
+     */
+    public String build(Field selectedField, Class playerBuildItClass) {
+        if (!selectedField.isFree())                    return "The selected field is not free!";
+        if (!playerBuildItClass.isAssignableFrom(PlayerBuildIt.class))  throw new IllegalArgumentException("Building must be playerBuiltIt subclass!"); // BAJ !!!!
+        int price = -1;
+        if (playerBuildItClass == Road.class)           price = roadPrice;
+        if (playerBuildItClass == Stadium.class)        price = stadiumPrice;
+        if (playerBuildItClass == PoliceStation.class)  price = policeStationPrice;
+        if (playerBuildItClass == FireStation.class)    price = fireStationPrice;
+        if (price < -1)                                 throw new IllegalArgumentException("Invalid value! Price must be greater than 0!");
+        if (budget < price)                             return "You do not have enough money!";
+        
+        // The field is free, have enough money -> build it:
+        if (playerBuildItClass == Road.class) {
+            selectedField.build(new Road(price, getAnnualFee(price), 0, 0, 0, 0, null));
+        } else if (playerBuildItClass == Stadium.class) {
+            selectedField.build(new Stadium(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));
+        } else if  (playerBuildItClass == PoliceStation.class) {
+            selectedField.build(new PoliceStation(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));
+        } else if  (playerBuildItClass == FireStation.class) {
+            selectedField.build(new FireStation(price, getAnnualFee(price), RADIUS, 0, 0, 0, 0, null));
+        }
+        
+        budget -= price;
+        return null;
     }
 }
