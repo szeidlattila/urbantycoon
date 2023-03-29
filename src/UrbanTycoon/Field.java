@@ -34,6 +34,7 @@ class Field {
         // TODO
         return null;
     }
+    
     public int destroyOrDenominate(){
         if(!free){
             int d = building.destroy();
@@ -42,5 +43,18 @@ class Field {
             return d;
         }
         return 0;
+    }
+    
+    /**
+     * set a buildable building on a free field
+     * if the field is not free does not do anything
+     * @param newBuilding
+     * @param buildingPrice
+     * @param annualFee
+     * @param radius 
+     */
+    public void build(Buildable newBuilding) {
+        if (!this.free)  return;
+        setBuilding(newBuilding);
     }
 }
