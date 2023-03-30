@@ -558,4 +558,20 @@ class City {
         
         return null;
     }
+    
+    /**
+     * get residents who are living or working at the given zone
+     * @param zone
+     * @return residents who are living or working at the given zone
+     */
+    public ArrayList<Resident> getZonePeople(Zone zone) {
+        ArrayList<Resident> peopleInZone = new ArrayList<>();
+        for (Resident resident : residents) {
+            if (resident.getHome().equals(zone) || resident.getWorkplace().equals(zone)) {
+                peopleInZone.add(resident);
+            }
+        }
+    
+        return peopleInZone;
+    }
 }

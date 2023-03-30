@@ -17,14 +17,14 @@ abstract class Zone extends Buildable {
     protected int safety;
     protected int satisfactionBonus = 0;
     protected int selectPrice;
-    protected int annualTax;
+    protected int annualTaxPerPerson;
     protected double refund;
     protected int buildProgress = 0;
     protected boolean builtUp;
     protected boolean onFire = false;
     protected double chanceOfFire;
     
-    protected Zone(int capacity, int selectPrice, boolean builtUp, int annualTax, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
+    protected Zone(int capacity, int selectPrice, boolean builtUp, int annualTaxPerPerson, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(x ,y, width, height, image);
         
         if (capacity > 0) {
@@ -35,8 +35,8 @@ abstract class Zone extends Buildable {
         
         this.safety = calculateSafety();
         
-        if (annualTax >= 0) {
-            this.annualTax = annualTax;
+        if (annualTaxPerPerson >= 0) {
+            this.annualTaxPerPerson = annualTaxPerPerson;
         } else {
             throw new IllegalArgumentException("Invalid value! Annual tax must be at least 0!");
         }
@@ -63,14 +63,18 @@ abstract class Zone extends Buildable {
         else this.satisfactionBonus = satisfactionBonus;
     }
 
+    /**
+     * 
+     * @return the annual tax (depends on how many people are in the field)
+     */
     @Override
     public int getAnnualTax() {
-        return annualTax;
+        return annualTaxPerPerson * peopleNum;
     }
     
-    public void setAnnualTax(int annualTax) {
-        if (annualTax >= 0) {
-            this.annualTax = annualTax;
+    public void setAnnualTax(int annualTaxPerPerson) {
+        if (annualTaxPerPerson >= 0) {
+            this.annualTaxPerPerson = annualTaxPerPerson;
         } else {
             throw new IllegalArgumentException("Invalid value! Annual tax must be at least 0!");
         }
@@ -201,7 +205,7 @@ abstract class Zone extends Buildable {
         hash = 79 * hash + this.safety;
         hash = 79 * hash + this.satisfactionBonus;
         hash = 79 * hash + this.selectPrice;
-        hash = 79 * hash + this.annualTax;
+        hash = 79 * hash + this.annualTaxPerPerson;
         hash = 79 * hash + (int) (Double.doubleToLongBits(this.refund) ^ (Double.doubleToLongBits(this.refund) >>> 32));
         hash = 79 * hash + this.buildProgress;
         hash = 79 * hash + (this.builtUp ? 1 : 0);
@@ -237,7 +241,7 @@ abstract class Zone extends Buildable {
         if (this.selectPrice != other.selectPrice) {
             return false;
         }
-        if (this.annualTax != other.annualTax) {
+        if (this.annualTaxPerPerson != other.annualTaxPerPerson) {
             return false;
         }
         if (Double.doubleToLongBits(this.refund) != Double.doubleToLongBits(other.refund)) {
