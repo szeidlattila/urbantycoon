@@ -4,6 +4,8 @@
  */
 package UrbanTycoon;
 
+import java.util.Objects;
+
 /**
  *
  * @author Felhasználó
@@ -93,4 +95,48 @@ class Resident {
     public void die() {
         /* RÉSZFELADAT: Nyugdíj */
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + this.age;
+        hash = 79 * hash + (this.retired ? 1 : 0);
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.chanceOfDeath) ^ (Double.doubleToLongBits(this.chanceOfDeath) >>> 32));
+        hash = 79 * hash + this.satisfaction;
+        hash = 79 * hash + Objects.hashCode(this.home);
+        hash = 79 * hash + Objects.hashCode(this.workplace);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Resident other = (Resident) obj;
+        if (this.age != other.age) {
+            return false;
+        }
+        if (this.retired != other.retired) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.chanceOfDeath) != Double.doubleToLongBits(other.chanceOfDeath)) {
+            return false;
+        }
+        if (this.satisfaction != other.satisfaction) {
+            return false;
+        }
+        if (!Objects.equals(this.home, other.home)) {
+            return false;
+        }
+        return Objects.equals(this.workplace, other.workplace);
+    }
+    
+    
 }

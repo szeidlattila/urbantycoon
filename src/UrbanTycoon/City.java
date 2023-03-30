@@ -541,4 +541,21 @@ class City {
         
         budget -= zonePrice;
     }
+    
+    /**
+     * find a resident who lives or works at the given zone and return it
+     * the satisfaction of all residents is the same in the same zones so finding 1 resident who lives or works there is enough
+     * if the zone is empty (home or workplace without any resident) return null
+     * @param zone
+     * @return if there is at least 1 resident return zone satisfaction otherwise null
+     */
+    public Integer getZoneSatisfaction(Zone zone) {
+        for (Resident resident : residents) {
+            if (resident.getHome().equals(zone) || resident.getWorkplace().equals(zone)) {
+                return resident.getSatisfaction();
+            }
+        }
+        
+        return null;
+    }
 }

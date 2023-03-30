@@ -10,7 +10,7 @@ import java.awt.Image;
  *
  * @author Felhasználó
  */
-abstract class Zone extends Buildable{
+abstract class Zone extends Buildable {
     
     protected final int capacity;
     protected int peopleNum = 0;
@@ -174,6 +174,7 @@ abstract class Zone extends Buildable{
         return capacity == peopleNum; 
     }
     
+    @Override
     public int destroy() {
         if(builtUp) return 0;
         return selectPrice;
@@ -191,4 +192,68 @@ abstract class Zone extends Buildable{
     public void burnsDown() {
         /* RÉSZFELADAT: Tűzoltóság */
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + this.capacity;
+        hash = 79 * hash + this.peopleNum;
+        hash = 79 * hash + this.safety;
+        hash = 79 * hash + this.satisfactionBonus;
+        hash = 79 * hash + this.selectPrice;
+        hash = 79 * hash + this.annualTax;
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.refund) ^ (Double.doubleToLongBits(this.refund) >>> 32));
+        hash = 79 * hash + this.buildProgress;
+        hash = 79 * hash + (this.builtUp ? 1 : 0);
+        hash = 79 * hash + (this.onFire ? 1 : 0);
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.chanceOfFire) ^ (Double.doubleToLongBits(this.chanceOfFire) >>> 32));
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Zone other = (Zone) obj;
+        if (this.capacity != other.capacity) {
+            return false;
+        }
+        if (this.peopleNum != other.peopleNum) {
+            return false;
+        }
+        if (this.safety != other.safety) {
+            return false;
+        }
+        if (this.satisfactionBonus != other.satisfactionBonus) {
+            return false;
+        }
+        if (this.selectPrice != other.selectPrice) {
+            return false;
+        }
+        if (this.annualTax != other.annualTax) {
+            return false;
+        }
+        if (Double.doubleToLongBits(this.refund) != Double.doubleToLongBits(other.refund)) {
+            return false;
+        }
+        if (this.buildProgress != other.buildProgress) {
+            return false;
+        }
+        if (this.builtUp != other.builtUp) {
+            return false;
+        }
+        if (this.onFire != other.onFire) {
+            return false;
+        }
+        return Double.doubleToLongBits(this.chanceOfFire) == Double.doubleToLongBits(other.chanceOfFire);
+    }
+    
+    
 }
