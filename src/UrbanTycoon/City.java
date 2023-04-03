@@ -68,7 +68,7 @@ class City {
             this.fields = new Field[fieldRowsNum][fieldColsNum];
             for (int i = 0; i < fieldRowsNum; i++) {
                 for (int j = 0; j < fieldColsNum; j++) {
-                    this.fields[i][j] = new Field(null); // TODO: null helyett más
+                    this.fields[i][j] = new Field(null);
                 }
             }
         } else {

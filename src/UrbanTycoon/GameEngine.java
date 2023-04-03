@@ -78,7 +78,12 @@ class GameEngine extends JPanel{
     protected void paintComponent(Graphics grphcs){
         super.paintComponent(grphcs);
         grphcs.drawImage(background, 0, 0, (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(), (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight(), null); // háttérkép kirajzolása
-        /* TODO: mezők kirajzolása */
+        for (int i = 0; i < FIELDROWSNUM; i++) {
+            for (int j = 0; j < FIELDCOLSNUM; j++) {
+                city.getFields()[i][j].getBuilding().draw(grphcs);
+            }
+        }
+
     }
     
     private void newGame() {
