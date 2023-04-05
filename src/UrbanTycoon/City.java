@@ -5,6 +5,8 @@
 package UrbanTycoon;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 /**
@@ -407,8 +409,8 @@ class City {
      */
     private void initFields(int residentsNum, int residentCapacity, int workplaceCapacity, int fieldRowsNum, int fieldColsNum) {
         // calculate how many Residential zone and Workplace (Service zone and Industrial zone) needed depends on residentNum and zone capacities
-        int residentialZoneNum = (int)Math.ceil(residentsNum / residentCapacity);
-        int workplaceNum = (int)Math.ceil(residentsNum / workplaceCapacity);
+        int residentialZoneNum = (int)Math.ceil((double)residentsNum / residentCapacity);
+        int workplaceNum = (int)Math.ceil((double)residentsNum / workplaceCapacity);
         int serviceZoneNum = (int)Math.ceil(workplaceNum / 2.0);
         int industrialZoneNum = (int)Math.floor(workplaceNum / 2.0); 
         
@@ -499,13 +501,15 @@ class City {
      * @return error message (field is not free / do not have enough money) otherwise null
      */
     public void build(Field selectedField, Class playerBuildItClass) {
+        boolean isAccessible = getDistanceAlongRoad(selectedField,randomNonEmptyField()) != -1;
+        //TODO építéskor és kijelöléskor meg kéne kapniuk az isAccessible-t, és csak ilyenkor tudjanak építkezni
         if (!playerBuildItClass.isAssignableFrom(PlayerBuildIt.class))  throw new IllegalArgumentException("Building must be playerBuiltIt subclass!");
         int price = -1;
         if (playerBuildItClass == Road.class)                   price = roadPrice;
         else if (playerBuildItClass == Stadium.class)           price = stadiumPrice;
         else if (playerBuildItClass == PoliceStation.class)     price = policeStationPrice;
         else if (playerBuildItClass == FireStation.class)       price = fireStationPrice;
-        if (price < -1)                                         throw new IllegalArgumentException("Invalid value! Price must be greater than 0!");
+        if (price < 0)                                         throw new IllegalArgumentException("Invalid value! Price must be greater than 0!");
         
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
@@ -542,6 +546,69 @@ class City {
         budget -= zonePrice;
     }
     
+    /**
+     * BFS
+     * @param one
+     * @param other
+     * @return 
+     */
+    private class Coordinate{
+        public int x,y;
+
+        public Coordinate(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+    private int getDistanceAlongRoad(Field one,Field other) {
+        int x1=-1,x2=-1,y1=-1,y2=-1;
+        int[][] distances = new int[fields.length][fields[0].length];
+        for(int i=0;i<fields.length;i++)
+            for(int j=0;j<fields[0].length;j++){
+                distances[i][j] = -1;
+                if(fields[i][j] == one){
+                    x1 = i;
+                    y1 = j;
+                    distances[i][j] = 0;
+                } else if(fields[i][j] == other){
+                    x2 = i;
+                    y2 = j;
+                }
+            }
+        Queue Q = new LinkedList<Coordinate>();
+        Q.add(new Coordinate(x1,y1));
+        while(!Q.isEmpty()){
+            Coordinate o = (Coordinate)Q.remove();
+            if(o.x+1 < distances.length && distances[o.x+1][o.y] == -1 && !fields[o.x+1][o.y].isFree() && fields[o.x+1][o.y].getBuilding() instanceof Road){
+                distances[o.x+1][o.y] = distances[o.x][o.y] + 1;
+                if(o.x+1 == x2 && o.y == y2) break;
+                Q.add(new Coordinate(o.x+1,o.y));
+            }
+            if(o.x-1 >= 0 && distances[o.x-1][o.y] == -1 && !fields[o.x-1][o.y].isFree() && fields[o.x-1][o.y].getBuilding() instanceof Road){
+                distances[o.x-1][o.y] = distances[o.x][o.y] + 1;
+                if(o.x-1 == x2 && o.y == y2) break;
+                Q.add(new Coordinate(o.x-1,o.y));
+            }
+            if(o.y+1 < distances[0].length && distances[o.x][o.y+1] == -1 && !fields[o.x][o.y+1].isFree() && fields[o.x][o.y+1].getBuilding() instanceof Road){
+                distances[o.x][o.y+1] = distances[o.x][o.y] + 1;
+                if(o.x == x2 && o.y+1 == y2) break;
+                Q.add(new Coordinate(o.x,o.y+1));
+            }
+            if(o.y-1 >= 0 && distances[o.x][o.y-1] == -1 && !fields[o.x][o.y-1].isFree() && fields[o.x][o.y-1].getBuilding() instanceof Road){
+                distances[o.x][o.y-1] = distances[o.x][o.y] + 1;
+                if(o.x == x2 && o.y-1 == y2) break;
+                Q.add(new Coordinate(o.x,o.y-1));
+            }
+        }
+        return distances[x2][y2];
+    }
+    
+    private Field randomNonEmptyField(){
+        for(Field[] row : fields)
+            for(Field f:row)
+                if(!f.isFree()/* && f.getBuilding(),isBuiltUp()*/) return f;
+        throw new IllegalArgumentException("There are no non-empty fields");
+    }
     /**
      * find a resident who lives or works at the given zone and return it
      * the satisfaction of all residents is the same in the same zones so finding 1 resident who lives or works there is enough

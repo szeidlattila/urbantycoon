@@ -18,16 +18,6 @@ abstract class Buildable extends Sprite {
     
     protected abstract int destroy();
     
-    protected int getDistance(Buildable other) {
-        /* TODO: Visszaadja 'this' és 'other' közti távolságot */
-        return 100; // át lesz majd írva, most csak azért 100, hogy ne dobjon hibát
-    }
-    
-    protected int getDistanceAlongRoad(Buildable other) {
-        /* TODO: Visszaadja 'this' és 'other' közti távolságot a LEGRÖVIDEBB utak mentén. Ha nincs összekötve úttal -1-et ad vissza */
-        return -1;
-    }
-    
     protected int getAnnualFee() {
         return 0;
     }
