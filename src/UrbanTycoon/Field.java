@@ -4,16 +4,19 @@
  */
 package UrbanTycoon;
 
+import java.awt.Image;
+
 /**
  *
  * @author Felhasználó
  */
-class Field {
+class Field extends Sprite {
     
     private boolean free;
     private Buildable building;
     
-    public Field(Buildable building) {
+    public Field(Buildable building, int x, int y, int width, int height, Image image) {
+        super(x, y, width, height, image);
         this.building = building;
         this.free = building == null;
     }

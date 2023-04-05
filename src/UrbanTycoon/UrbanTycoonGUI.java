@@ -30,7 +30,7 @@ public class UrbanTycoonGUI {
         frame.add(gameArea);
 
         frame.setLocationRelativeTo(null);
-        frame.setPreferredSize(new Dimension(1920, 1080));
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
         frame.setResizable(false);
         frame.setUndecorated(true);
         frame.pack();

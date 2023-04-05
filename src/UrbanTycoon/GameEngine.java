@@ -22,9 +22,11 @@ import javax.swing.Timer;
 class GameEngine extends JPanel{
     
     private final int FPS = 240;
+    private final int WIDTH = 80;
+    private final int HEIGHT = 80;
     private final int FIELDSIZE = 20; //TODO
-    private final int FIELDROWSNUM = 20;
-    private final int FIELDCOLSNUM = 20;
+    private final int FIELDROWSNUM = 16;
+    private final int FIELDCOLSNUM = 8;
     private final int INITIALMONEY = 1000;
     private final int INITIALRESIDENT = 20;
     private final int ZONEPRICE = 250;
@@ -57,7 +59,7 @@ class GameEngine extends JPanel{
         super();
         background = new ImageIcon("data/graphics/tempBackground.jpeg").getImage(); // ide majd valami más háttér kerül
         
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS, WIDTH, HEIGHT);
         
         addMouseListener(new MouseAdapter() {
             @Override
@@ -80,14 +82,19 @@ class GameEngine extends JPanel{
         grphcs.drawImage(background, 0, 0, (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth(), (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight(), null); // háttérkép kirajzolása
         for (int i = 0; i < FIELDROWSNUM; i++) {
             for (int j = 0; j < FIELDCOLSNUM; j++) {
-                city.getFields()[i][j].getBuilding().draw(grphcs);
+                if (!city.getFields()[i][j].isFree()) {
+                    city.getFields()[i][j].getBuilding().draw(grphcs);
+                } else { // Buildable is null so cannot draw it -> have to call Field draw method
+                    city.getFields()[i][j].draw(grphcs);
+                }
+                
             }
         }
 
     }
     
     private void newGame() {
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS);
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS, WIDTH, HEIGHT);
         // date alaphelyzetbe
         time = new Date(1980,1,1,0,0);
         paused = false;
