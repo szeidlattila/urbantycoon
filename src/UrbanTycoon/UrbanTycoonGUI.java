@@ -29,8 +29,8 @@ public class UrbanTycoonGUI {
         gameArea = new GameEngine();
         frame.add(gameArea);
 
-        frame.setLocationRelativeTo(null);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
         frame.setResizable(false);
         frame.setUndecorated(true);
         frame.pack();
