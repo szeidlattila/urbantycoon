@@ -5,10 +5,13 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
+import java.util.Scanner;
 import javax.swing.ImageIcon;
 
 /**
@@ -43,6 +46,9 @@ class City {
     private int residentCapacity;
     private int workplaceCapacity;
     private double moveInChance;
+    private int residentialZoneNum;
+    private int serviceZoneNum;
+    private int industrialZoneNum;
     
     /**
      * initialize the city with the given information
@@ -68,18 +74,7 @@ class City {
             this.residents = new ArrayList<>(residentsNum);
         } else {
             throw new IllegalArgumentException("Invalid value! Residents number must be greater than 0!");
-        }
-        
-        if (fieldRowsNum > 0 && fieldColsNum > 0) {
-            this.fields = new Field[fieldRowsNum][fieldColsNum];
-            for (int i = 0; i < fieldRowsNum; i++) {
-                for (int j = 0; j < fieldColsNum; j++) {
-                    this.fields[i][j] = new Field(null, (i+1)*width, (j+1)*height, width, height, new ImageIcon("data/graphics/cell.png").getImage());
-                }
-            }
-        } else {
-            throw new IllegalArgumentException("Invalid value! Rows and coloumns number must be greater than 0!");
-        } 
+        }   
         
         if (-10 <= criticalSatisfaction && criticalSatisfaction < 0) {
             this.criticalSatisfaction = criticalSatisfaction;
@@ -424,51 +419,34 @@ class City {
      * @param fieldColsNum 
      */
     private void initFields(int residentsNum, int residentCapacity, int workplaceCapacity, int fieldRowsNum, int fieldColsNum) {
-        // calculate how many Residential zone and Workplace (Service zone and Industrial zone) needed depends on residentNum and zone capacities
-        int residentialZoneNum = (int)Math.ceil((double)residentsNum / residentCapacity);
-        int workplaceNum = (int)Math.ceil((double)residentsNum / workplaceCapacity);
-        int serviceZoneNum = (int)Math.ceil(workplaceNum / 2.0);
-        int industrialZoneNum = (int)Math.floor(workplaceNum / 2.0); 
+        int rows = 0;
+        int cols = 0;
+        this.residentialZoneNum = 0;
+        this.serviceZoneNum = 0;
+        this.industrialZoneNum = 0;
+        this.fields = new Field[fieldRowsNum][fieldColsNum];
         
-        if (residentialZoneNum + workplaceNum > fieldRowsNum * fieldColsNum) {
-            throw new IllegalArgumentException("There are more zones than fields!");
-        }
-        
-        // fill fields with empty fields
-        for (int row = 0; row < fieldRowsNum; row++) {
-            for (int col = 0; col < fieldColsNum; col++) {
-                fields[row][col] = new Field(null, (row+1)*WIDTH, (col+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage());
+        try {
+            Scanner reader = new Scanner(new File("data/persistence/init_fields.txt"));
+            while (reader.hasNextLine()) {
+                String line = reader.nextLine();
+                processLine(line, rows);
+                rows++;
+                cols = line.split("\\s+").length;
             }
-        }
-        
-        // change empty fields with residential zone and workplace (service zone and industrial zone)
-        Random r = new Random();    // r.nextInt((max - min) + 1) + min; => random number [min, max]
-        int freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
-        int freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
-        
-        while (residentialZoneNum-- > 0) {
-            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
-                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
-                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
+            
+            reader.close();
+            
+            if (rows != fieldRowsNum) {
+                throw new IllegalArgumentException("Invalid value! File lines number (" + rows +") must be FIELDROWSNUM (" + fieldRowsNum + ") !");
             }
-            fields[freeRow][freeCol].setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0, (freeRow+1)*WIDTH, (freeCol+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/rz.png").getImage())); // TODO: Minden spriteos cucc beállítása
-        }
-        
-        while (serviceZoneNum-- > 0) {
-            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
-                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
-                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
+            
+            if (cols != fieldColsNum) {
+                throw new IllegalArgumentException("Invalid value! File cols number (" + cols +") must be FIELDCOLSNUM (" + fieldColsNum + ") !");
             }
-            fields[freeRow][freeCol].setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0, (freeRow+1)*WIDTH, (freeCol+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/sz.png").getImage())); // TODO: Minden spriteos cucc beállítása
-        }
-        
-        while (industrialZoneNum-- > 0) {
-            while (!fields[freeRow][freeCol].isFree()) {    // while the chosen field is not free
-                freeRow = r.nextInt((fieldRowsNum-1 - 0) + 1) + 0;
-                freeCol = r.nextInt((fieldColsNum-1 - 0) + 1) + 0;
-            }
-            fields[freeRow][freeCol].setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0, (freeRow+1)*WIDTH, (freeCol+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/iz.png").getImage())); // TODO: Minden spriteos cucc beállítása
-        }
+          } catch (FileNotFoundException e) {
+            System.out.println("File not found!");
+          }
     }
     
     /**
@@ -506,6 +484,32 @@ class City {
             } else {
                 throw new IllegalArgumentException("Home and workplace cannot be null!");
             }       
+        }
+    }
+    
+    private void processLine(String line, int rowIndex) {
+        String[] fieldStrings = line.split("\\s+"); // It will split the string by single or multiple whitespace characters
+        for (int i = 0; i < fieldStrings.length; i++) {
+            String fieldType = fieldStrings[i];
+            switch (fieldType) {
+                case "0":
+                    fields[rowIndex][i] = new Field(null, (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/field.png").getImage());
+                    break;
+                case "rz":
+                    fields[rowIndex][i] = new Field(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0, (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/residentialZone.png").getImage()), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/field.png").getImage());
+                    break;
+                case "sz":
+                    fields[rowIndex][i] = new Field(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0, (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/serviceZone.png").getImage()), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/field.png").getImage());
+                    break;
+                case "iz":
+                    fields[rowIndex][i] = new Field(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0, (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/industrialZone.png").getImage()), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/field.png").getImage());
+                    break;
+                case "r":
+                    fields[rowIndex][i] = new Field(new Road(0, (int)(roadPrice * annualFeePercentage), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/road.png").getImage()), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/field.png").getImage());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknow field type: " + fieldType);
+            }
         }
     }
     

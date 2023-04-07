@@ -25,8 +25,8 @@ class GameEngine extends JPanel{
     private final int WIDTH = 80;
     private final int HEIGHT = 80;
     private final int FIELDSIZE = 20; //TODO
-    private final int FIELDROWSNUM = 16;
-    private final int FIELDCOLSNUM = 8;
+    private final int FIELDROWSNUM = 8;
+    private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 1000;
     private final int INITIALRESIDENT = 20;
     private final int ZONEPRICE = 250;
@@ -57,7 +57,7 @@ class GameEngine extends JPanel{
     
     public GameEngine() {
         super();
-        background = new ImageIcon("data/graphics/tempBackground.jpeg").getImage(); // ide majd valami más háttér kerül
+        background = new ImageIcon("data/graphics/background.jpeg").getImage(); // ide majd valami más háttér kerül
         
         city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS, WIDTH, HEIGHT);
         

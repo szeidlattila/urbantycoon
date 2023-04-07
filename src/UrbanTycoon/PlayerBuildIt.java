@@ -17,10 +17,10 @@ public abstract class PlayerBuildIt extends Buildable {
     protected PlayerBuildIt(int buildingPrice, int annualFee,int x,int y,int width, int height,Image image){
         super(x, y, width, height, image); 
         
-        if (buildingPrice > 0) {
+        if (buildingPrice >= 0) {
             this.buildingPrice = buildingPrice;
         } else {
-            throw new IllegalArgumentException("Invalid building price! Building price must be greater than 0!");
+            throw new IllegalArgumentException("Invalid value! Building price must be at least 0!");
         }
         
         if (annualFee > 0) {
