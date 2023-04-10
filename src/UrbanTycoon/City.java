@@ -259,11 +259,11 @@ class City {
     }
     
     public void fieldSelect(int x,int y){
-        if(selectedField != null && selectedField == fields[x][y]){
+        if(selectedField != null && selectedField == fields[y][x]){
             selectedField = null;
             showFieldInfoPopup = false;
         } else {
-            selectedField = fields[x][y];
+            selectedField = fields[y][x];
             showFieldInfoPopup = true;
         }
     }
@@ -520,10 +520,11 @@ class City {
      * @param playerBuildItClass
      * @return error message (field is not free / do not have enough money) otherwise null
      */
-    public void build(Field selectedField, Class playerBuildItClass) {
+    public void build(Class playerBuildItClass) {
+        if(selectedField == null || !selectedField.isFree()) return;
         boolean isAccessible = getDistanceAlongRoad(selectedField,randomNonEmptyField()) != -1;
         //TODO építéskor és kijelöléskor meg kéne kapniuk az isAccessible-t, és csak ilyenkor tudjanak építkezni
-        if (!playerBuildItClass.isAssignableFrom(PlayerBuildIt.class))  throw new IllegalArgumentException("Building must be playerBuiltIt subclass!");
+        if (!PlayerBuildIt.class.isAssignableFrom(playerBuildItClass))  throw new IllegalArgumentException("Building must be playerBuiltIt subclass!");
         int price = -1;
         if (playerBuildItClass == Road.class)                   price = roadPrice;
         else if (playerBuildItClass == Stadium.class)           price = stadiumPrice;
@@ -533,7 +534,7 @@ class City {
         
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
-            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage()));                          // TODO: x, y, width, height, image
+            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/road.png").getImage()));                          // TODO: x, y, width, height, image
         } else if (playerBuildItClass == Stadium.class) {
             selectedField.build(new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage()));         // TODO: x, y, width, height, image
         } else if  (playerBuildItClass == PoliceStation.class) {
@@ -551,16 +552,16 @@ class City {
      * @param selectedField
      * @param zoneClass 
      */
-    public void selectField(Field selectedField, Class zoneClass) {
-        if (!selectedField.isFree())    return;
-        if (!zoneClass.isAssignableFrom(Zone.class))  throw new IllegalArgumentException("Selected zone class must be Zone subclass!");
+    public void selectField(Class zoneClass) {
+        if (selectedField == null || !selectedField.isFree())    return;
+        if (!Zone.class.isAssignableFrom(zoneClass))  throw new IllegalArgumentException("Selected zone class must be Zone subclass!");
         
         if (zoneClass == ResidentialZone.class) {
-            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage()));    // TODO: x, y, width, height, image
+            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/residentialZone.png").getImage()));    // TODO: x, y, width, height, image
         } else if (zoneClass == IndustrialZone.class) {
-            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage()));                   // TODO: x, y, width, height, image
+            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/industrialZone.png").getImage()));                   // TODO: x, y, width, height, image
         } else if (zoneClass == ServiceZone.class) {
-            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage()));                      // TODO: x, y, width, height, image
+            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/serviceZone.png").getImage()));                      // TODO: x, y, width, height, image
         }
         
         budget -= zonePrice;
@@ -595,26 +596,28 @@ class City {
                     y2 = j;
                 }
             }
+        if(x1 == -1 || y1 == -1) throw new IllegalArgumentException("First Field not Found in getDistance");
+        if(x2 == -1 || y2 == -1) throw new IllegalArgumentException("Second Field not Found in getDistance");
         Queue Q = new LinkedList<Coordinate>();
         Q.add(new Coordinate(x1,y1));
         while(!Q.isEmpty()){
             Coordinate o = (Coordinate)Q.remove();
-            if(o.x+1 < distances.length && distances[o.x+1][o.y] == -1 && !fields[o.x+1][o.y].isFree() && fields[o.x+1][o.y].getBuilding() instanceof Road){
+            if(o.x+1 < distances.length && distances[o.x+1][o.y] == -1 && !fields[o.x+1][o.y].isFree()){
                 distances[o.x+1][o.y] = distances[o.x][o.y] + 1;
                 if(o.x+1 == x2 && o.y == y2) break;
                 Q.add(new Coordinate(o.x+1,o.y));
             }
-            if(o.x-1 >= 0 && distances[o.x-1][o.y] == -1 && !fields[o.x-1][o.y].isFree() && fields[o.x-1][o.y].getBuilding() instanceof Road){
+            if(o.x-1 >= 0 && distances[o.x-1][o.y] == -1 && !fields[o.x-1][o.y].isFree()){
                 distances[o.x-1][o.y] = distances[o.x][o.y] + 1;
                 if(o.x-1 == x2 && o.y == y2) break;
                 Q.add(new Coordinate(o.x-1,o.y));
             }
-            if(o.y+1 < distances[0].length && distances[o.x][o.y+1] == -1 && !fields[o.x][o.y+1].isFree() && fields[o.x][o.y+1].getBuilding() instanceof Road){
+            if(o.y+1 < distances[0].length && distances[o.x][o.y+1] == -1 && !fields[o.x][o.y+1].isFree()){
                 distances[o.x][o.y+1] = distances[o.x][o.y] + 1;
                 if(o.x == x2 && o.y+1 == y2) break;
                 Q.add(new Coordinate(o.x,o.y+1));
             }
-            if(o.y-1 >= 0 && distances[o.x][o.y-1] == -1 && !fields[o.x][o.y-1].isFree() && fields[o.x][o.y-1].getBuilding() instanceof Road){
+            if(o.y-1 >= 0 && distances[o.x][o.y-1] == -1 && !fields[o.x][o.y-1].isFree()){
                 distances[o.x][o.y-1] = distances[o.x][o.y] + 1;
                 if(o.x == x2 && o.y-1 == y2) break;
                 Q.add(new Coordinate(o.x,o.y-1));

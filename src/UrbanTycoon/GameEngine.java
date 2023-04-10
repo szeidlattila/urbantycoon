@@ -12,6 +12,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -27,7 +29,7 @@ class GameEngine extends JPanel{
     private final int FIELDSIZE = 20; //TODO
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
-    private final int INITIALMONEY = 1000;
+    private final int INITIALMONEY = 100000;
     private final int INITIALRESIDENT = 20;
     private final int ZONEPRICE = 250;
     private final int ROADPRICE = 75;
@@ -50,7 +52,8 @@ class GameEngine extends JPanel{
     private Image background;
     private Timer newFrameTimer;
     private Timer gameTickTimer;
-    
+    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton;
+    private final JLabel moneyLabel,dateLabel;
 //----------------------------
     //fv-ek
 //-----------------------------
@@ -65,7 +68,8 @@ class GameEngine extends JPanel{
             @Override
             public void mousePressed(MouseEvent e) {
                 if(!paused){
-                    System.out.println("Clicked! Position: x = " + e.getX() + " y = " + e.getY());
+                    //System.out.println("Clicked! Position: x = " + e.getX() + " y = " + e.getY());
+                    fieldSelect(e.getX(),e.getY());
                 }
             }
         });
@@ -74,6 +78,59 @@ class GameEngine extends JPanel{
         newFrameTimer.start();
         
         newGame();
+        
+        this.pauseButton = new JButton("pause");
+        pauseButton.addActionListener((ActionEvent ae)->togglePause());
+        this.add(pauseButton);
+        
+        this.timeSlowButton = new JButton("slow Time");
+        timeSlowButton.addActionListener((ActionEvent ae)->slowDownTime());
+        this.add(timeSlowButton);
+        
+        this.timeAccButton = new JButton("acc Time");
+        timeAccButton.addActionListener((ActionEvent ae)->speedUpTime());
+        this.add(timeAccButton);
+        
+        this.taxUpButton = new JButton("inc Tax");
+        taxUpButton.addActionListener((ActionEvent ae)->increaseTax());
+        this.add(taxUpButton);
+        
+        this.taxDownButton = new JButton("lower Tax");
+        taxDownButton.addActionListener((ActionEvent ae)->lowerTax());
+        this.add(taxDownButton);
+        
+        this.destroyButton = new JButton("Destroy");
+        destroyButton.addActionListener((ActionEvent ae)->tryDenominateOrDestroyZone());
+        this.add(destroyButton);
+        
+        this.nominateIndButton = new JButton("nominate industrial");
+        nominateIndButton.addActionListener((ActionEvent ae)->city.selectField(IndustrialZone.class));
+        this.add(nominateIndButton);
+        
+        this.nominateResButton = new JButton("nominate residential");
+        nominateResButton.addActionListener((ActionEvent ae)->city.selectField(ResidentialZone.class));
+        this.add(nominateResButton);
+        
+        this.nominateSerButton = new JButton("nominate service");
+        nominateSerButton.addActionListener((ActionEvent ae)->city.selectField(ServiceZone.class));
+        this.add(nominateSerButton);
+        
+        this.buildRoadButton = new JButton("build Road");
+        buildRoadButton.addActionListener((ActionEvent ae)->city.build(Road.class));
+        this.add(buildRoadButton);
+        
+        this.buildStadiumButton = new JButton("build Stad");
+        buildStadiumButton.addActionListener((ActionEvent ae)->city.build(Stadium.class));
+        this.add(buildStadiumButton);
+        
+        this.buildPSButton = new JButton("build PS");
+        buildPSButton.addActionListener((ActionEvent ae)->city.build(PoliceStation.class));
+        this.add(buildPSButton);
+        
+        this.moneyLabel = new JLabel("Funds: ");
+        this.add(moneyLabel);
+        this.dateLabel = new JLabel(time.toString());
+        this.add(dateLabel);
     }
     
     @Override
@@ -87,7 +144,8 @@ class GameEngine extends JPanel{
                 } else { // Buildable is null so cannot draw it -> have to call Field draw method
                     city.getFields()[i][j].draw(grphcs);
                 }
-                
+                moneyLabel.setText("Funds: " + city.getBudget());
+                dateLabel.setText(time.toString());
             }
         }
 
@@ -139,9 +197,13 @@ class GameEngine extends JPanel{
     }
     
     private void fieldSelect(int mouseX, int mouseY){
-        int fieldIndexX=0,fieldIndexY=0;
-        // TODO math magic required
-        city.fieldSelect(fieldIndexX,fieldIndexY);
+        int fieldIndexX,fieldIndexY;
+        
+        fieldIndexX = (int)Math.floor(mouseX / (double)WIDTH)-1;
+        fieldIndexY = (int)Math.floor(mouseY / (double)HEIGHT)-1;
+        
+        if(fieldIndexX >=0 && fieldIndexX < FIELDCOLSNUM && fieldIndexY >= 0 && fieldIndexY < FIELDROWSNUM)
+            city.fieldSelect(fieldIndexX,fieldIndexY);
     }
     
     // itt minden a ( city.selectedField : Field )-del dolgozik
