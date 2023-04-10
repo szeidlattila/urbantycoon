@@ -26,7 +26,7 @@ abstract class Zone extends Buildable {
     
     protected Zone(int capacity, int selectPrice, boolean builtUp, int annualTaxPerPerson, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(x ,y, width, height, image);
-        
+        this.selectPrice = selectPrice;
         if (capacity > 0) {
             this.capacity = capacity;
         } else {
@@ -51,7 +51,8 @@ abstract class Zone extends Buildable {
             this.chanceOfFire = chanceOfFire;
         } else {
             throw new IllegalArgumentException("Invalid value! Chance of fire must be greater than 0.0 and lower than 0.5!");
-        }    
+        }
+        this.builtUp=builtUp;
     }
 
     public int getSatisfactionBonus() {

@@ -191,6 +191,6 @@ class Date {
     }
     @Override
     public String toString(){
-        return year + ". " + (month<10?"0":"") + month + ". " + day + ". " + (hour<10?"0":"") + hour + ":00";
+        return year + ". " + (month<10?"0":"") + month + ". " + day + ". " + (hour<10?"0":"") + hour + (minute<10?":0":":") + minute;
     }
 }

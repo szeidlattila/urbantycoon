@@ -340,7 +340,7 @@ class City {
                 if(recalculateSafety) lowerSafetyAround(selectedField);
                 else if(recalculateSatisfactionBonus) lowerSatisfactionBonusAround(selectedField);
             }
-        } else throw new IllegalArgumentException("Trying to destroy a free zone!");
+        }
     }
     
     private void lowerSafetyAround(Field dps /*DestroyedPoliceStation*/){
@@ -396,16 +396,48 @@ class City {
         else negativeBudgetNthYear = 0;
     }
     public void performTicks(int ticks){
-        for(Field[] row:fields){
-            for(Field field:row){
-                if(!field.isFree() && accessibleOnRoad(field)) field.getBuilding().progressBuilding(ticks);
+        if(ticks > 0){
+            for(Field[] row:fields){
+                for(Field field:row){
+                    if(!field.isFree() && field.getBuilding() instanceof Zone && isAccessibleOnRoad(field)) field.getBuilding().progressBuilding(ticks);
+                }
             }
         }
     }
     
-    private boolean accessibleOnRoad(Field field){
-        //TODO
-        return true;
+    private boolean isAccessibleOnRoad(Field field){
+        int x=-1,y=-1;
+        for(int i=0;i<fields.length;i++)
+            for(int j=0;j<fields[0].length;j++){
+                if(fields[i][j] == field){
+                    x = i;
+                    y = j;
+                }
+            }
+        if(x == -1 && y == -1) throw new IllegalArgumentException("First Field not Found in getDistance");
+        Queue Q = new LinkedList<Coordinate>();
+        Q.add(new Coordinate(x,y));
+        while(!Q.isEmpty()){
+            Coordinate o = (Coordinate)Q.remove();
+            if(o.x+1 < fields.length && !fields[o.x+1][o.y].isFree()){
+                if(fields[o.x+1][o.y].getBuilding() instanceof Zone) return true;
+                Q.add(new Coordinate(o.x+1,o.y));
+            }
+            if(o.x-1 >= 0 && !fields[o.x-1][o.y].isFree()){
+                if(fields[o.x-1][o.y].getBuilding() instanceof Zone) return true;
+                Q.add(new Coordinate(o.x-1,o.y));
+            }
+            if(o.y+1 < fields[0].length && !fields[o.x][o.y+1].isFree()){
+                if(fields[o.x][o.y+1].getBuilding() instanceof Zone) return true;
+                Q.add(new Coordinate(o.x,o.y+1));
+            }
+            if(o.y-1 >= 0 && !fields[o.x][o.y-1].isFree()){
+                if(fields[o.x][o.y-1].getBuilding() instanceof Zone) return true;
+                Q.add(new Coordinate(o.x,o.y-1));
+            }
+        }
+        System.out.println("nem elérhető!");
+        return false;
     }
     
     /**
@@ -444,9 +476,14 @@ class City {
             if (cols != fieldColsNum) {
                 throw new IllegalArgumentException("Invalid value! File cols number (" + cols +") must be FIELDCOLSNUM (" + fieldColsNum + ") !");
             }
-          } catch (FileNotFoundException e) {
-            System.out.println("File not found!");
-          }
+            } catch (FileNotFoundException e) {
+                System.out.println("File not found!");
+            }
+            for(Field[] row:fields){
+                for(Field field:row){
+                    if(!field.isFree() && field.getBuilding() instanceof Zone && isAccessibleOnRoad(field)) field.getBuilding().progressBuilding(4);
+                }
+            }
     }
     
     /**
@@ -505,7 +542,7 @@ class City {
                     fields[rowIndex][i] = new Field(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0, (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/industrialZone.png").getImage()), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/field.png").getImage());
                     break;
                 case "r":
-                    fields[rowIndex][i] = new Field(new Road(0, (int)(roadPrice * annualFeePercentage), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/road.png").getImage()), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/field.png").getImage());
+                    fields[rowIndex][i] = new Field(new Road(roadPrice, (int)(roadPrice * annualFeePercentage), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/road.png").getImage()), (i+1)*WIDTH, (rowIndex+1)*HEIGHT, WIDTH, HEIGHT, new ImageIcon("data/graphics/field.png").getImage());
                     break;
                 default:
                     throw new IllegalArgumentException("Unknow field type: " + fieldType);
@@ -522,8 +559,6 @@ class City {
      */
     public void build(Class playerBuildItClass) {
         if(selectedField == null || !selectedField.isFree()) return;
-        boolean isAccessible = getDistanceAlongRoad(selectedField,randomNonEmptyField()) != -1;
-        //TODO építéskor és kijelöléskor meg kéne kapniuk az isAccessible-t, és csak ilyenkor tudjanak építkezni
         if (!PlayerBuildIt.class.isAssignableFrom(playerBuildItClass))  throw new IllegalArgumentException("Building must be playerBuiltIt subclass!");
         int price = -1;
         if (playerBuildItClass == Road.class)                   price = roadPrice;
@@ -555,7 +590,6 @@ class City {
     public void selectField(Class zoneClass) {
         if (selectedField == null || !selectedField.isFree())    return;
         if (!Zone.class.isAssignableFrom(zoneClass))  throw new IllegalArgumentException("Selected zone class must be Zone subclass!");
-        
         if (zoneClass == ResidentialZone.class) {
             selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/residentialZone.png").getImage()));    // TODO: x, y, width, height, image
         } else if (zoneClass == IndustrialZone.class) {
@@ -582,6 +616,7 @@ class City {
         }
     }
     private int getDistanceAlongRoad(Field one,Field other) {
+        if(one == other) return 0;
         int x1=-1,x2=-1,y1=-1,y2=-1;
         int[][] distances = new int[fields.length][fields[0].length];
         for(int i=0;i<fields.length;i++)
@@ -591,13 +626,13 @@ class City {
                     x1 = i;
                     y1 = j;
                     distances[i][j] = 0;
-                } else if(fields[i][j] == other){
+                } if(fields[i][j] == other){
                     x2 = i;
                     y2 = j;
                 }
             }
-        if(x1 == -1 || y1 == -1) throw new IllegalArgumentException("First Field not Found in getDistance");
-        if(x2 == -1 || y2 == -1) throw new IllegalArgumentException("Second Field not Found in getDistance");
+        if(x1 == -1 && y1 == -1) throw new IllegalArgumentException("First Field not Found in getDistance");
+        if(x2 == -1 && y2 == -1) throw new IllegalArgumentException("Second Field not Found in getDistance");
         Queue Q = new LinkedList<Coordinate>();
         Q.add(new Coordinate(x1,y1));
         while(!Q.isEmpty()){
@@ -623,15 +658,15 @@ class City {
                 Q.add(new Coordinate(o.x,o.y-1));
             }
         }
+        for(int[] row : distances){
+            for(int d : row)
+                System.out.print(d + " ");
+            System.out.println();
+        }
+        System.out.println();
         return distances[x2][y2];
     }
     
-    private Field randomNonEmptyField(){
-        for(Field[] row : fields)
-            for(Field f:row)
-                if(!f.isFree()/* && f.getBuilding(),isBuiltUp()*/) return f;
-        throw new IllegalArgumentException("There are no non-empty fields");
-    }
     /**
      * find a resident who lives or works at the given zone and return it
      * the satisfaction of all residents is the same in the same zones so finding 1 resident who lives or works there is enough

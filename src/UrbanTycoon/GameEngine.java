@@ -62,8 +62,6 @@ class GameEngine extends JPanel{
         super();
         background = new ImageIcon("data/graphics/background.jpeg").getImage(); // ide majd valami más háttér kerül
         
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY, ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE, RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS, WIDTH, HEIGHT);
-        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -73,9 +71,6 @@ class GameEngine extends JPanel{
                 }
             }
         });
-        
-        newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
-        newFrameTimer.start();
         
         newGame();
         

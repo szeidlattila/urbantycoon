@@ -34,6 +34,10 @@ public class Sprite {
         this.y = y; //originY + (relX + relY) * height / 2;
         this.image = image;
     }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
     
     public void draw(Graphics g) {
         g.drawImage(image, x, y, width, height, null);
