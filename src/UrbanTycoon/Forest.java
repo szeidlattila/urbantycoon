@@ -42,4 +42,14 @@ public class Forest extends PlayerBuildIt{
     protected int destroy() {
         return buildingPrice;
     }
+
+    @Override
+    protected void select() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    protected void unselect() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

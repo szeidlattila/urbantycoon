@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -24,5 +25,15 @@ public class Road extends PlayerBuildIt{
             return buildingPrice;
             /* TODO: destroy */
         }  
+    }
+
+    @Override
+    protected void select() {
+        image = new ImageIcon("data/graphics/selectedRoad.png").getImage();
+    }
+
+    @Override
+    protected void unselect() {
+        image = new ImageIcon("data/graphics/road.png").getImage();
     }
 }

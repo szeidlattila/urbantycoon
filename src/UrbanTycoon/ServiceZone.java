@@ -5,13 +5,24 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import javax.swing.ImageIcon;
 
 /**
  *
  * @author Felhasználó
  */
 public class ServiceZone extends Workplace{
-    public ServiceZone(int capacity, int selectPrice, int annualTax, double refund, double chanceOfFire,int x,int y,int width, int height,Image image){
+    public ServiceZone(int capacity, int selectPrice, int annualTax, double refund, double chanceOfFire,int x,int y,int width, int height,Image image) {
         super(capacity, selectPrice, annualTax, refund, chanceOfFire, x, y, width, height, image);
+    }
+    
+    @Override
+    protected void select() {
+        image = new ImageIcon("data/graphics/selectedServiceZone.png").getImage();
+    }
+
+    @Override
+    protected void unselect() {
+        image = new ImageIcon("data/graphics/serviceZone.png").getImage();
     }
 }

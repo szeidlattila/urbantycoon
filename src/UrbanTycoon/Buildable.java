@@ -17,6 +17,8 @@ abstract class Buildable extends Sprite {
     public void progressBuilding(int progressInDays){}
     
     protected abstract int destroy();
+    protected abstract void select();   // hex: #FF9E2A
+    protected abstract void unselect();
     
     protected int getAnnualFee() {
         return 0;

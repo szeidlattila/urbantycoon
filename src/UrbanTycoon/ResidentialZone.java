@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -29,6 +30,16 @@ class ResidentialZone extends Zone {
 
     public double getMoveInChance() {
         return moveInChance;
+    }
+
+    @Override
+    protected void select() {
+        image = new ImageIcon("data/graphics/selectedResidentialZone.png").getImage();
+    }
+
+    @Override
+    protected void unselect() {
+        image = new ImageIcon("data/graphics/residentialZone.png").getImage();
     }
     
 }

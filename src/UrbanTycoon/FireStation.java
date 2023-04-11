@@ -19,4 +19,14 @@ public class FireStation extends ServiceBuilding{
     public FireEngine getFireEngine() {
         return fireEngine;
     }
+
+    @Override
+    protected void select() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    protected void unselect() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

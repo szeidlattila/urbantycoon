@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -13,5 +14,15 @@ import java.awt.Image;
 public class PoliceStation extends ServiceBuilding {
     public PoliceStation(int buildingPrice, int annualFee,int radius,int x,int y,int width, int height,Image image) {
         super(buildingPrice, annualFee, radius, x, y, width, height, image);
+    }
+
+    @Override
+    protected void select() {
+        image = new ImageIcon("data/graphics/selectedPoliceStation.png").getImage();
+    }
+
+    @Override
+    protected void unselect() {
+        image = new ImageIcon("data/graphics/policeStation.png").getImage();
     }
 }

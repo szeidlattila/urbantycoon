@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -60,5 +61,13 @@ class Field extends Sprite {
     public void build(Buildable newBuilding) {
         if (!this.free)  return;
         setBuilding(newBuilding);
+    }
+    
+    public void select() {
+        image = new ImageIcon("data/graphics/selectedField.png").getImage();    // hex: #FF9E2A
+    }
+
+    public void unselect() {
+        image = new ImageIcon("data/graphics/field.png").getImage();
     }
 }

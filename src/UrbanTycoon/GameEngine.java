@@ -54,6 +54,9 @@ class GameEngine extends JPanel{
     private Timer gameTickTimer;
     private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton;
     private final JLabel moneyLabel,dateLabel;
+    private int prevSelectedFieldX = -1;
+    private int prevSelectedFieldY = -1;
+
 //----------------------------
     //fv-ek
 //-----------------------------
@@ -198,7 +201,24 @@ class GameEngine extends JPanel{
         fieldIndexY = (int)Math.floor(mouseY / (double)HEIGHT)-1;
         
         if(fieldIndexX >=0 && fieldIndexX < FIELDCOLSNUM && fieldIndexY >= 0 && fieldIndexY < FIELDROWSNUM)
+            if (prevSelectedFieldX != -1 && prevSelectedFieldY != -1) { // ha már van selected Field
+                if (city.getFields()[prevSelectedFieldY][prevSelectedFieldX].isFree()) {
+                    city.getFields()[prevSelectedFieldY][prevSelectedFieldX].unselect();
+                } else {
+                    city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding().unselect();
+                }
+            }
+            
             city.fieldSelect(fieldIndexX,fieldIndexY);
+            if (city.getFields()[fieldIndexY][fieldIndexX].isFree()) {
+                city.getFields()[fieldIndexY][fieldIndexX].select();
+            } else {
+                city.getFields()[fieldIndexY][fieldIndexX].getBuilding().select();
+            }
+            
+            // elmenteni x, y indexeket, hogy legközelebbi kiválasztáskor visszarakja unselected-re
+            prevSelectedFieldX = fieldIndexX;
+            prevSelectedFieldY = fieldIndexY;
     }
     
     // itt minden a ( city.selectedField : Field )-del dolgozik

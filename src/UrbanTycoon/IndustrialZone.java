@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -13,5 +14,15 @@ import java.awt.Image;
 public class IndustrialZone extends Workplace{
     public IndustrialZone(int capacity, int selectPrice, int annualTax, double refund, double chanceOfFire, int x, int y, int width, int height, Image image){
         super(capacity, selectPrice, annualTax, refund, chanceOfFire*2, x, y, width, height, image);
+    }
+
+    @Override
+    protected void select() {
+        image = new ImageIcon("data/graphics/selectedIndustrialZone.png").getImage();
+    }
+
+    @Override
+    protected void unselect() {
+        image = new ImageIcon("data/graphics/industrialZone.png").getImage();
     }
 }

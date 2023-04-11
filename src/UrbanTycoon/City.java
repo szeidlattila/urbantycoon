@@ -569,13 +569,13 @@ class City {
         
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
-            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/road.png").getImage()));                          // TODO: x, y, width, height, image
+            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/road.png").getImage()));                          
         } else if (playerBuildItClass == Stadium.class) {
-            selectedField.build(new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage()));         // TODO: x, y, width, height, image
+            selectedField.build(new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/stadium.png").getImage()));         
         } else if  (playerBuildItClass == PoliceStation.class) {
-            selectedField.build(new PoliceStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage()));   // TODO: x, y, width, height, image
+            selectedField.build(new PoliceStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/policeStation.png").getImage()));   
         } else if  (playerBuildItClass == FireStation.class) {
-            selectedField.build(new FireStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/cell.png").getImage()));     // TODO: x, y, width, height, image
+            selectedField.build(new FireStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/policeStation.png").getImage()));     
         }
         
         budget -= price;
@@ -591,11 +591,11 @@ class City {
         if (selectedField == null || !selectedField.isFree())    return;
         if (!Zone.class.isAssignableFrom(zoneClass))  throw new IllegalArgumentException("Selected zone class must be Zone subclass!");
         if (zoneClass == ResidentialZone.class) {
-            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/residentialZone.png").getImage()));    // TODO: x, y, width, height, image
+            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/residentialZone.png").getImage()));    
         } else if (zoneClass == IndustrialZone.class) {
-            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/industrialZone.png").getImage()));                   // TODO: x, y, width, height, image
+            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/industrialZone.png").getImage()));                   
         } else if (zoneClass == ServiceZone.class) {
-            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/serviceZone.png").getImage()));                      // TODO: x, y, width, height, image
+            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/serviceZone.png").getImage()));                     
         }
         
         budget -= zonePrice;
