@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -82,15 +83,19 @@ abstract class Zone extends Buildable {
     }
     
     @Override
-    public void progressBuilding(int progressInDays){
+    public boolean progressBuilding(int progressInDays){
         if(!builtUp){
             buildProgress += progressInDays * 25;
             if(buildProgress >= 100){
                 buildProgress = 100;
                 builtUp=true;
+                image = new ImageIcon("data/graphics/" + type() + ".png").getImage();
+                return true;
             }
         }
+        return false;
     }
+    
     public int getPeopleNum() {
         return peopleNum;
     }
@@ -142,7 +147,8 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Invalid value! Refund must be more than 0.0 and less than 1.0!");
         }
     }
-
+    
+    @Override
     public boolean isBuiltUp() {
         return builtUp;
     }

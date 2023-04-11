@@ -16,13 +16,7 @@ public class ServiceZone extends Workplace{
         super(capacity, selectPrice, annualTax, refund, chanceOfFire, x, y, width, height, image);
     }
     
-    @Override
-    protected void select() {
-        image = new ImageIcon("data/graphics/selectedServiceZone.png").getImage();
-    }
-
-    @Override
-    protected void unselect() {
-        image = new ImageIcon("data/graphics/serviceZone.png").getImage();
+    protected String type(){
+        return "serviceZone";
     }
 }

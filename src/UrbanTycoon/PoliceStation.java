@@ -16,13 +16,7 @@ public class PoliceStation extends ServiceBuilding {
         super(buildingPrice, annualFee, radius, x, y, width, height, image);
     }
 
-    @Override
-    protected void select() {
-        image = new ImageIcon("data/graphics/selectedPoliceStation.png").getImage();
-    }
-
-    @Override
-    protected void unselect() {
-        image = new ImageIcon("data/graphics/policeStation.png").getImage();
+    protected String type(){
+        return "policeStation";
     }
 }

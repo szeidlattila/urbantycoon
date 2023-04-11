@@ -397,18 +397,24 @@ class City {
     }
     public void performTicks(int ticks){
         if(ticks > 0){
-            for(Field[] row:fields){
-                for(Field field:row){
-                    if(!field.isFree() && field.getBuilding() instanceof Zone && isAccessibleOnRoad(field)) field.getBuilding().progressBuilding(ticks);
-                }
+            for(int i=0;i<fields.length;i++)
+                for(int j=0;j<fields[0].length;j++)
+                    if(!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone && isAccessibleOnRoad(fields[i][j])) 
+                        if(fields[i][j].getBuilding().progressBuilding(ticks)){
+                            reevaluateAccessibility();
+                        }
+            if(selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone && zone.isBuiltUp()){
+                selectedField.getBuilding().setImage(new ImageIcon("data/graphics/selected" + zone.type().substring(0,1).toUpperCase() + zone.type().substring(1) + ".png").getImage());
             }
         }
     }
     
-    private boolean isAccessibleOnRoad(Field field){
+    public boolean isAccessibleOnRoad(Field field){
         int x=-1,y=-1;
+        boolean voltemar[][] = new boolean[fields.length][fields[0].length];
         for(int i=0;i<fields.length;i++)
             for(int j=0;j<fields[0].length;j++){
+                voltemar[i][j] = false;
                 if(fields[i][j] == field){
                     x = i;
                     y = j;
@@ -417,26 +423,30 @@ class City {
         if(x == -1 && y == -1) throw new IllegalArgumentException("First Field not Found in getDistance");
         Queue Q = new LinkedList<Coordinate>();
         Q.add(new Coordinate(x,y));
+        voltemar[x][y] = true;
         while(!Q.isEmpty()){
             Coordinate o = (Coordinate)Q.remove();
-            if(o.x+1 < fields.length && !fields[o.x+1][o.y].isFree()){
-                if(fields[o.x+1][o.y].getBuilding() instanceof Zone) return true;
+            if(o.x+1 < fields.length && !voltemar[o.x+1][o.y] && !fields[o.x+1][o.y].isFree() && fields[o.x+1][o.y].getBuilding().isBuiltUp()){
+                if(fields[o.x+1][o.y].getBuilding() instanceof Zone zone && zone.isBuiltUp()) return true;
                 Q.add(new Coordinate(o.x+1,o.y));
+                voltemar[o.x+1][o.y] = true;
             }
-            if(o.x-1 >= 0 && !fields[o.x-1][o.y].isFree()){
-                if(fields[o.x-1][o.y].getBuilding() instanceof Zone) return true;
+            if(o.x-1 >= 0 && !voltemar[o.x-1][o.y] && !fields[o.x-1][o.y].isFree() && fields[o.x-1][o.y].getBuilding().isBuiltUp()){
+                if(fields[o.x-1][o.y].getBuilding() instanceof Zone zone && zone.isBuiltUp()) return true;
                 Q.add(new Coordinate(o.x-1,o.y));
+                voltemar[o.x-1][o.y] = true;
             }
-            if(o.y+1 < fields[0].length && !fields[o.x][o.y+1].isFree()){
-                if(fields[o.x][o.y+1].getBuilding() instanceof Zone) return true;
+            if(o.y+1 < fields[0].length && !voltemar[o.x][o.y+1] && !fields[o.x][o.y+1].isFree() && fields[o.x][o.y+1].getBuilding().isBuiltUp()){
+                if(fields[o.x][o.y+1].getBuilding() instanceof Zone zone && zone.isBuiltUp()) return true;
                 Q.add(new Coordinate(o.x,o.y+1));
+                voltemar[o.x][o.y+1] = true;
             }
-            if(o.y-1 >= 0 && !fields[o.x][o.y-1].isFree()){
-                if(fields[o.x][o.y-1].getBuilding() instanceof Zone) return true;
+            if(o.y-1 >= 0 && !voltemar[o.x][o.y-1] && !fields[o.x][o.y-1].isFree() && fields[o.x][o.y-1].getBuilding().isBuiltUp()){
+                if(fields[o.x][o.y-1].getBuilding() instanceof Zone zone && zone.isBuiltUp()) return true;
                 Q.add(new Coordinate(o.x,o.y-1));
+                voltemar[o.x][o.y-1] = true;
             }
         }
-        System.out.println("nem elérhető!");
         return false;
     }
     
@@ -481,7 +491,7 @@ class City {
             }
             for(Field[] row:fields){
                 for(Field field:row){
-                    if(!field.isFree() && field.getBuilding() instanceof Zone && isAccessibleOnRoad(field)) field.getBuilding().progressBuilding(4);
+                    if(!field.isFree() && field.getBuilding() instanceof Zone) field.getBuilding().progressBuilding(4);
                 }
             }
     }
@@ -569,18 +579,28 @@ class City {
         
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
-            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/road.png").getImage()));                          
+            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/selectedRoad.png").getImage()));
         } else if (playerBuildItClass == Stadium.class) {
-            selectedField.build(new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/stadium.png").getImage()));         
+            selectedField.build(new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/selectedStadium.png").getImage()));         
         } else if  (playerBuildItClass == PoliceStation.class) {
-            selectedField.build(new PoliceStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/policeStation.png").getImage()));   
+            selectedField.build(new PoliceStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/selectedPoliceStation.png").getImage()));   
         } else if  (playerBuildItClass == FireStation.class) {
-            selectedField.build(new FireStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/policeStation.png").getImage()));     
+            selectedField.build(new FireStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/selectedPoliceStation.png").getImage()));     
         }
+        reevaluateAccessibility();
         
         budget -= price;
     }
-    
+    public void reevaluateAccessibility(){
+        for(var row : fields)
+            for(var field:row)
+                if (!field.isFree() && field.getBuilding() instanceof Zone){
+                    boolean isAccessible = isAccessibleOnRoad(field);
+                    field.getBuilding().select(isAccessible);
+                    field.getBuilding().unselect(isAccessible);
+                }
+        if(selectedField != null && !selectedField.isFree()) selectedField.getBuilding().setImage(new ImageIcon("data/graphics/selected"+(selectedField.getBuilding().isBuiltUp()?selectedField.getBuilding().type().substring(0,1).toUpperCase()+selectedField.getBuilding().type().substring(1):(isAccessibleOnRoad(selectedField)?"Build":"UnableBuild"))+".png").getImage());
+    }
     /**
      * player select free field (residential-, industrial-, service zone) and residents can build on this automatically
      * budget decrease by the price of zone select
@@ -590,12 +610,15 @@ class City {
     public void selectField(Class zoneClass) {
         if (selectedField == null || !selectedField.isFree())    return;
         if (!Zone.class.isAssignableFrom(zoneClass))  throw new IllegalArgumentException("Selected zone class must be Zone subclass!");
+        boolean acc=false;
+        if(isAccessibleOnRoad(selectedField))
+            acc = true;
         if (zoneClass == ResidentialZone.class) {
-            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/residentialZone.png").getImage()));    
+            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/"+(acc?"selectedBuild":"selectedUnableBuild")+".png").getImage()));    
         } else if (zoneClass == IndustrialZone.class) {
-            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/industrialZone.png").getImage()));                   
+            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/"+(acc?"selectedBuild":"selectedUnableBuild")+".png").getImage()));                   
         } else if (zoneClass == ServiceZone.class) {
-            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/serviceZone.png").getImage()));                     
+            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, REFUND, 0.0, selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT, new ImageIcon("data/graphics/"+(acc?"selectedBuild":"selectedUnableBuild")+".png").getImage()));
         }
         
         budget -= zonePrice;
@@ -658,12 +681,6 @@ class City {
                 Q.add(new Coordinate(o.x,o.y-1));
             }
         }
-        for(int[] row : distances){
-            for(int d : row)
-                System.out.print(d + " ");
-            System.out.println();
-        }
-        System.out.println();
         return distances[x2][y2];
     }
     

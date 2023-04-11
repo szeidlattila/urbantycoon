@@ -29,7 +29,11 @@ public abstract class PlayerBuildIt extends Buildable {
             throw new IllegalArgumentException("Invalid annual fee! Annual fee must be greater than 0!");
         }
     }
-
+    
+    public boolean progressBuilding(int progressInDays){
+        return false;
+    }
+    
     public int getBuildingPrice() {
         return buildingPrice;
     }

@@ -16,13 +16,7 @@ public class IndustrialZone extends Workplace{
         super(capacity, selectPrice, annualTax, refund, chanceOfFire*2, x, y, width, height, image);
     }
 
-    @Override
-    protected void select() {
-        image = new ImageIcon("data/graphics/selectedIndustrialZone.png").getImage();
-    }
-
-    @Override
-    protected void unselect() {
-        image = new ImageIcon("data/graphics/industrialZone.png").getImage();
+    protected String type(){
+        return "industrialZone";
     }
 }

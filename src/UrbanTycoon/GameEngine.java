@@ -200,12 +200,15 @@ class GameEngine extends JPanel{
         fieldIndexX = (int)Math.floor(mouseX / (double)WIDTH)-1;
         fieldIndexY = (int)Math.floor(mouseY / (double)HEIGHT)-1;
         
-        if(fieldIndexX >=0 && fieldIndexX < FIELDCOLSNUM && fieldIndexY >= 0 && fieldIndexY < FIELDROWSNUM)
+        if(fieldIndexX >=0 && fieldIndexX < FIELDCOLSNUM && fieldIndexY >= 0 && fieldIndexY < FIELDROWSNUM){
             if (prevSelectedFieldX != -1 && prevSelectedFieldY != -1) { // ha már van selected Field
                 if (city.getFields()[prevSelectedFieldY][prevSelectedFieldX].isFree()) {
                     city.getFields()[prevSelectedFieldY][prevSelectedFieldX].unselect();
                 } else {
-                    city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding().unselect();
+                    boolean accessible = true;
+                    if(city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding() instanceof Zone zone && !zone.isBuiltUp() && !city.isAccessibleOnRoad(city.getFields()[prevSelectedFieldY][prevSelectedFieldX]))
+                        accessible = false;
+                    city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding().unselect(accessible);
                 }
             }
             
@@ -213,12 +216,16 @@ class GameEngine extends JPanel{
             if (city.getFields()[fieldIndexY][fieldIndexX].isFree()) {
                 city.getFields()[fieldIndexY][fieldIndexX].select();
             } else {
-                city.getFields()[fieldIndexY][fieldIndexX].getBuilding().select();
+                boolean accessible = true;
+                if(city.getFields()[fieldIndexY][fieldIndexX].getBuilding() instanceof Zone zone && !zone.isBuiltUp() && !city.isAccessibleOnRoad(city.getFields()[fieldIndexY][fieldIndexX]))
+                    accessible = false;
+                city.getFields()[fieldIndexY][fieldIndexX].getBuilding().select(accessible);
             }
             
             // elmenteni x, y indexeket, hogy legközelebbi kiválasztáskor visszarakja unselected-re
             prevSelectedFieldX = fieldIndexX;
             prevSelectedFieldY = fieldIndexY;
+        }
     }
     
     // itt minden a ( city.selectedField : Field )-del dolgozik

@@ -27,13 +27,7 @@ public class Road extends PlayerBuildIt{
         }  
     }
 
-    @Override
-    protected void select() {
-        image = new ImageIcon("data/graphics/selectedRoad.png").getImage();
-    }
-
-    @Override
-    protected void unselect() {
-        image = new ImageIcon("data/graphics/road.png").getImage();
+    protected String type(){
+        return "road";
     }
 }

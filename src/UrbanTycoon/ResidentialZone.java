@@ -32,14 +32,7 @@ class ResidentialZone extends Zone {
         return moveInChance;
     }
 
-    @Override
-    protected void select() {
-        image = new ImageIcon("data/graphics/selectedResidentialZone.png").getImage();
+    protected String type(){
+        return "residentialZone";
     }
-
-    @Override
-    protected void unselect() {
-        image = new ImageIcon("data/graphics/residentialZone.png").getImage();
-    }
-    
 }
