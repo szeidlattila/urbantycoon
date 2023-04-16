@@ -13,8 +13,8 @@ import javax.swing.ImageIcon;
  */
 public class Road extends PlayerBuildIt{
 
-    public Road(int buildingPrice, int annualFee, int x, int y, int width, int height, Image image) {
-        super(buildingPrice, annualFee, x, y, width, height, image);
+    public Road(int buildingPrice, int annualFee, int x, int y, int width, int height, Image image, double refund) {
+        super(buildingPrice, annualFee, x, y, width, height, image, refund);
     }
 
     @Override

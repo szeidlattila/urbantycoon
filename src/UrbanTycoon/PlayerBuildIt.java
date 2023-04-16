@@ -14,8 +14,8 @@ public abstract class PlayerBuildIt extends Buildable {
     protected int buildingPrice;
     protected int annualFee;
     
-    protected PlayerBuildIt(int buildingPrice, int annualFee,int x,int y,int width, int height,Image image){
-        super(x, y, width, height, image); 
+    protected PlayerBuildIt(int buildingPrice, int annualFee,int x,int y,int width, int height,Image image, double refund){
+        super(x, y, width, height, image, refund); 
         
         if (buildingPrice >= 0) {
             this.buildingPrice = buildingPrice;

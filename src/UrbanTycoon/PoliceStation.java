@@ -12,8 +12,8 @@ import javax.swing.ImageIcon;
  * @author Felhasználó
  */
 public class PoliceStation extends ServiceBuilding {
-    public PoliceStation(int buildingPrice, int annualFee,int radius,int x,int y,int width, int height,Image image) {
-        super(buildingPrice, annualFee, radius, x, y, width, height, image);
+    public PoliceStation(int buildingPrice, int annualFee,int radius,int x,int y,int width, int height,Image image, double refund) {
+        super(buildingPrice, annualFee, radius, x, y, width, height, image, refund);
     }
 
     protected String type(){

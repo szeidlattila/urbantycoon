@@ -30,27 +30,28 @@ public class Sprite {
     public Sprite(int x, int y, int width, int height, Image image) {
         this.width = width;
         this.height = height;
-        this.x = x; //originX + (relX - relY) * width / 2;
-        this.y = y; //originY + (relX + relY) * height / 2;
+        this.x = x; // originX + (relX - relY) * width / 2;
+        this.y = y; // originY + (relX + relY) * height / 2;
         this.image = image;
     }
 
     public void setImage(Image image) {
         this.image = image;
     }
-    
+
     public void draw(Graphics g) {
         g.drawImage(image, x, y, width, height, null);
     }
-    
+
     /**
      * Returns true if this sprite collides with the other sprite
+     * 
      * @param other
-     * @return 
+     * @return
      */
     public boolean collides(Sprite other) {
         Rectangle rect = new Rectangle(x, y, width, height);
-        Rectangle otherRect = new Rectangle(other.x, other.y, other.width, other.height);        
+        Rectangle otherRect = new Rectangle(other.x, other.y, other.width, other.height);
         return rect.intersects(otherRect);
     }
 
