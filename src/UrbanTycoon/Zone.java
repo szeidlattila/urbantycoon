@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
  * @author Felhasználó
  */
 abstract class Zone extends Buildable {
-    
+
     protected final int capacity;
     protected int peopleNum = 0;
     protected int safety;
@@ -24,36 +24,38 @@ abstract class Zone extends Buildable {
     protected boolean builtUp;
     protected boolean onFire = false;
     protected double chanceOfFire;
-    
-    protected Zone(int capacity, int selectPrice, boolean builtUp, int annualTaxPerPerson, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
-        super(x ,y, width, height, image);
+
+    protected Zone(int capacity, int selectPrice, boolean builtUp, int annualTaxPerPerson, double refund,
+            double chanceOfFire, int x, int y, int width, int height, Image image) {
+        super(x, y, width, height, image, refund);
         this.selectPrice = selectPrice;
         if (capacity > 0) {
             this.capacity = capacity;
         } else {
             throw new IllegalArgumentException("Invalid value! Capacity must be greater than 0!");
         }
-        
+
         this.safety = calculateSafety();
-        
+
         if (annualTaxPerPerson >= 0) {
             this.annualTaxPerPerson = annualTaxPerPerson;
         } else {
             throw new IllegalArgumentException("Invalid value! Annual tax must be at least 0!");
         }
-        
+
         if (0.0 <= refund && refund <= 1.0) {
             this.refund = refund;
         } else {
             throw new IllegalArgumentException("Invalid value! Refund must be greater than 0.0 and lower than 1.0!");
         }
-        
+
         if (0.0 <= chanceOfFire && chanceOfFire <= 0.5) {
             this.chanceOfFire = chanceOfFire;
         } else {
-            throw new IllegalArgumentException("Invalid value! Chance of fire must be greater than 0.0 and lower than 0.5!");
+            throw new IllegalArgumentException(
+                    "Invalid value! Chance of fire must be greater than 0.0 and lower than 0.5!");
         }
-        this.builtUp=builtUp;
+        this.builtUp = builtUp;
     }
 
     public int getSatisfactionBonus() {
@@ -61,8 +63,10 @@ abstract class Zone extends Buildable {
     }
 
     public void setSatisfactionBonus(int satisfactionBonus) {
-        if(satisfactionBonus > 10 || satisfactionBonus < -10) throw new IllegalArgumentException("Satisfaction Bonus out of range");
-        else this.satisfactionBonus = satisfactionBonus;
+        if (satisfactionBonus > 10 || satisfactionBonus < -10)
+            throw new IllegalArgumentException("Satisfaction Bonus out of range");
+        else
+            this.satisfactionBonus = satisfactionBonus;
     }
 
     /**
@@ -73,7 +77,7 @@ abstract class Zone extends Buildable {
     public int getAnnualTax() {
         return annualTaxPerPerson * peopleNum;
     }
-    
+
     public void setAnnualTax(int annualTaxPerPerson) {
         if (annualTaxPerPerson >= 0) {
             this.annualTaxPerPerson = annualTaxPerPerson;
@@ -81,21 +85,25 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Invalid value! Annual tax must be at least 0!");
         }
     }
-    
+
+    public int getCapacity() {
+        return capacity;
+    }
+
     @Override
-    public boolean progressBuilding(int progressInDays){
-        if(!builtUp){
+    public boolean progressBuilding(int progressInDays) {
+        if (!builtUp) {
             buildProgress += progressInDays * 25;
-            if(buildProgress >= 100){
+            if (buildProgress >= 100) {
                 buildProgress = 100;
-                builtUp=true;
+                builtUp = true;
                 image = new ImageIcon("data/graphics/" + type() + ".png").getImage();
                 return true;
             }
         }
         return false;
     }
-    
+
     public int getPeopleNum() {
         return peopleNum;
     }
@@ -131,13 +139,13 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Invalid value! Select price must be more than 0!");
         }
     }
-    
+
     /**
      * 
      * @return money for refund
      */
     public int getRefundValue() {
-        return (int)Math.ceil(selectPrice * refund);
+        return (int) Math.ceil(selectPrice * refund);
     }
 
     public void setRefund(double refund) {
@@ -147,7 +155,7 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Invalid value! Refund must be more than 0.0 and less than 1.0!");
         }
     }
-    
+
     @Override
     public boolean isBuiltUp() {
         return builtUp;
@@ -176,30 +184,31 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Invalid value! Chance of fire must be at least 0.0 and less than 1.0!");
         }
     }
-    
+
     /**
      * 
      * @return true if the zone is full otherwise false
      */
     public boolean isFull() {
-        return capacity == peopleNum; 
+        return capacity == peopleNum;
     }
-    
+
     @Override
     public int destroy() {
-        if(builtUp) return 0;
+        if (builtUp)
+            return 0;
         return selectPrice;
     }
-    
+
     protected int calculateSafety() {
         /* TODO: kiszámolni a biztonságot */
         return 1;
     }
-    
+
     public void fireSpread() {
         /* RÉSZFELADAT: Tűzoltóság */
     }
-    
+
     public void burnsDown() {
         /* RÉSZFELADAT: Tűzoltóság */
     }
@@ -217,7 +226,8 @@ abstract class Zone extends Buildable {
         hash = 79 * hash + this.buildProgress;
         hash = 79 * hash + (this.builtUp ? 1 : 0);
         hash = 79 * hash + (this.onFire ? 1 : 0);
-        hash = 79 * hash + (int) (Double.doubleToLongBits(this.chanceOfFire) ^ (Double.doubleToLongBits(this.chanceOfFire) >>> 32));
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.chanceOfFire)
+                ^ (Double.doubleToLongBits(this.chanceOfFire) >>> 32));
         return hash;
     }
 
@@ -265,6 +275,5 @@ abstract class Zone extends Buildable {
         }
         return Double.doubleToLongBits(this.chanceOfFire) == Double.doubleToLongBits(other.chanceOfFire);
     }
-    
-    
+
 }

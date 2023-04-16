@@ -13,8 +13,8 @@ import java.awt.Image;
 public abstract class ServiceBuilding extends PlayerBuildIt{
     protected int radius;
     
-    protected ServiceBuilding(int buildingPrice, int annualFee, int radius, int x, int y, int width, int height, Image image) {
-        super(buildingPrice, annualFee, x, y, width, height, image);
+    protected ServiceBuilding(int buildingPrice, int annualFee, int radius, int x, int y, int width, int height, Image image, double refund) {
+        super(buildingPrice, annualFee, x, y, width, height, image, refund);
         
         if (radius > 0) {
             this.radius = radius;
