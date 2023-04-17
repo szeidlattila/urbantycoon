@@ -368,6 +368,12 @@ class City {
                 for (int i = 0; i < 4; i++) {
                     refund = (int) (s.fields[i].destroyOrDenominate() * REFUND);
                 }
+<<<<<<< HEAD
+=======
+            }
+            if (selectedField.getBuilding() instanceof Road && true) {
+                throw new IllegalArgumentException("aaaaaaaaaaaa");
+>>>>>>> 3474334 (getdistancealongroad debug)
             } else {
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
             }
@@ -840,25 +846,29 @@ class City {
         Q.add(new Coordinate(x1, y1));
         while (!Q.isEmpty()) {
             Coordinate o = (Coordinate) Q.remove();
-            if (o.x + 1 < distances.length && distances[o.x + 1][o.y] == -1 && !fields[o.x + 1][o.y].isFree()) {
+            if ((o.x + 1 < distances.length && distances[o.x + 1][o.y] == -1 && !fields[o.x + 1][o.y].isFree()
+                    && fields[o.x + 1][o.y].getBuilding() instanceof Road) || (o.x + 1 == x2 && o.y == y2)) {
                 distances[o.x + 1][o.y] = distances[o.x][o.y] + 1;
                 if (o.x + 1 == x2 && o.y == y2)
                     break;
                 Q.add(new Coordinate(o.x + 1, o.y));
             }
-            if (o.x - 1 >= 0 && distances[o.x - 1][o.y] == -1 && !fields[o.x - 1][o.y].isFree()) {
+            if ((o.x - 1 >= 0 && distances[o.x - 1][o.y] == -1 && !fields[o.x - 1][o.y].isFree()
+                    && fields[o.x - 1][o.y].getBuilding() instanceof Road) || (o.x - 1 == x2 && o.y == y2)) {
                 distances[o.x - 1][o.y] = distances[o.x][o.y] + 1;
                 if (o.x - 1 == x2 && o.y == y2)
                     break;
                 Q.add(new Coordinate(o.x - 1, o.y));
             }
-            if (o.y + 1 < distances[0].length && distances[o.x][o.y + 1] == -1 && !fields[o.x][o.y + 1].isFree()) {
+            if ((o.y + 1 < distances[0].length && distances[o.x][o.y + 1] == -1 && !fields[o.x][o.y + 1].isFree()
+                    && fields[o.x][o.y + 1].getBuilding() instanceof Road) || (o.x == x2 && o.y + 1 == y2)) {
                 distances[o.x][o.y + 1] = distances[o.x][o.y] + 1;
                 if (o.x == x2 && o.y + 1 == y2)
                     break;
                 Q.add(new Coordinate(o.x, o.y + 1));
             }
-            if (o.y - 1 >= 0 && distances[o.x][o.y - 1] == -1 && !fields[o.x][o.y - 1].isFree()) {
+            if ((o.y - 1 >= 0 && distances[o.x][o.y - 1] == -1 && !fields[o.x][o.y - 1].isFree()
+                    && fields[o.x][o.y - 1].getBuilding() instanceof Road) || (o.x == x2 && o.y - 1 == y2)) {
                 distances[o.x][o.y - 1] = distances[o.x][o.y] + 1;
                 if (o.x == x2 && o.y - 1 == y2)
                     break;
