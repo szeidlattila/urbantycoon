@@ -16,6 +16,12 @@ class Field extends Sprite {
     private boolean free;
     private Buildable building;
 
+    public Field(Field other) {
+        super(other.getX(), other.getY(), other.getWidth(), other.getHeight(), other.getImage());
+        this.free = other.free;
+        this.building = other.building;
+    }
+
     public Field(Buildable building, int x, int y, int width, int height, Image image) {
         super(x, y, width, height, image);
         this.building = building;

@@ -27,6 +27,7 @@ public class Sprite {
     protected int height;
     protected Image image;
 
+
     public Sprite(int x, int y, int width, int height, Image image) {
         this.width = width;
         this.height = height;
@@ -85,5 +86,9 @@ public class Sprite {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public Image getImage() {
+        return image;
     }
 }

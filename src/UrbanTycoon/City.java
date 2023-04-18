@@ -14,6 +14,8 @@ import java.util.Random;
 import java.util.Scanner;
 import javax.swing.ImageIcon;
 import java.util.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  *
@@ -30,6 +32,8 @@ class City {
     private final int STADIUMSATBONUS = 1;
     private final int WIDTH;
     private final int HEIGHT;
+    private final double SCREENHEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+    private final double SCREENWIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
 
     private Field selectedField = null;
 
@@ -256,51 +260,53 @@ class City {
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
         for (Resident resident : residents) {
-            //resident.setSatisfaction(universialSatisfaction + whatSatisfactionFor(resident));
+            // resident.setSatisfaction(universialSatisfaction +
+            // whatSatisfactionFor(resident));
             sumSatisfaction += resident.getSatisfaction();
         }
         this.satisfaction = sumSatisfaction / residents.size();
     }
-    
-    private void calculateUniversialSatisfaction(){
-        universialSatisfaction = (int)((50-tax)/10);
-        universialSatisfaction -= negativeBudgetNthYear * (int)(Math.abs(budget) / 1000);
+
+    private void calculateUniversialSatisfaction() {
+        universialSatisfaction = (int) ((50 - tax) / 10);
+        universialSatisfaction -= negativeBudgetNthYear * (int) (Math.abs(budget) / 1000);
         int szolgaltatasbanDolgozok = 0, iparbanDolgozok = 0;
-        for(Resident res : residents){
-            if(res.getWorkplace() instanceof IndustrialZone)
+        for (Resident res : residents) {
+            if (res.getWorkplace() instanceof IndustrialZone)
                 iparbanDolgozok++;
-            else if(res.getWorkplace() instanceof ServiceZone)
+            else if (res.getWorkplace() instanceof ServiceZone)
                 szolgaltatasbanDolgozok++;
         }
-        universialSatisfaction -= (int)(Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size()) * 10;
+        universialSatisfaction -= (int) (Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size()) * 10;
     }
 
-    private int whatSatisfactionFor(Resident r){
+    private int whatSatisfactionFor(Resident r) {
         int workIndexX = -1, workIndexY = -1, homeIndexX = -1, homeIndexY = -1;
         int sat = 0;
-        for(int i=0;i<fields.length;i++)
-            for(int j=0;j<fields[0].length;j++){
-                if(!fields[i][j].isFree() && r.getWorkplace() == fields[i][j].getBuilding()){
+        for (int i = 0; i < fields.length; i++)
+            for (int j = 0; j < fields[0].length; j++) {
+                if (!fields[i][j].isFree() && r.getWorkplace() == fields[i][j].getBuilding()) {
                     workIndexX = i;
                     workIndexY = j;
-                }
-                else if(!fields[i][j].isFree() && r.getHome() == fields[i][j].getBuilding()){
+                } else if (!fields[i][j].isFree() && r.getHome() == fields[i][j].getBuilding()) {
                     homeIndexX = i;
                     homeIndexY = j;
                 }
             }
-        if(homeIndexX == -1 || workIndexX == -1) throw new IllegalArgumentException("Workplace/Home not Found!");
-        
-        sat += 5 - getDistanceAlongRoad(fields[workIndexX][workIndexY],fields[homeIndexX][homeIndexY]);
-        
-        for(int i=Math.max(0, homeIndexX-5);i<Math.min(fields.length, homeIndexX + 6);i++){
-            for(int j=Math.max(0, homeIndexY-5);j<Math.min(fields[0].length, homeIndexY + 6);j++)
-                if(fields[i][j].getBuilding() instanceof IndustrialZone)
-                    sat += Math.max(Math.abs(i-homeIndexX), Math.abs(j-homeIndexY)) - 6;
+        if (homeIndexX == -1 || workIndexX == -1)
+            throw new IllegalArgumentException("Workplace/Home not Found!");
+
+        sat += 5 - getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
+
+        for (int i = Math.max(0, homeIndexX - 5); i < Math.min(fields.length, homeIndexX + 6); i++) {
+            for (int j = Math.max(0, homeIndexY - 5); j < Math.min(fields[0].length, homeIndexY + 6); j++)
+                if (fields[i][j].getBuilding() instanceof IndustrialZone)
+                    sat += Math.max(Math.abs(i - homeIndexX), Math.abs(j - homeIndexY)) - 6;
         }
-        sat += (int)((r.getHome().getSatisfactionBonus() + r.getWorkplace().getSatisfactionBonus())/2);
+        sat += (int) ((r.getHome().getSatisfactionBonus() + r.getWorkplace().getSatisfactionBonus()) / 2);
         return sat;
     }
+
     public int getTax() {
         return tax;
     }
@@ -401,14 +407,17 @@ class City {
         if (!selectedField.isFree()) {
             int refund = 0;
             if (selectedField.getBuilding() instanceof PoliceStation) {
-                //setSafetyAround(selectedField, -POLICESTATIONSAFETY);
+                // setSafetyAround(selectedField, -POLICESTATIONSAFETY);
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
             } else if (selectedField.getBuilding() instanceof Stadium) {
-                //setSatisfactionBonusAround(selectedField, -STADIUMSATBONUS);
+                // setSatisfactionBonusAround(selectedField, -STADIUMSATBONUS);
                 Stadium s = (Stadium) selectedField.getBuilding();
                 for (int i = 0; i < 4; i++) {
                     refund = (int) (s.fields[i].destroyOrDenominate() * REFUND);
                 }
+            }
+            if (selectedField.getBuilding() instanceof Road && !canDeleteRoad(selectedField)) {
+                throw new IllegalArgumentException("Cannot delete the road!");
             } else {
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
             }
@@ -420,67 +429,71 @@ class City {
         }
     }
 
-    /*private void setSafetyAround(Field ps , int safetyToBeAdded) {
-        int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++) {
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == ps){
-                    x = i;
-                    y = j;
-                }
-            }
-        }
-        if (y == -1 && x == -1)
-            throw new IllegalArgumentException("Destroyed police station not found");
-        for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1,
-                x + RADIUS); i++) {
-            for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1,
-                    y + RADIUS); j++) {
-                if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone && getDistanceAlongRoad(ps,fields[i][j]) != -1) {
-                    zone.setSafety(
-                    Math.min(Math.max(-10, zone.getSafety() + safetyToBeAdded),10));
-                }
-            }
-        }
-    }
-    */
     /*
-    private void setSatisfactionBonusAround(Field st, int satToBeAdded) {
-        int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++) {
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == st){
-                    x = i;
-                    y = j;
-                }
-            }
-        }
-        if (y == -1 && x == -1)
-            throw new IllegalArgumentException("Destroyed stadium not found");
-
-        // stadion 2x2 es, mind a 4 mezo (instanceof Stadium), itt elpozicionál a bal
-        // felső sarkába
-        if (x - 1 >= 0 && fields[x - 1][y].getBuilding() instanceof Stadium)
-            x--;
-        if (y - 1 >= 0 && fields[x][y - 1].getBuilding() instanceof Stadium)
-            y--;
-
-        for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1,
-                x + 1 + RADIUS); i++) {
-            for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[i].length - 1,
-                    y + 1 + RADIUS); j++) {
-                if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
-                    for(int k = 0; k< 4 ; k++)
-                        if(getDistanceAlongRoad(((Stadium)st.getBuilding()).fields[k],fields[i][j]) != -1){
-                            zone.setSatisfactionBonus(Math.min(Math.max(-10,
-                                zone.getSatisfactionBonus() + satToBeAdded),10));
-                            break;
-                        }
-                }
-            }
-        }
-    }
-    */
+     * private void setSafetyAround(Field ps , int safetyToBeAdded) {
+     * int x = -1, y = -1;
+     * for (int i = 0; i < fields.length; i++) {
+     * for (int j = 0; j < fields[0].length; j++) {
+     * if (fields[i][j] == ps){
+     * x = i;
+     * y = j;
+     * }
+     * }
+     * }
+     * if (y == -1 && x == -1)
+     * throw new IllegalArgumentException("Destroyed police station not found");
+     * for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1,
+     * x + RADIUS); i++) {
+     * for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1,
+     * y + RADIUS); j++) {
+     * if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone
+     * && getDistanceAlongRoad(ps,fields[i][j]) != -1) {
+     * zone.setSafety(
+     * Math.min(Math.max(-10, zone.getSafety() + safetyToBeAdded),10));
+     * }
+     * }
+     * }
+     * }
+     */
+    /*
+     * private void setSatisfactionBonusAround(Field st, int satToBeAdded) {
+     * int x = -1, y = -1;
+     * for (int i = 0; i < fields.length; i++) {
+     * for (int j = 0; j < fields[0].length; j++) {
+     * if (fields[i][j] == st){
+     * x = i;
+     * y = j;
+     * }
+     * }
+     * }
+     * if (y == -1 && x == -1)
+     * throw new IllegalArgumentException("Destroyed stadium not found");
+     * 
+     * // stadion 2x2 es, mind a 4 mezo (instanceof Stadium), itt elpozicionál a bal
+     * // felső sarkába
+     * if (x - 1 >= 0 && fields[x - 1][y].getBuilding() instanceof Stadium)
+     * x--;
+     * if (y - 1 >= 0 && fields[x][y - 1].getBuilding() instanceof Stadium)
+     * y--;
+     * 
+     * for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1,
+     * x + 1 + RADIUS); i++) {
+     * for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[i].length - 1,
+     * y + 1 + RADIUS); j++) {
+     * if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone
+     * zone) {
+     * for(int k = 0; k< 4 ; k++)
+     * if(getDistanceAlongRoad(((Stadium)st.getBuilding()).fields[k],fields[i][j])
+     * != -1){
+     * zone.setSatisfactionBonus(Math.min(Math.max(-10,
+     * zone.getSatisfactionBonus() + satToBeAdded),10));
+     * break;
+     * }
+     * }
+     * }
+     * }
+     * }
+     */
     public void yearElapsed() {
         for (Field[] row : fields) {
             for (Field field : row) {
@@ -794,8 +807,8 @@ class City {
                     boolean isAccessible = isAccessibleOnRoad(field);
                     field.getBuilding().select(isAccessible);
                     field.getBuilding().unselect(isAccessible);
-                    zone.setSafety(Math.min(Math.max(calculateSafety(field),-10),10));
-                    zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field),-10),10));
+                    zone.setSafety(Math.min(Math.max(calculateSafety(field), -10), 10));
+                    zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field), -10), 10));
                 }
         if (selectedField != null && !selectedField.isFree())
             selectedField.getBuilding()
@@ -827,17 +840,20 @@ class City {
         if (isAccessibleOnRoad(selectedField))
             acc = true;
         if (zoneClass == ResidentialZone.class) {
-            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax, calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, 0.0,
+            selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax,
+                    calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, 0.0,
                     selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
                     new ImageIcon("data/graphics/" + (acc ? "selectedBuild" : "selectedUnableBuild") + ".png")
                             .getImage()));
         } else if (zoneClass == IndustrialZone.class) {
-            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax, calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, 0.0,
+            selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax,
+                    calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, 0.0,
                     selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
                     new ImageIcon("data/graphics/" + (acc ? "selectedBuild" : "selectedUnableBuild") + ".png")
                             .getImage()));
         } else if (zoneClass == ServiceZone.class) {
-            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, 0.0,
+            selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, calculateSafety(selectedField),
+                    calculateSatBonus(selectedField), REFUND, 0.0,
                     selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
                     new ImageIcon("data/graphics/" + (acc ? "selectedBuild" : "selectedUnableBuild") + ".png")
                             .getImage()));
@@ -845,13 +861,15 @@ class City {
 
         budget -= zonePrice;
     }
+
     /**
      * A selectedField-re dolgozik
-     * @return 
+     * 
+     * @return
      */
-    private int calculateSafety(Field field){
+    private int calculateSafety(Field field) {
         int bonus = 0;
-        int x=-1,y=-1;
+        int x = -1, y = -1;
         for (int i = 0; i < fields.length; i++)
             for (int j = 0; j < fields[0].length; j++) {
                 if (fields[i][j] == field) {
@@ -859,20 +877,23 @@ class City {
                     y = j;
                 }
             }
-        for(int i=Math.max(0,x-RADIUS); i<= Math.min(fields.length-1,x+RADIUS);i++)
-            for(int j=Math.max(0,y-RADIUS); j<= Math.min(fields[0].length-1,y+RADIUS);j++)
-                if(!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof PoliceStation && getDistanceAlongRoad(field, fields[i][j]) != -1){
+        for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
+            for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
+                if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof PoliceStation
+                        && getDistanceAlongRoad(field, fields[i][j], fields) != -1) {
                     bonus += POLICESTATIONSAFETY;
                 }
         return bonus;
     }
+
     /**
      * A selectedField-re dolgozik
-     * @return 
+     * 
+     * @return
      */
-    private int calculateSatBonus(Field field){
+    private int calculateSatBonus(Field field) {
         int bonus = 0;
-        int x=-1,y=-1;
+        int x = -1, y = -1;
         for (int i = 0; i < fields.length; i++)
             for (int j = 0; j < fields[0].length; j++) {
                 if (fields[i][j] == field) {
@@ -880,18 +901,78 @@ class City {
                     y = j;
                 }
             }
-        ArrayList<Stadium> usedStadiums= new ArrayList<>();
-        for(int i=Math.max(0,x-RADIUS); i<= Math.min(fields.length-1,x+RADIUS);i++)
-            for(int j=Math.max(0,y-RADIUS); j<= Math.min(fields[0].length-1,y+RADIUS);j++)
-                if(!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Stadium stadium && !usedStadiums.contains(stadium)){
-                    for(int k = 0;k<4;k++)
-                        if(getDistanceAlongRoad(stadium.fields[k],field) != -1){
+        ArrayList<Stadium> usedStadiums = new ArrayList<>();
+        for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
+            for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
+                if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Stadium stadium
+                        && !usedStadiums.contains(stadium)) {
+                    for (int k = 0; k < 4; k++)
+                        if (getDistanceAlongRoad(stadium.fields[k], field, fields) != -1) {
                             bonus += STADIUMSATBONUS;
                             usedStadiums.add(stadium);
                             break;
                         }
                 }
         return bonus;
+    }
+
+    public boolean canDeleteRoad(Field field) {
+        // copy fields matrix to simulate road deleting
+        Field[][] copyFields = new Field[fields.length][fields[0].length];
+
+        // populating copyFields
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[0].length; j++) {
+                copyFields[i][j] = new Field(fields[i][j]);
+                if (fields[i][j] == field) {
+                    // deleting road from field given in the prompt
+                    copyFields[i][j].setBuilding(null);
+                }
+
+            }
+        }
+        // check houses-workplaces connections
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[0].length; j++) {
+                if (fields[i][j].getBuilding() instanceof ResidentialZone) {
+                    boolean isConnected = false;
+                    for (int l = 0; l < fields.length; l++) {
+                        for (int k = 0; k < fields[0].length; k++) {
+                            if (fields[l][k].getBuilding() instanceof Workplace) {
+                                if (getDistanceAlongRoad(copyFields[i][j], copyFields[l][k], copyFields) > -1) {
+                                    isConnected = true;
+                                }
+                            }
+                        }
+                    }
+                    if (!isConnected) {
+                        return false;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[0].length; j++) {
+                if (fields[i][j].getBuilding() instanceof Workplace) {
+                    boolean isConnected = false;
+                    for (int l = 0; l < fields.length; l++) {
+                        for (int k = 0; k < fields[0].length; k++) {
+                            if (fields[l][k].getBuilding() instanceof ResidentialZone) {
+                                if (getDistanceAlongRoad(copyFields[i][j], copyFields[l][k], copyFields) > -1) {
+                                    isConnected = true;
+                                }
+                            }
+                        }
+                    }
+                    if (!isConnected) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+
     }
 
     /**
@@ -910,7 +991,7 @@ class City {
         }
     }
 
-    private int getDistanceAlongRoad(Field one, Field other) {
+    private int getDistanceAlongRoad(Field one, Field other, Field[][] fields) {
         if (one == other)
             return 0;
         int x1 = -1, x2 = -1, y1 = -1, y2 = -1;
