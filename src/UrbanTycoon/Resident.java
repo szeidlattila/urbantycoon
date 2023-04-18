@@ -26,9 +26,9 @@ class Resident {
             throw new IllegalArgumentException("Invalid value! Age must be at least 18!");
         }
         
-        this.satisfaction = calculateSatisfaction();
-        this.home = null;      // TODO: ideális Residentalzone
-        this.workplace = null; // TODO: ideális Workplace
+        this.satisfaction = 0;
+        this.home = home;
+        this.workplace = workplace;
     }
 
     public void setSatisfaction(int satisfaction) {
@@ -87,11 +87,6 @@ class Resident {
         
     }
     
-    public int calculateSatisfaction() {
-        /* TODO: Tényezők szerint kiszámítja az elégedettséget */
-        return 0;
-    }
-    
     public void retire() {
         /* RÉSZFELADAT: Nyugdíj */
     }
@@ -144,7 +139,7 @@ class Resident {
 
     @Override
     public String toString() {
-        return "age:" + age + ", satisfaction: " + satisfaction + ", workplace: " + (retired ? "retired" : (workplace.getClass() == IndustrialZone.class ? "Industrial" : "Service"));
+        return "age:" + age + ", satisfaction: " + satisfaction/* + ", workplace: " + (retired ? "retired" : (workplace.getClass() == IndustrialZone.class ? "Industrial" : "Service"))*/;
     }
     
     

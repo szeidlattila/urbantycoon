@@ -303,16 +303,16 @@ class GameEngine extends JPanel {
                 int currentPeople = ((ResidentialZone) selectedBuilding).getPeopleNum();
                 String residents = "Residents: ";
                 for (Resident person : city.getResidents()) {
-                    if (person.getHome() == selectedBuilding) {
+                    if (person.getHome() == ((ResidentialZone)selectedBuilding)) {
                         residents += person.toString() + " ; ";
                     }
                 }
                 return "Residential zone info (" + currentPeople + "/" + RESIDENTCAPACITY + ") : " + residents;
             } else if (selectedBuilding instanceof Workplace) {
                 int currentPeople = ((Workplace) selectedBuilding).getPeopleNum();
-                String residents = "Residents: ";
+                String residents = "Employers: ";
                 for (Resident person : city.getResidents()) {
-                    if (person.getWorkplace()== selectedBuilding) {
+                    if (person.getWorkplace() == (Workplace)selectedBuilding) {
                         residents += person.toString() + " ; ";
                     }
                 }
