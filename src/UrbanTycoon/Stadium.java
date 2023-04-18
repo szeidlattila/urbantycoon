@@ -16,7 +16,7 @@ public class Stadium extends ServiceBuilding{
 
 
     public Stadium(int buildingPrice, int annualFee, int radius, int x, int y, int width, int height, Image image, double refund) {
-        super(buildingPrice, annualFee, radius, x, y, width, height, image, refund);
+        super(buildingPrice, annualFee, radius, x, y, width, height, image, refund); // divide by 4 because stadium size is 2x2
     }
 
     protected String type(){

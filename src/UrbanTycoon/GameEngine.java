@@ -284,13 +284,17 @@ class GameEngine extends JPanel{
                "<html><h3><font color=#00a605>Annual income:</font></h3></html>\n+ $" + city.getTax()*city.getResidentsNum()*2 +
                "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee();
     }
+    
+    private void gameOver() {
+        new PopupInfo(new JFrame(), "You lost!\nCity satisfaction is critical.", "Game over");
+        newGame();
+    }
             
     class NewFrameListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            if(!paused){
-                
+            if(!paused) {
                 repaint();
             }
         }
@@ -305,6 +309,7 @@ class GameEngine extends JPanel{
                 if(prevTime.getYear() != time.getYear()) city.yearElapsed();
                 int modelPerformTicks = time.howManyDaysPassed(prevTime);
                 city.performTicks(modelPerformTicks);
+                if (city.getSatisfaction() <= CRITSATISFACTION) gameOver();
             }
         }
     }

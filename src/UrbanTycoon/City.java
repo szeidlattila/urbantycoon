@@ -90,8 +90,7 @@ class City {
         if (-10 <= criticalSatisfaction && criticalSatisfaction < 0) {
             this.criticalSatisfaction = criticalSatisfaction;
         } else {
-            throw new IllegalArgumentException(
-                    "Invalid value! Critical satisfaction must be at least -10 and lower than 0!");
+            throw new IllegalArgumentException("Invalid value! Critical satisfaction must be at least -10 and lower than 0!");
         }
 
         this.budget = budget;
@@ -416,8 +415,7 @@ class City {
                 for (int i = 0; i < 4; i++) {
                     refund = (int) (s.fields[i].destroyOrDenominate() * REFUND);
                 }
-            }
-            if (selectedField.getBuilding() instanceof Road && !canDeleteRoad(selectedField)) {
+            } else if (selectedField.getBuilding() instanceof Road && !canDeleteRoad(selectedField)) {
                 throw new IllegalArgumentException("Cannot delete the road!");
             } else {
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
@@ -501,6 +499,7 @@ class City {
                 if (!field.isFree()) {
                     budget += field.getBuilding().getAnnualTax();
                     budget -= field.getBuilding().getAnnualFee();
+                    budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
                 }
             }
         }
@@ -1101,13 +1100,14 @@ class City {
                 else if (field.getBuilding() instanceof FireStation)      sum += getAnnualFee(fireStationPrice);
             }
         }
-        return sum;
+        return sum - countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
     }
     
     /**
      * 
      * @param buildableClass
-     * @return count of given Field
+     * @return count of given field
+     * if given field is stadium: divide count by 4 (because stadium is 2x2)
      */
     public int countField(Class buildableClass) {
         int count = 0;
@@ -1116,6 +1116,6 @@ class City {
                 if (!field.isFree() && field.getBuilding().getClass() == buildableClass)  count++;
             }
         }
-        return count;
+        return buildableClass == Stadium.class ? (int)count/4 : count;
     }
 }
