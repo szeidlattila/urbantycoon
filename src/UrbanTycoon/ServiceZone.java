@@ -12,8 +12,8 @@ import javax.swing.ImageIcon;
  * @author Felhasználó
  */
 public class ServiceZone extends Workplace{
-    public ServiceZone(int capacity, int selectPrice, int annualTax, double refund, double chanceOfFire,int x,int y,int width, int height,Image image) {
-        super(capacity, selectPrice, annualTax, refund, chanceOfFire, x, y, width, height, image);
+    public ServiceZone(int capacity, int selectPrice, int annualTax, int safety, int satisfactionBonus, double refund, double chanceOfFire,int x,int y,int width, int height,Image image) {
+        super(capacity, selectPrice, annualTax, safety, satisfactionBonus, refund, chanceOfFire, x, y, width, height, image);
     }
     
     protected String type(){

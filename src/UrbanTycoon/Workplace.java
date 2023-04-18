@@ -11,7 +11,7 @@ import java.awt.Image;
  * @author Felhasználó
  */
 abstract class Workplace extends Zone {
-    protected Workplace(int capacity, int selectPrice, int annualTax, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
-        super(capacity, selectPrice, false, annualTax, refund, chanceOfFire ,x, y, width, height, image);
+    protected Workplace(int capacity, int selectPrice, int annualTax, int safety, int satisfactionBonus, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
+        super(capacity, selectPrice, annualTax, safety, satisfactionBonus, refund, chanceOfFire ,x, y, width, height, image);
     }
 }

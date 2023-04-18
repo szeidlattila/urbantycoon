@@ -37,13 +37,11 @@ class Field extends Sprite {
 
     public String getInfo() {
         String out;
-        if (building instanceof Zone) {
-            Zone zone = (Zone) building;
-            out = "Residents: " + zone.getCapacity() + "/" + zone.getPeopleNum();
+        if (building instanceof Zone zone) {
+            out = "Residents: " + zone.getCapacity() + "/" + zone.getPeopleNum() + "\nSafety: " + zone.getSafety() + "\nSatBonus: " + zone.getSatisfactionBonus();
             return out;
         }
-        if (building instanceof PlayerBuildIt) {
-            PlayerBuildIt pbi = (PlayerBuildIt) building;
+        if (building instanceof PlayerBuildIt pbi) {
             out = "Annual Fee: " + pbi.getAnnualFee() + " Build Price: " + pbi.getBuildingPrice() + " Refund: "
                     + pbi.getBuildingPrice() * pbi.getRefund();
             return out;

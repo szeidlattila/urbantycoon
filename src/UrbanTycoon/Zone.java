@@ -16,7 +16,7 @@ abstract class Zone extends Buildable {
     protected final int capacity;
     protected int peopleNum = 0;
     protected int safety;
-    protected int satisfactionBonus = 0;
+    protected int satisfactionBonus;
     protected int selectPrice;
     protected int annualTaxPerPerson;
     protected double refund;
@@ -25,7 +25,7 @@ abstract class Zone extends Buildable {
     protected boolean onFire = false;
     protected double chanceOfFire;
 
-    protected Zone(int capacity, int selectPrice, boolean builtUp, int annualTaxPerPerson, double refund,
+    protected Zone(int capacity, int selectPrice, int annualTaxPerPerson,int safety, int satisfactionBonus, double refund,
             double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(x, y, width, height, image, refund);
         this.selectPrice = selectPrice;
@@ -35,7 +35,8 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Invalid value! Capacity must be greater than 0!");
         }
 
-        this.safety = calculateSafety();
+        this.safety = safety;
+        this.satisfactionBonus = satisfactionBonus;
 
         if (annualTaxPerPerson >= 0) {
             this.annualTaxPerPerson = annualTaxPerPerson;
@@ -55,7 +56,6 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException(
                     "Invalid value! Chance of fire must be greater than 0.0 and lower than 0.5!");
         }
-        this.builtUp = builtUp;
     }
 
     public int getSatisfactionBonus() {
@@ -198,11 +198,6 @@ abstract class Zone extends Buildable {
         if (builtUp)
             return 0;
         return selectPrice;
-    }
-
-    protected int calculateSafety() {
-        /* TODO: kiszámolni a biztonságot */
-        return 1;
     }
 
     public void fireSpread() {
