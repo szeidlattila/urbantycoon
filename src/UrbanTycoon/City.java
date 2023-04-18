@@ -1086,4 +1086,36 @@ class City {
 
         return peopleInZone;
     }
+    
+    /**
+     * 
+     * @return sum of annual fees
+     */
+    public long calculateAnnualFee() {
+        long sum = 0;
+        for (Field[] fields : this.fields) {
+            for (Field field : fields) {
+                if (field.getBuilding() instanceof Road)                  sum += getAnnualFee(roadPrice);
+                else if (field.getBuilding() instanceof Stadium)          sum += getAnnualFee(stadiumPrice);
+                else if (field.getBuilding() instanceof PoliceStation)    sum += getAnnualFee(policeStationPrice);
+                else if (field.getBuilding() instanceof FireStation)      sum += getAnnualFee(fireStationPrice);
+            }
+        }
+        return sum;
+    }
+    
+    /**
+     * 
+     * @param buildableClass
+     * @return count of given Field
+     */
+    public int countField(Class buildableClass) {
+        int count = 0;
+        for (Field[] fields : this.fields) {
+            for (Field field : fields) {
+                if (!field.isFree() && field.getBuilding().getClass() == buildableClass)  count++;
+            }
+        }
+        return count;
+    }
 }

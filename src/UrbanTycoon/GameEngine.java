@@ -277,35 +277,12 @@ class GameEngine extends JPanel{
     private String budgetInfo() { // city.getTax()*city.getResidentsNum()*2, mert munkahely + lakóhely, nyugdíj bezavarhat majd (aki már nem dolgozik)
         return "<html><h2><font color=#00a605>Annual incomes</font><h2></html>\nResident tax: " +  city.getTax() + "$/residential  (" + city.getResidentsNum()+
                " residents)\nEmployer tax: " + city.getTax() + "$/employer  (" + city.getResidentsNum()+ " employers)\n\n" +
-               "<html><h2><font color=#fc1c03>Annual outcomes</font></h2></html>\nRoad maintenance fee: " + city.getAnnualFee(ROADPRICE) + "$/road  (" + countField(Road.class) +
-               " roads)\nStadium maintenance fee: " + city.getAnnualFee(STADIUMPRICE) + "$/stadium  (" + countField(Stadium.class) + " stadiums)" +
-               "\nPolice station maintenance fee: " + city.getAnnualFee(POLICESTATIONPRICE) + "$/police station  (" + countField(PoliceStation.class) + " police stations)" +
-               "\nFire station maintenance fee: " + city.getAnnualFee(FIRESTATIONPRICE) + "$/fire station  (" + countField(FireStation.class) + " fire stations)\n\n" +
+               "<html><h2><font color=#fc1c03>Annual outcomes</font></h2></html>\nRoad maintenance fee: " + city.getAnnualFee(ROADPRICE) + "$/road  (" + city.countField(Road.class) +
+               " roads)\nStadium maintenance fee: " + city.getAnnualFee(STADIUMPRICE) + "$/stadium  (" + city.countField(Stadium.class) + " stadiums)" +
+               "\nPolice station maintenance fee: " + city.getAnnualFee(POLICESTATIONPRICE) + "$/police station  (" + city.countField(PoliceStation.class) + " police stations)" +
+               "\nFire station maintenance fee: " + city.getAnnualFee(FIRESTATIONPRICE) + "$/fire station  (" + city.countField(FireStation.class) + " fire stations)\n\n" +
                "<html><h3><font color=#00a605>Annual income:</font></h3></html>\n+ $" + city.getTax()*city.getResidentsNum()*2 +
-               "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + calculateAnnualFee();
-    }
-    
-    private long calculateAnnualFee() {
-        long sum = 0;
-        for (Field[] fields : city.getFields()) {
-            for (Field field : fields) {
-                if (field.getBuilding() instanceof Road)                  sum += city.getAnnualFee(ROADPRICE);
-                else if (field.getBuilding() instanceof Stadium)          sum += city.getAnnualFee(STADIUMPRICE);
-                else if (field.getBuilding() instanceof PoliceStation)    sum += city.getAnnualFee(POLICESTATIONPRICE);
-                else if (field.getBuilding() instanceof FireStation)      sum += city.getAnnualFee(FIRESTATIONPRICE);
-            }
-        }
-        return sum;
-    }
-    
-    private int countField(Class buildableClass) {
-        int count = 0;
-        for (Field[] fields : city.getFields()) {
-            for (Field field : fields) {
-                if (!field.isFree() && field.getBuilding().getClass() == buildableClass)  count++;
-            }
-        }
-        return count;
+               "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee();
     }
             
     class NewFrameListener implements ActionListener {
