@@ -30,6 +30,10 @@ class Resident {
         this.home = null;      // TODO: ideális Residentalzone
         this.workplace = null; // TODO: ideális Workplace
     }
+
+    public void setSatisfaction(int satisfaction) {
+        this.satisfaction = satisfaction;
+    }
     
     public int getAge(){
         return age;

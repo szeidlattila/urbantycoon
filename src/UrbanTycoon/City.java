@@ -35,6 +35,7 @@ class City {
 
     private boolean showFieldInfoPopup = false;
     private int satisfaction = 0;
+    private int universialSatisfaction = 0;
     private int criticalSatisfaction;
     private long budget;
     private int zonePrice;
@@ -251,14 +252,55 @@ class City {
      * Calculate residents avarage satisfaction and this value will be the city
      * satisfaction
      */
-    public void changeSatisfaction() {
+    private void changeSatisfaction() {
+        calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
         for (Resident resident : residents) {
+            //resident.setSatisfaction(universialSatisfaction + whatSatisfactionFor(resident));
             sumSatisfaction += resident.getSatisfaction();
         }
         this.satisfaction = sumSatisfaction / residents.size();
     }
+    
+    private void calculateUniversialSatisfaction(){
+        universialSatisfaction = (int)((50-tax)/10);
+        universialSatisfaction -= negativeBudgetNthYear * (int)(Math.abs(budget) / 1000);
+        int szolgaltatasbanDolgozok = 0, iparbanDolgozok = 0;
+        for(Resident res : residents){
+            if(res.getWorkplace() instanceof IndustrialZone)
+                iparbanDolgozok++;
+            else if(res.getWorkplace() instanceof ServiceZone)
+                szolgaltatasbanDolgozok++;
+        }
+        universialSatisfaction -= (int)(Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size()) * 10;
+    }
 
+    private int whatSatisfactionFor(Resident r){
+        int workIndexX = -1, workIndexY = -1, homeIndexX = -1, homeIndexY = -1;
+        int sat = 0;
+        for(int i=0;i<fields.length;i++)
+            for(int j=0;j<fields[0].length;j++){
+                if(!fields[i][j].isFree() && r.getWorkplace() == fields[i][j].getBuilding()){
+                    workIndexX = i;
+                    workIndexY = j;
+                }
+                else if(!fields[i][j].isFree() && r.getHome() == fields[i][j].getBuilding()){
+                    homeIndexX = i;
+                    homeIndexY = j;
+                }
+            }
+        if(homeIndexX == -1 || workIndexX == -1) throw new IllegalArgumentException("Workplace/Home not Found!");
+        
+        sat += 5 - getDistanceAlongRoad(fields[workIndexX][workIndexY],fields[homeIndexX][homeIndexY]);
+        
+        for(int i=Math.max(0, homeIndexX-5);i<Math.min(fields.length, homeIndexX + 6);i++){
+            for(int j=Math.max(0, homeIndexY-5);j<Math.min(fields[0].length, homeIndexY + 6);j++)
+                if(fields[i][j].getBuilding() instanceof IndustrialZone)
+                    sat += Math.max(Math.abs(i-homeIndexX), Math.abs(j-homeIndexY)) - 6;
+        }
+        sat += (int)((r.getHome().getSatisfactionBonus() + r.getWorkplace().getSatisfactionBonus())/2);
+        return sat;
+    }
     public int getTax() {
         return tax;
     }
@@ -468,6 +510,7 @@ class City {
                 selectedField.getBuilding().setImage(new ImageIcon("data/graphics/selected"
                         + zone.type().substring(0, 1).toUpperCase() + zone.type().substring(1) + ".png").getImage());
             }
+            changeSatisfaction();
         }
     }
 
