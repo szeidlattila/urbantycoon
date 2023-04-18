@@ -934,11 +934,11 @@ class City {
         // check houses-workplaces connections
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j].getBuilding() instanceof ResidentialZone) {
+                if (fields[i][j].getBuilding() instanceof ResidentialZone && fields[i][j].getBuilding().isBuiltUp()) {
                     boolean isConnected = false;
                     for (int l = 0; l < fields.length; l++) {
                         for (int k = 0; k < fields[0].length; k++) {
-                            if (fields[l][k].getBuilding() instanceof Workplace) {
+                            if (fields[l][k].getBuilding() instanceof Workplace && fields[l][k].getBuilding().isBuiltUp()) {
                                 if (getDistanceAlongRoad(copyFields[i][j], copyFields[l][k], copyFields) > -1) {
                                     isConnected = true;
                                 }
@@ -953,11 +953,11 @@ class City {
         }
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j].getBuilding() instanceof Workplace) {
+                if (fields[i][j].getBuilding() instanceof Workplace && fields[i][j].getBuilding().isBuiltUp()) {
                     boolean isConnected = false;
                     for (int l = 0; l < fields.length; l++) {
                         for (int k = 0; k < fields[0].length; k++) {
-                            if (fields[l][k].getBuilding() instanceof ResidentialZone) {
+                            if (fields[l][k].getBuilding() instanceof ResidentialZone && fields[l][k].getBuilding().isBuiltUp()) {
                                 if (getDistanceAlongRoad(copyFields[i][j], copyFields[l][k], copyFields) > -1) {
                                     isConnected = true;
                                 }
