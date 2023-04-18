@@ -141,6 +141,11 @@ class Resident {
         }
         return Objects.equals(this.workplace, other.workplace);
     }
+
+    @Override
+    public String toString() {
+        return "age:" + age + ", satisfaction: " + satisfaction + ", workplace: " + (retired ? "retired" : (workplace.getClass() == IndustrialZone.class ? "Industrial" : "Service"));
+    }
     
     
 }

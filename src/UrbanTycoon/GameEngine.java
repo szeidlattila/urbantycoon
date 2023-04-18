@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -56,7 +57,7 @@ class GameEngine extends JPanel{
     private Timer newFrameTimer;
     private Timer gameTickTimer;
     private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, showBudgetButton;
-    private final JLabel moneyLabel,dateLabel;
+    private final JLabel moneyLabel, taxLabel, dateLabel, zoneInfoLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
@@ -134,8 +135,12 @@ class GameEngine extends JPanel{
         
         this.moneyLabel = new JLabel("Funds: ");
         this.add(moneyLabel);
+        this.taxLabel = new JLabel("Tax: ");
+        this.add(taxLabel);
         this.dateLabel = new JLabel(time.toString());
         this.add(dateLabel);
+        this.zoneInfoLabel = new JLabel("");
+        this.add(zoneInfoLabel);
     }
     
     @Override
@@ -150,7 +155,9 @@ class GameEngine extends JPanel{
                     city.getFields()[i][j].draw(grphcs);
                 }
                 moneyLabel.setText("Funds: " + city.getBudget() + "$");
+                taxLabel.setText("Tax: " + city.getTax() + "$");
                 dateLabel.setText(time.toString());
+                zoneInfoLabel.setText(zoneInfo());
             }
         }
 
@@ -237,11 +244,6 @@ class GameEngine extends JPanel{
     
     // itt minden a ( city.selectedField : Field )-del dolgozik
     
-    private void showFieldInfo(){
-        String fieldInfo = city.getFieldInfo();
-        //TODO csinálni vele vmit. pl uj jFrame-ben, vagy másik grafikus popup-ban
-    }
-    
     private void nominateAsIndustrialZone(){
         city.nominateAsIndustrialZone();
     }
@@ -283,6 +285,36 @@ class GameEngine extends JPanel{
                "\nFire station maintenance fee: " + city.getAnnualFee(FIRESTATIONPRICE) + "$/fire station  (" + city.countField(FireStation.class) + " fire stations)\n\n" +
                "<html><h3><font color=#00a605>Annual income:</font></h3></html>\n+ $" + city.getTax()*city.getResidentsNum()*2 +
                "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee();
+    }
+    
+    private String zoneInfo() {
+        if (prevSelectedFieldX != -1 && prevSelectedFieldY != -1 && !city.getFields()[prevSelectedFieldY][prevSelectedFieldX].isFree() && city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding() instanceof Zone) {
+            Field selectedField = city.getFields()[prevSelectedFieldY][prevSelectedFieldX];
+            Buildable selectedBuilding = selectedField.getBuilding();
+            if (selectedBuilding instanceof ResidentialZone) {
+                int currentPeople = ((ResidentialZone) selectedBuilding).getPeopleNum();
+                String residents = "Residents: ";
+                for (Resident person : city.getResidents()) {
+                    if (person.getHome() == selectedBuilding) {
+                        residents += person.toString() + " ; ";
+                    }
+                }
+                return "Residential zone info (" + currentPeople + "/" + RESIDENTCAPACITY + ") : " + residents;
+            } else if (selectedBuilding instanceof Workplace) {
+                int currentPeople = ((Workplace) selectedBuilding).getPeopleNum();
+                String residents = "Residents: ";
+                for (Resident person : city.getResidents()) {
+                    if (person.getWorkplace()== selectedBuilding) {
+                        residents += person.toString() + " ; ";
+                    }
+                }
+                return "Workplace zone info (" + currentPeople + "/" + WORKPLACECAPACITY + ") : " + residents;
+            } else {
+                throw new IllegalArgumentException("Selected field must be ResidentialZone or Workplace!");
+            }
+        }
+        
+        return "";
     }
     
     private void gameOver() {
