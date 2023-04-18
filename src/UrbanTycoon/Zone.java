@@ -25,7 +25,8 @@ abstract class Zone extends Buildable {
     protected boolean onFire = false;
     protected double chanceOfFire;
 
-    protected Zone(int capacity, int selectPrice, int annualTaxPerPerson,int safety, int satisfactionBonus, double refund,
+    protected Zone(int capacity, int selectPrice, int annualTaxPerPerson, int safety, int satisfactionBonus,
+            double refund,
             double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(x, y, width, height, image, refund);
         this.selectPrice = selectPrice;
@@ -114,6 +115,13 @@ abstract class Zone extends Buildable {
         } else {
             throw new IllegalArgumentException("Invalid value! People number must be at least 0!");
         }
+    }
+
+    public void incrementPeopleNum() {
+        if (peopleNum + 1 > capacity) {
+            throw new IllegalArgumentException("peopleNum cannot be bigger than the capacity");
+        }
+        peopleNum++;
     }
 
     public int getSafety() {
