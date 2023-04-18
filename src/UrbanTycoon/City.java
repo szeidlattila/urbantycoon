@@ -367,12 +367,12 @@ class City {
                 for (int i = 0; i < 4; i++) {
                     refund = (int) (s.fields[i].destroyOrDenominate() * REFUND);
                 }
-                selectedField.select();
             } else {
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
             }
             if (refund != 0) {
                 budget += refund;
+                selectedField.select();
             }
         }
     }
