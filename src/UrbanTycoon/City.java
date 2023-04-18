@@ -49,7 +49,7 @@ class City {
     private int fireStationPrice;
     private double annualFeePercentage; // playerBuildIt -> annualFee = price * annualFeePercentage
     private int negativeBudgetNthYear = 0;
-    private int tax = 0;
+    private int tax = 100;
     private int residentCapacity;
     private int workplaceCapacity;
     private double moveInChance;
@@ -312,11 +312,12 @@ class City {
     }
 
     public void increaseTax() {
-        // TODO
+        tax += 50;
     }
 
     public void lowerTax() {
-        // TODO
+        tax -= 50;
+        if (tax <= 0)   tax = 0;
     }
 
     /**
