@@ -368,6 +368,7 @@ class City {
                 for (int i = 0; i < 4; i++) {
                     refund = (int) (s.fields[i].destroyOrDenominate() * REFUND);
                 }
+                selectedField.select();
             } else {
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
             }
@@ -425,8 +426,8 @@ class City {
 
         for (int i = Math.max(0, x - (int) (RADIUS / 2)); i <= Math.min(fields.length - 1,
                 x + 1 + (int) (RADIUS / 2)); i++) {
-            for (int j = Math.max(0, y - (int) (RADIUS / 2)); i <= Math.min(fields[i].length - 1,
-                    y + 1 + (int) (RADIUS / 2)); i++) {
+            for (int j = Math.max(0, y - (int) (RADIUS / 2)); j <= Math.min(fields[i].length - 1,
+                    y + 1 + (int) (RADIUS / 2)); j++) {
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone) {
                     ((Zone) (fields[i][j].getBuilding())).setSatisfactionBonus(Math.min(-10,
                             ((Zone) fields[i][j].getBuilding()).getSatisfactionBonus() - STADIUMSATBONUS));

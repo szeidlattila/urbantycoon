@@ -75,6 +75,7 @@ class Field extends Sprite {
         if (!this.free)
             return;
         setBuilding(newBuilding);
+        unselect();
     }
 
     public void select() {
