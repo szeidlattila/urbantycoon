@@ -641,24 +641,53 @@ class City {
         for (int i = 0; i < residentsNum; i++) {
             ResidentialZone home = null;
             Workplace workplace = null;
-            for (Field[] row : fields) {
-                for (Field field : row) {
+            Field homeField = null;
+            Field workplaceField = null;
+            for (int j = 0; j < fields.length; j++) {
+                for (int k = 0; k < fields[0].length; k++) {
+                    Field field = fields[j][k];
                     if (!field.isFree()) {
                         if (field.getBuilding() instanceof ResidentialZone freeResidentialZone
                                 && !freeResidentialZone.isFull()) {
                             home = freeResidentialZone;
-                        } else if (field.getBuilding() instanceof Workplace freeWorkplace && !freeWorkplace.isFull()) {
-                            workplace = freeWorkplace;
-                        }
-
-                        if (home != null && workplace != null) {
-                            break;
+                            homeField = field;
+                            Zone tmp = (Zone) field.getBuilding();
+                            tmp.incrementPeopleNum();
+                            /* System.out.printf("#%d Residents's home(%d/%d) is (%d,%d)%n", i,
+                                    tmp.getPeopleNum(), tmp.getCapacity(), j, k); */
                         }
                     }
-
-                    if (home != null && workplace != null) {
+                    if (home != null) {
                         break;
                     }
+
+                }
+                if (home != null) {
+                    break;
+                }
+            }
+            for (int j = 0; j < fields.length; j++) {
+                for (int k = 0; k < fields[0].length; k++) {
+                    Field field = fields[j][k];
+                    if (!field.isFree()) {
+                        if (field.getBuilding() instanceof Workplace freeWorkplace && !freeWorkplace.isFull()) {
+                            workplaceField = field;
+
+                            if (getDistanceAlongRoad(homeField, workplaceField, fields) > -1) {
+                                workplace = freeWorkplace;
+                                Zone tmp = (Zone) field.getBuilding();
+                                tmp.incrementPeopleNum();
+                                /* System.out.printf("#%d Residents's workplace(%d/%d) is (%d,%d)%n%n", i,
+                                        tmp.getPeopleNum(), tmp.getCapacity(), j, k); */
+                            }
+                        }
+                    }
+                    if (workplace != null) {
+                        break;
+                    }
+                }
+                if (workplace != null) {
+                    break;
                 }
             }
 
@@ -667,6 +696,42 @@ class City {
             } else {
                 throw new IllegalArgumentException("Home and workplace cannot be null!");
             }
+
+            /*
+             * for (Field[] row : fields) {
+             * for (Field field : row) {
+             * if (!field.isFree()) {
+             * if (field.getBuilding() instanceof ResidentialZone freeResidentialZone
+             * && !freeResidentialZone.isFull()) {
+             * home = freeResidentialZone;
+             * homeField = field;
+             * 
+             * } else if (field.getBuilding() instanceof Workplace freeWorkplace &&
+             * !freeWorkplace.isFull()) {
+             * workplaceField = field;
+             * if (getDistanceAlongRoad(homeField, workplaceField, fields) > -1) {
+             * workplace = freeWorkplace;
+             * }
+             * }
+             * 
+             * if (home != null && workplace != null) {
+             * break;
+             * }
+             * }
+             * 
+             * if (home != null && workplace != null) {
+             * break;
+             * }
+             * }
+             * }
+             * 
+             * if (home != null && workplace != null) {
+             * this.residents.add(new Resident((int) r.nextInt((60 - 18) + 1) + 18, home,
+             * workplace));
+             * } else {
+             * throw new IllegalArgumentException("Home and workplace cannot be null!");
+             * }
+             */
         }
     }
 
