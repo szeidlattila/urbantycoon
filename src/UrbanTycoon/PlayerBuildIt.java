@@ -42,4 +42,8 @@ public abstract class PlayerBuildIt extends Buildable {
     public int getAnnualFee() {
         return annualFee;
     }
+    
+    public final int destroy(){
+        return buildingPrice;
+    }
 }

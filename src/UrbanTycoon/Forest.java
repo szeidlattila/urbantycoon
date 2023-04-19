@@ -37,11 +37,6 @@ public class Forest extends PlayerBuildIt{
     public void increaseMoveInChance(){
         
     }
-    
-    @Override
-    protected int destroy() {
-        return buildingPrice;
-    }
 
     protected String type(){
         return "forest";

@@ -5,7 +5,6 @@
 package UrbanTycoon;
 
 import java.awt.Image;
-import javax.swing.ImageIcon;
 
 /**
  *
@@ -15,16 +14,6 @@ public class Road extends PlayerBuildIt{
 
     public Road(int buildingPrice, int annualFee, int x, int y, int width, int height, Image image, double refund) {
         super(buildingPrice, annualFee, x, y, width, height, image, refund);
-    }
-
-    @Override
-    protected int destroy() {
-        if (false /* TODO: Ha egy felépített épület nem lenne elérhető bontás után */) {
-            return 0;
-        } else {
-            return buildingPrice;
-            /* TODO: destroy */
-        }  
     }
 
     protected String type(){

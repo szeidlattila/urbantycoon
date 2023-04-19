@@ -259,15 +259,14 @@ class City {
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
         for (Resident resident : residents) {
-            // resident.setSatisfaction(universialSatisfaction +
-            // whatSatisfactionFor(resident));
+            resident.setSatisfaction(universialSatisfaction + whatSatisfactionFor(resident));
             sumSatisfaction += resident.getSatisfaction();
         }
         this.satisfaction = sumSatisfaction / residents.size();
     }
 
     private void calculateUniversialSatisfaction() {
-        universialSatisfaction = (int) ((50 - tax) / 10);
+        universialSatisfaction = (int) ((1000 - tax) / 100);
         universialSatisfaction -= negativeBudgetNthYear * (int) (Math.abs(budget) / 1000);
         int szolgaltatasbanDolgozok = 0, iparbanDolgozok = 0;
         for (Resident res : residents) {
@@ -333,7 +332,13 @@ class City {
     }
 
     public void fieldSelect(int x, int y) {
-        if (selectedField != null && selectedField == fields[y][x]) {
+        if (selectedField != null && (selectedField == fields[y][x] || (!selectedField.isFree() && selectedField.getBuilding() == fields[y][x].getBuilding()))) {
+            selectedField.unselect();
+            boolean isAccessible = false;
+            if(!selectedField.isFree() && !selectedField.getBuilding().isBuiltUp())
+                isAccessible = isAccessibleOnRoad(selectedField);
+            if(!selectedField.isFree())
+                selectedField.getBuilding().unselect(isAccessible);
             selectedField = null;
             showFieldInfoPopup = false;
         } else {
@@ -512,16 +517,19 @@ class City {
     public void performTicks(int ticks) {
         if (ticks > 0) {
             for (int i = 0; i < fields.length; i++)
-                for (int j = 0; j < fields[0].length; j++)
+                for (int j = 0; j < fields[0].length; j++){
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone
                             && isAccessibleOnRoad(fields[i][j]))
                         if (fields[i][j].getBuilding().progressBuilding(ticks)) {
                             reevaluateAccessibility();
                         }
+                    if(!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone)
+                        zone.setAnnualTax(tax);
+                }
             if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone
-                    && zone.isBuiltUp()) {
+                && zone.isBuiltUp()) {
                 selectedField.getBuilding().setImage(new ImageIcon("data/graphics/selected"
-                        + zone.type().substring(0, 1).toUpperCase() + zone.type().substring(1) + ".png").getImage());
+                    + zone.type().substring(0, 1).toUpperCase() + zone.type().substring(1) + ".png").getImage());
             }
             changeSatisfaction();
         }
@@ -651,8 +659,7 @@ class City {
                                 && !freeResidentialZone.isFull()) {
                             home = freeResidentialZone;
                             homeField = field;
-                            Zone tmp = (Zone) field.getBuilding();
-                            tmp.incrementPeopleNum();
+                            freeResidentialZone.incrementPeopleNum();
                             /* System.out.printf("#%d Residents's home(%d/%d) is (%d,%d)%n", i,
                                     tmp.getPeopleNum(), tmp.getCapacity(), j, k); */
                         }
@@ -672,11 +679,9 @@ class City {
                     if (!field.isFree()) {
                         if (field.getBuilding() instanceof Workplace freeWorkplace && !freeWorkplace.isFull()) {
                             workplaceField = field;
-
                             if (getDistanceAlongRoad(homeField, workplaceField, fields) > -1) {
                                 workplace = freeWorkplace;
-                                Zone tmp = (Zone) field.getBuilding();
-                                tmp.incrementPeopleNum();
+                                freeWorkplace.incrementPeopleNum();
                                 /* System.out.printf("#%d Residents's workplace(%d/%d) is (%d,%d)%n%n", i,
                                         tmp.getPeopleNum(), tmp.getCapacity(), j, k); */
                             }

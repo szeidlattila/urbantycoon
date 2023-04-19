@@ -142,6 +142,10 @@ class GameEngine extends JPanel {
         this.add(dateLabel);
         this.zoneInfoLabel = new JLabel("");
         this.add(zoneInfoLabel);
+        newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
+        newFrameTimer.start();
+        gameTickTimer = new Timer(1000, new GameTickListener());
+        gameTickTimer.start();
     }
 
     @Override
@@ -173,11 +177,6 @@ class GameEngine extends JPanel {
         time = new Date(1980, 1, 1, 0, 0);
         paused = false;
         speed = 1;
-
-        newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
-        newFrameTimer.start();
-        gameTickTimer = new Timer(1000, new GameTickListener());
-        gameTickTimer.start();
     }
 
     private void saveGame() {
@@ -231,8 +230,6 @@ class GameEngine extends JPanel {
                     city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding().unselect(accessible);
                 }
             }
-
-            city.fieldSelect(fieldIndexX, fieldIndexY);
             if (city.getFields()[fieldIndexY][fieldIndexX].isFree()) {
                 city.getFields()[fieldIndexY][fieldIndexX].select();
             } else {
@@ -243,6 +240,7 @@ class GameEngine extends JPanel {
                 city.getFields()[fieldIndexY][fieldIndexX].getBuilding().select(accessible);
             }
 
+            city.fieldSelect(fieldIndexX, fieldIndexY);
             // elmenteni x, y indexeket, hogy legközelebbi kiválasztáskor visszarakja
             // unselected-re
             prevSelectedFieldX = fieldIndexX;

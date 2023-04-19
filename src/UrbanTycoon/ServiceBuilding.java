@@ -26,8 +26,4 @@ public abstract class ServiceBuilding extends PlayerBuildIt{
     public int getRadius() {
         return radius;
     }
-    
-    public int destroy() {
-        return buildingPrice;
-    }
 }
