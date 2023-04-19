@@ -8,7 +8,7 @@ stages:
 
 before_script:
   - apt-get update -yqq
-  - apt-get install -yqq openjdk-16-jdk ant junit4
+  - apt-get install -yqq openjdk-18-jdk ant junit4
 
 # Build
 build_game:
@@ -35,6 +35,6 @@ pages:
   artifacts:
     paths:
       - public
-    expire_in: 1 day
+    expire_in: 7 day
   only:
     - master
