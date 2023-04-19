@@ -546,33 +546,40 @@ class City {
         if (x == -1 && y == -1)
             throw new IllegalArgumentException("First Field not Found in getDistance");
         Queue Q = new LinkedList<Coordinate>();
-        Q.add(new Coordinate(x, y));
         voltemar[x][y] = true;
+        for(int i = x-1; i<=x+1;i++){
+            for(int j=y-1;j<=y+1;j++)
+                if(Math.abs(i-x) + Math.abs(j-y) == 1 && i>=0 && i<fields.length && j>=0 && j<fields[0].length)
+                    if(!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road){
+                        Q.add(new Coordinate(i,j));
+                        voltemar[i][j] = true;
+                    }
+        }
         while (!Q.isEmpty()) {
             Coordinate o = (Coordinate) Q.remove();
-            if (o.x + 1 < fields.length && !voltemar[o.x + 1][o.y] && !fields[o.x + 1][o.y].isFree()
-                    && fields[o.x + 1][o.y].getBuilding().isBuiltUp()) {
+            if ((o.x + 1 < fields.length && !voltemar[o.x + 1][o.y] && !fields[o.x + 1][o.y].isFree()
+                    && fields[o.x + 1][o.y].getBuilding() instanceof Road) || (!fields[o.x + 1][o.y].isFree() && fields[o.x + 1][o.y].getBuilding() instanceof Zone)) {
                 if (fields[o.x + 1][o.y].getBuilding() instanceof Zone zone && zone.isBuiltUp())
                     return true;
                 Q.add(new Coordinate(o.x + 1, o.y));
                 voltemar[o.x + 1][o.y] = true;
             }
-            if (o.x - 1 >= 0 && !voltemar[o.x - 1][o.y] && !fields[o.x - 1][o.y].isFree()
-                    && fields[o.x - 1][o.y].getBuilding().isBuiltUp()) {
+            if ((o.x - 1 >= 0 && !voltemar[o.x - 1][o.y] && !fields[o.x - 1][o.y].isFree()
+                    && fields[o.x - 1][o.y].getBuilding() instanceof Road) || (!fields[o.x - 1][o.y].isFree() && fields[o.x - 1][o.y].getBuilding() instanceof Zone)) {
                 if (fields[o.x - 1][o.y].getBuilding() instanceof Zone zone && zone.isBuiltUp())
                     return true;
                 Q.add(new Coordinate(o.x - 1, o.y));
                 voltemar[o.x - 1][o.y] = true;
             }
-            if (o.y + 1 < fields[0].length && !voltemar[o.x][o.y + 1] && !fields[o.x][o.y + 1].isFree()
-                    && fields[o.x][o.y + 1].getBuilding().isBuiltUp()) {
+            if ((o.y + 1 < fields[0].length && !voltemar[o.x][o.y + 1] && !fields[o.x][o.y + 1].isFree()
+                    && fields[o.x][o.y + 1].getBuilding() instanceof Road) || (!fields[o.x][o.y + 1].isFree() && fields[o.x][o.y + 1].getBuilding() instanceof Zone)) {
                 if (fields[o.x][o.y + 1].getBuilding() instanceof Zone zone && zone.isBuiltUp())
                     return true;
                 Q.add(new Coordinate(o.x, o.y + 1));
                 voltemar[o.x][o.y + 1] = true;
             }
-            if (o.y - 1 >= 0 && !voltemar[o.x][o.y - 1] && !fields[o.x][o.y - 1].isFree()
-                    && fields[o.x][o.y - 1].getBuilding().isBuiltUp()) {
+            if ((o.y - 1 >= 0 && !voltemar[o.x][o.y - 1] && !fields[o.x][o.y - 1].isFree()
+                    && fields[o.x][o.y - 1].getBuilding() instanceof Road) || (!fields[o.x][o.y - 1].isFree() && fields[o.x][o.y - 1].getBuilding() instanceof Zone)) {
                 if (fields[o.x][o.y - 1].getBuilding() instanceof Zone zone && zone.isBuiltUp())
                     return true;
                 Q.add(new Coordinate(o.x, o.y - 1));
