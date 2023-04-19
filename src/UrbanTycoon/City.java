@@ -34,7 +34,8 @@ class City {
     private final int HEIGHT;
     private final double SCREENHEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
     private final double SCREENWIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-
+    private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
+    
     private Field selectedField = null;
 
     private boolean showFieldInfoPopup = false;
@@ -157,6 +158,7 @@ class City {
 
         initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
         initResidents(residentsNum);
+        changeSatisfaction();
     }
 
     public void printFields() {
@@ -263,7 +265,7 @@ class City {
             else if (res.getWorkplace() instanceof ServiceZone)
                 szolgaltatasbanDolgozok++;
         }
-        universialSatisfaction -= (int) (Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size()) * 10;
+        universialSatisfaction -= (int) ((Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size()) * 10);
     }
 
     private int whatSatisfactionFor(Resident r) {
@@ -290,6 +292,7 @@ class City {
                     sat += Math.max(Math.abs(i - homeIndexX), Math.abs(j - homeIndexY)) - 6;
         }
         sat += (int) ((r.getHome().getSatisfactionBonus() + r.getWorkplace().getSatisfactionBonus()) / 2);
+        sat += (int) ((r.getHome().getSafety() + r.getWorkplace().getSafety())/2);
         return sat;
     }
 
@@ -947,6 +950,7 @@ class City {
                         && getDistanceAlongRoad(field, fields[i][j], fields) != -1) {
                     bonus += POLICESTATIONSAFETY;
                 }
+        bonus -= (int)(residents.size()/HOWMANYRESIDENTSTOLOWERSAFETY);
         return bonus;
     }
 
