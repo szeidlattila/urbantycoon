@@ -41,6 +41,7 @@ class City {
     private int satisfaction = 0;
     private int universialSatisfaction = 0;
     private int criticalSatisfaction;
+    private int moveInSatisfaction;
     private long budget;
     private int zonePrice;
     private int roadPrice;
@@ -57,27 +58,8 @@ class City {
     private int serviceZoneNum;
     private int industrialZoneNum;
 
-    /**
-     * initialize the city with the given information
-     * initialize fields and residents
-     * 
-     * @param residentsNum
-     * @param fieldSize
-     * @param fieldRowsNum
-     * @param fieldColsNum
-     * @param criticalSatisfaction
-     * @param budget
-     * @param zonePrice
-     * @param roadPrice
-     * @param stadiumPrice
-     * @param policeStationPrice
-     * @param fireStationPrice
-     * @param residentCapacity
-     * @param workplaceCapacity
-     * @param refund
-     * @param radius
-     */
-    public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction,
+    
+    public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction, int moveInSatisfaction,
             int budget, int zonePrice, int roadPrice, int stadiumPrice, int policeStationPrice, int fireStationPrice,
             double annualFeePercentage, int residentCapacity, int workplaceCapacity, double refund, int radius,
             int width, int height) {
@@ -91,6 +73,12 @@ class City {
             this.criticalSatisfaction = criticalSatisfaction;
         } else {
             throw new IllegalArgumentException("Invalid value! Critical satisfaction must be at least -10 and lower than 0!");
+        }
+        
+        if (0 < moveInSatisfaction && moveInSatisfaction <= 10) {
+            this.moveInChance = moveInSatisfaction;
+        } else {
+            throw new IllegalArgumentException("Invalid value! Move in satisfaction must be greater than 0 and at most 10!");
         }
 
         this.budget = budget;
@@ -512,6 +500,12 @@ class City {
             negativeBudgetNthYear++;
         else
             negativeBudgetNthYear = 0;
+        
+        if (satisfaction >= moveInSatisfaction) {
+            for (int i = 0; i < (satisfaction - moveInSatisfaction) + 1; i++) { // example: moveInSat := 5 : sat := 5 => add 1 resident; sat := 6 => add 2 residents; ... 
+                moveInOneResident();
+            }
+        }
     }
 
     public void performTicks(int ticks) {
@@ -1187,5 +1181,64 @@ class City {
             }
         }
         return buildableClass == Stadium.class ? (int)count/4 : count;
+    }
+    
+    /**
+     * find a ResidentialZone (not full, already built up) with the highest movInChance which is connected to at least 1 Workplace (not full, already build up) by road
+     * find the closest Workplace to this ResidentialZone connected by Road
+     */
+    public void moveInOneResident() {
+        ResidentialZone bestResidentialZone = null;
+        Workplace nearestWorkplace = null;
+        double highestMoveInChance = Double.NEGATIVE_INFINITY;
+        
+        for (Field[] fields : this.fields) {
+            for (Field field : fields) {
+                if (!field.isFree() && (field.getBuilding() instanceof ResidentialZone) && field.getBuilding().isBuiltUp()) {
+                    if (((ResidentialZone)field.getBuilding()).getCapacity() - ((ResidentialZone)field.getBuilding()).getPeopleNum() > 0) {
+                        if (((ResidentialZone)field.getBuilding()).getMoveInChance() > highestMoveInChance) {
+                            Workplace tempWorkplace = findNearestWorkplace(field);
+                            if (tempWorkplace != null) {
+                                bestResidentialZone = (ResidentialZone)field.getBuilding();
+                                nearestWorkplace = tempWorkplace;
+                                highestMoveInChance = bestResidentialZone.getMoveInChance();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        Random r = new Random();
+        if (bestResidentialZone != null && nearestWorkplace != null) {
+            this.residents.add(new Resident((int) r.nextInt((60 - 18) + 1) + 18, bestResidentialZone, nearestWorkplace));
+            bestResidentialZone.incrementPeopleNum();
+            nearestWorkplace.incrementPeopleNum();
+        }
+    }
+    
+    /**
+     * Find the nearest Workplace which is not full and already built up from the given field
+     * @param field1
+     * @return the nearest workplace if there is no workplace null
+     */
+    private Workplace findNearestWorkplace(Field field1) {
+        Workplace nearestWorkplace = null;
+        int minDistance = Integer.MAX_VALUE;
+        
+        for (Field[] fields : this.fields) {
+            for (Field field : fields) {
+                if (!field.isFree() && field.getBuilding().isBuiltUp() && (field.getBuilding() instanceof Workplace)) {
+                    if (((Workplace)field.getBuilding()).getCapacity() - ((Workplace)field.getBuilding()).getPeopleNum() > 0) {
+                        int distance = getDistanceAlongRoad(field1, field, this.fields);
+                        if (distance >= 0 && distance < minDistance) {
+                            nearestWorkplace = (Workplace)field.getBuilding();
+                            minDistance = distance;
+                        }
+                    }
+                }
+            }
+        }
+        return  nearestWorkplace;
     }
 }

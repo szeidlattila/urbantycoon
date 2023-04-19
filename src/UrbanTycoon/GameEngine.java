@@ -46,6 +46,7 @@ class GameEngine extends JPanel {
     private final double REFUND = 0.4;
     private final int RADIUS = 4;
     private final int CRITSATISFACTION = -5;
+    private final int MOVEINATLEASTSATISFACTION = 5;
 
     private City city;
     private Date time;
@@ -57,7 +58,7 @@ class GameEngine extends JPanel {
     private Timer gameTickTimer;
 
     private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, showBudgetButton;
-    private final JLabel moneyLabel, taxLabel, dateLabel, zoneInfoLabel;
+    private final JLabel moneyLabel, taxLabel, dateLabel, zoneInfoLabel, satisfactionLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
@@ -138,6 +139,8 @@ class GameEngine extends JPanel {
         this.add(moneyLabel);
         this.taxLabel = new JLabel("Tax: ");
         this.add(taxLabel);
+        this.satisfactionLabel = new JLabel("City satisfaction: " );
+        this.add(satisfactionLabel);
         this.dateLabel = new JLabel(time.toString());
         this.add(dateLabel);
         this.zoneInfoLabel = new JLabel("");
@@ -162,6 +165,7 @@ class GameEngine extends JPanel {
                 }
                 moneyLabel.setText("Funds: " + city.getBudget() + "$");
                 taxLabel.setText("Tax: " + city.getTax() + "$");
+                satisfactionLabel.setText("City satisfaction: " + city.getSatisfaction());
                 dateLabel.setText(time.toString());
                 zoneInfoLabel.setText(zoneInfo());
             }
@@ -170,7 +174,7 @@ class GameEngine extends JPanel {
     }
 
     private void newGame() {
-        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, INITIALMONEY,
+        city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, MOVEINATLEASTSATISFACTION, INITIALMONEY,
                 ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE,
                 RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS, WIDTH, HEIGHT);
         // date alaphelyzetbe
