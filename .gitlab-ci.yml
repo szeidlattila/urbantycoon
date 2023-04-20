@@ -8,7 +8,7 @@ stages:
 
 before_script:
   - apt-get update -yqq
-  - apt-get install -yqq openjdk-18-jdk ant junit5
+  - apt-get install -yqq openjdk-18-jdk ant junit4
 
 # Build
 build_game:
@@ -23,7 +23,7 @@ test_model:
   script:
     - >
       ant test
-      -Dlibs.junit_5.classpath=/usr/share/java/junit5.jar
+      -Dlibs.junit_4.classpath=/usr/share/java/junit4.jar
       -Dlibs.hamcrest.classpath=/usr/share/java/hamcrest-core.jar
 
 # Documentation
