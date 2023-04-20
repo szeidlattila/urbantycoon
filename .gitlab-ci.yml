@@ -21,10 +21,7 @@ build_game:
 test_model:
   stage: test
   script:
-    - >
-      ant test
-      -Dlibs.junit_4.classpath=/usr/share/java/junit5.jar
-      -Dlibs.hamcrest.classpath=/usr/share/java/hamcrest-core.jar
+    - ant test
 
 # Documentation
 pages:
@@ -35,7 +32,7 @@ pages:
   artifacts:
     paths:
       - public
-    expire_in: 1 day
+    expire_in: 7 day
   only:
     - master
 
