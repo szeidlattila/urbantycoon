@@ -8,7 +8,8 @@ stages:
 
 before_script:
   - apt-get update -yqq
-  - apt-get install -yqq openjdk-18-jdk ant junit5
+  - apt-get install -yqq openjdk-18-jdk ant #junit5
+  - apt-get install -yqq junit5
 
 # Build
 build_game:
