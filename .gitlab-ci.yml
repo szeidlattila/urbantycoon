@@ -1,5 +1,5 @@
 # Default image (https://hub.docker.com/_/ubuntu/)
-image: ubuntu:latest
+image: ubuntu:20.04
 
 stages:
   - build
@@ -8,7 +8,7 @@ stages:
 
 before_script:
   - apt-get update -yqq
-  - apt-get install -yqq openjdk-18-jdk ant junit4
+  - apt-get install -yqq openjdk-16-jdk ant junit4
 
 # Build
 build_game:
@@ -38,3 +38,4 @@ pages:
     expire_in: 1 day
   only:
     - master
+
