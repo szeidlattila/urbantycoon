@@ -15,6 +15,6 @@ import static org.junit.Assert.*;
 public class ResidentTest {
     @Test
     public void sillyTest() {
-        assertEquals(4, 2+2); // működj
+        assertEquals(4, 2+2);
     }    
 }
