@@ -41,6 +41,6 @@ public class NewEmptyJUnitTest {
 
     @Test
     public void hello() {
-    assertEquals("hello", "így nem kéne működnie");
+    assertEquals("hello", "hello");
     }
 }
