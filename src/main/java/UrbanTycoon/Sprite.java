@@ -19,10 +19,6 @@ public class Sprite {
      */
     protected int x;
     protected int y;
-    protected int relX;
-    protected int relY;
-    protected int originX = 100;
-    protected int originY = 100;
     protected int width;
     protected int height;
     protected Image image;
@@ -31,8 +27,8 @@ public class Sprite {
     public Sprite(int x, int y, int width, int height, Image image) {
         this.width = width;
         this.height = height;
-        this.x = x; // originX + (relX - relY) * width / 2;
-        this.y = y; // originY + (relX + relY) * height / 2;
+        this.x = x;
+        this.y = y;
         this.image = image;
     }
 
