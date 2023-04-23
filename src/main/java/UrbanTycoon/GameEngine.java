@@ -58,7 +58,7 @@ class GameEngine extends JPanel {
     private Timer gameTickTimer;
 
     private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, showBudgetButton;
-    private final JLabel moneyLabel, taxLabel, dateLabel, zoneInfoLabel, satisfactionLabel;
+    private final JLabel moneyLabel, taxLabel, dateLabel, zoneInfoLabel, satisfactionLabel, residentNumLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
@@ -141,6 +141,8 @@ class GameEngine extends JPanel {
         this.add(taxLabel);
         this.satisfactionLabel = new JLabel("City satisfaction: " );
         this.add(satisfactionLabel);
+        this.residentNumLabel = new JLabel("Residents: ");
+        this.add(residentNumLabel);
         this.dateLabel = new JLabel(time.toString());
         this.add(dateLabel);
         this.zoneInfoLabel = new JLabel("");
@@ -166,6 +168,7 @@ class GameEngine extends JPanel {
                 moneyLabel.setText("Funds: " + city.getBudget() + "$");
                 taxLabel.setText("Tax: " + city.getTax() + "$");
                 satisfactionLabel.setText("City satisfaction: " + city.getSatisfaction());
+                residentNumLabel.setText("Residents: " + city.getResidents().size());
                 dateLabel.setText(time.toString());
                 zoneInfoLabel.setText(zoneInfo());
             }

@@ -248,11 +248,19 @@ class City {
     private void changeSatisfaction() {
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
+        ArrayList<Resident> removeResidents = new ArrayList<>();
         for (Resident resident : residents) {
             resident.setSatisfaction(universialSatisfaction + whatSatisfactionFor(resident));
+            if (resident.getSatisfaction() <= criticalSatisfaction) {
+                resident.movesAwayFromCity();
+                removeResidents.add(resident);
+            }
             sumSatisfaction += resident.getSatisfaction();
         }
         this.satisfaction = sumSatisfaction / residents.size();
+        for (Resident removeResident : removeResidents) {
+            residents.remove(removeResident);
+        }
     }
 
     private void calculateUniversialSatisfaction() {

@@ -83,8 +83,15 @@ class Resident {
         this.workplace = workplace;
     }
     
-    private void movesAwayFromCity() {
-        
+    public void movesAwayFromCity() {
+        if (home != null) {
+            home.setPeopleNum(home.getPeopleNum() - 1);
+            home = null;
+        }
+        if (workplace != null) {
+            workplace.setPeopleNum(workplace.getPeopleNum() - 1);
+            workplace = null;
+        }
     }
     
     public void retire() {
