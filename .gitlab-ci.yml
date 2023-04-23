@@ -1,41 +1,20 @@
-# Default image (https://hub.docker.com/_/ubuntu/)
-image: ubuntu:latest
+image: maven:latest
 
-stages:
-  - build
-  - test
-  - deploy
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
 
-before_script:
-  - apt-get update -yqq
-  - apt-get install -yqq openjdk-18-jdk ant junit4
+# Cache and keep downloaded dependencies between CI pipelines
+cache:
+  key: maven-build
+  paths:
+    - .m2/repository
 
-# Build
-build_game:
+build:
   stage: build
   script:
-    - ant compile
-    - ant jar
+    - mvn compile
 
-# Test
-test_model:
+test:
   stage: test
   script:
-    - >
-      ant test
-      -Dlibs.junit_4.classpath=/usr/share/java/junit4.jar
-      -Dlibs.hamcrest.classpath=/usr/share/java/hamcrest-core.jar
-
-# Documentation
-pages:
-  stage: deploy
-  script:
-    - ant javadoc
-    - cp -r dist/javadoc/. public/
-  artifacts:
-    paths:
-      - public
-    expire_in: 1 day
-  only:
-    - master
-
+    - mvn test
