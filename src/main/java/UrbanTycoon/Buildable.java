@@ -31,7 +31,7 @@ abstract class Buildable extends Sprite {
         else
             image = new ImageIcon("data/graphics/selected" + (accessible ? "build" : "unableBuild") + ".png")
                     .getImage();
-    } // hex: #FF9E2A
+    }
 
     protected final void unselect(boolean accessible) {
         if (isBuiltUp())

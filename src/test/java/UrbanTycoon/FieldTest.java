@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author ati
  */
-public class NewEmptyJUnitTest {
+public class FieldTest {
     
-    public NewEmptyJUnitTest() {
+    public FieldTest() {
     }
     
     @BeforeAll
@@ -38,9 +38,7 @@ public class NewEmptyJUnitTest {
 
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
-
-    @Test
-    public void hello() {
-    assertEquals("hello", "hello");
-    }
+    //
+    // @Test
+    // public void hello() {}
 }
