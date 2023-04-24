@@ -532,7 +532,7 @@ class City {
                         zone.setAnnualTax(tax);
                     }
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding() instanceof ResidentialZone residentialZone) {
-                        residentialZone.setImage(new ImageIcon("data/graphics/field/default/" + residentialZone.type() + ".png").getImage());
+                        residentialZone.setImage(new ImageIcon("data/graphics/field/default/" + residentialZone.type() + ".png").getImage()); 
                     }
                 }
             if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone && zone.isBuiltUp()) {
@@ -643,12 +643,21 @@ class City {
         } catch (FileNotFoundException e) {
             System.out.println("File not found!");
         }
+        
+        for (Field[] row : fields) {
+            for (Field field : row) {
+                if (!field.isFree() && field.getBuilding() instanceof Zone zone)
+                    zone.setBuiltUp(true);
+            }
+        }
+        /*
         for (Field[] row : fields) {
             for (Field field : row) {
                 if (!field.isFree() && field.getBuilding() instanceof Zone)
                     field.getBuilding().progressBuilding(4);
             }
         }
+        */
     }
 
     /**
@@ -716,6 +725,15 @@ class City {
                 throw new IllegalArgumentException("Home and workplace cannot be null!");
             }
 
+            // update residential zones graphics after residents move in
+            for (Field[] fields : this.fields) {
+                for (Field field : fields) {
+                    if (!field.isFree() && field.getBuilding().isBuiltUp() && field.getBuilding() instanceof ResidentialZone residentialZone) {
+                        residentialZone.setImage(new ImageIcon("data/graphics/field/default/" + residentialZone.type() + ".png").getImage());
+                        
+                    }
+                }
+            }
             /*
              * for (Field[] row : fields) {
              * for (Field field : row) {
