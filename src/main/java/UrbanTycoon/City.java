@@ -528,8 +528,13 @@ class City {
                         if (fields[i][j].getBuilding().progressBuilding(ticks)) {
                             reevaluateAccessibility();
                         }
-                    if(!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone)
+                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
                         zone.setAnnualTax(tax);
+                    }
+                    if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding() instanceof ResidentialZone residentialZone) {
+                        residentialZone.setImage(new ImageIcon("data/graphics/"
+                        + residentialZone.type().substring(0, 1).toUpperCase() + residentialZone.type().substring(1) + ".png").getImage());
+                    }
                 }
             if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone
                 && zone.isBuiltUp()) {
@@ -766,7 +771,7 @@ class City {
                     fields[rowIndex][i] = new Field(
                             new ResidentialZone(1.0, residentCapacity, zonePrice, tax, 0, 0, REFUND, 0, (i + 1) * WIDTH,
                                     (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                                    new ImageIcon("data/graphics/residentialZone.png").getImage()),
+                                    new ImageIcon("data/graphics/residentialZoneEmpty.png").getImage()),
                             (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
                             new ImageIcon("data/graphics/field.png").getImage());
                     break;

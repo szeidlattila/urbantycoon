@@ -33,6 +33,8 @@ class ResidentialZone extends Zone {
     }
 
     protected String type(){
+        if (peopleNum == 0)         return "residentialZoneEmpty";
+        if (peopleNum == capacity)  return "residentialZoneFull";
         return "residentialZone";
     }
 }
