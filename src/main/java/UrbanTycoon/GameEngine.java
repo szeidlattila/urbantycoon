@@ -68,7 +68,7 @@ class GameEngine extends JPanel {
 
     public GameEngine() {
         super();
-        background = new ImageIcon("data/graphics/background.jpeg").getImage(); // ide majd valami más háttér kerül
+        background = new ImageIcon("data/graphics/other/background.jpeg").getImage(); // ide majd valami más háttér kerül
 
         addMouseListener(new MouseAdapter() {
             @Override

@@ -25,19 +25,16 @@ abstract class Buildable extends Sprite {
 
     protected final void select(boolean accessible) {
         if (isBuiltUp())
-            image = new ImageIcon(
-                    "data/graphics/selected" + type().substring(0, 1).toUpperCase() + type().substring(1) + ".png")
-                    .getImage();
+            image = new ImageIcon("data/graphics/field/selected/" + type() + ".png").getImage();
         else
-            image = new ImageIcon("data/graphics/selected" + (accessible ? "build" : "unableBuild") + ".png")
-                    .getImage();
+            image = new ImageIcon("data/graphics/field/selected/" + (accessible ? "build" : "unableBuild") + ".png").getImage();
     }
 
     protected final void unselect(boolean accessible) {
         if (isBuiltUp())
-            image = new ImageIcon("data/graphics/" + type() + ".png").getImage();
+            image = new ImageIcon("data/graphics/field/default/" + type() + ".png").getImage();
         else
-            image = new ImageIcon("data/graphics/" + (accessible ? "build" : "unableBuild") + ".png").getImage();
+            image = new ImageIcon("data/graphics/field/default/" + (accessible ? "build" : "unableBuild") + ".png").getImage();
     }
 
     public boolean isBuiltUp() {

@@ -532,14 +532,11 @@ class City {
                         zone.setAnnualTax(tax);
                     }
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding() instanceof ResidentialZone residentialZone) {
-                        residentialZone.setImage(new ImageIcon("data/graphics/"
-                        + residentialZone.type().substring(0, 1).toUpperCase() + residentialZone.type().substring(1) + ".png").getImage());
+                        residentialZone.setImage(new ImageIcon("data/graphics/field/default/" + residentialZone.type() + ".png").getImage());
                     }
                 }
-            if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone
-                && zone.isBuiltUp()) {
-                selectedField.getBuilding().setImage(new ImageIcon("data/graphics/selected"
-                    + zone.type().substring(0, 1).toUpperCase() + zone.type().substring(1) + ".png").getImage());
+            if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone && zone.isBuiltUp()) {
+                selectedField.getBuilding().setImage(new ImageIcon("data/graphics/field/selected/" + zone.type() + ".png").getImage());
             }
             changeSatisfaction();
         }
@@ -624,7 +621,7 @@ class City {
         this.fields = new Field[fieldRowsNum][fieldColsNum];
 
         try {
-            Scanner reader = new Scanner(new File("data/persistence/init_fields.txt"));
+            Scanner reader = new Scanner(new File("data/persistence/initFields.txt"));
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
                 processLine(line, rows);
@@ -765,39 +762,39 @@ class City {
             switch (fieldType) {
                 case "0":
                     fields[rowIndex][i] = new Field(null, (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                            new ImageIcon("data/graphics/field.png").getImage());
+                            new ImageIcon("data/graphics/field/default/field.png").getImage());
                     break;
                 case "rz":
                     fields[rowIndex][i] = new Field(
                             new ResidentialZone(1.0, residentCapacity, zonePrice, tax, 0, 0, REFUND, 0, (i + 1) * WIDTH,
                                     (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                                    new ImageIcon("data/graphics/residentialZoneEmpty.png").getImage()),
+                                    new ImageIcon("data/graphics/field/default/residentialZoneEmpty.png").getImage()),
                             (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                            new ImageIcon("data/graphics/field.png").getImage());
+                            new ImageIcon("data/graphics/field/default/field.png").getImage());
                     break;
                 case "sz":
                     fields[rowIndex][i] = new Field(
                             new ServiceZone(workplaceCapacity, zonePrice, tax, 0, 0, REFUND, 0, (i + 1) * WIDTH,
                                     (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                                    new ImageIcon("data/graphics/serviceZone.png").getImage()),
+                                    new ImageIcon("data/graphics/field/default/serviceZone.png").getImage()),
                             (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                            new ImageIcon("data/graphics/field.png").getImage());
+                            new ImageIcon("data/graphics/field/default/field.png").getImage());
                     break;
                 case "iz":
                     fields[rowIndex][i] = new Field(
                             new IndustrialZone(workplaceCapacity, zonePrice, tax, 0, 0, REFUND, 0, (i + 1) * WIDTH,
                                     (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                                    new ImageIcon("data/graphics/industrialZone.png").getImage()),
+                                    new ImageIcon("data/graphics/field/default/industrialZone.png").getImage()),
                             (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                            new ImageIcon("data/graphics/field.png").getImage());
+                            new ImageIcon("data/graphics/field/default/field.png").getImage());
                     break;
                 case "r":
                     fields[rowIndex][i] = new Field(
                             new Road(roadPrice, (int) (roadPrice * annualFeePercentage), (i + 1) * WIDTH,
                                     (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                                    new ImageIcon("data/graphics/road.png").getImage(), REFUND),
+                                    new ImageIcon("data/graphics/field/default/road.png").getImage(), REFUND),
                             (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
-                            new ImageIcon("data/graphics/field.png").getImage());
+                            new ImageIcon("data/graphics/field/default/field.png").getImage());
                     break;
                 default:
                     throw new IllegalArgumentException("Unknow field type: " + fieldType);
@@ -834,7 +831,7 @@ class City {
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
             selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH,
-                    HEIGHT, new ImageIcon("data/graphics/selectedRoad.png").getImage(), REFUND));
+                    HEIGHT, new ImageIcon("data/graphics/field/selected/road.png").getImage(), REFUND));
         } else if (playerBuildItClass == Stadium.class) {
             int iIndex = 0, jIndex = 0;
             for (int i = 0; i < fields.length; i++) {
@@ -854,7 +851,7 @@ class City {
                         && fields[iIndex][jIndex - 1].isFree()) {
                     Stadium s = new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX() - WIDTH,
                             selectedField.getY() - HEIGHT,
-                            WIDTH * 2, HEIGHT * 2, new ImageIcon("data/graphics/selectedStadium.png").getImage(),
+                            WIDTH * 2, HEIGHT * 2, new ImageIcon("data/graphics/field/selected/stadium.png").getImage(),
                             REFUND);
                     selectedField.build(s);
                     s.fields[0] = selectedField;
@@ -874,12 +871,12 @@ class City {
         } else if (playerBuildItClass == PoliceStation.class) {
             selectedField.build(
                     new PoliceStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(),
-                            WIDTH, HEIGHT, new ImageIcon("data/graphics/selectedPoliceStation.png").getImage(),
+                            WIDTH, HEIGHT, new ImageIcon("data/graphics/field/selected/policeStation.png").getImage(),
                             REFUND));
         } else if (playerBuildItClass == FireStation.class) {
             selectedField.build(
                     new FireStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(),
-                            WIDTH, HEIGHT, new ImageIcon("data/graphics/selectedPoliceStation.png").getImage(),
+                            WIDTH, HEIGHT, new ImageIcon("data/graphics/field/selected/fireStation.png").getImage(),
                             REFUND));
         }
         reevaluateAccessibility();
@@ -901,11 +898,11 @@ class City {
             selectedField.getBuilding()
                     .setImage(
                             new ImageIcon(
-                                    "data/graphics/selected"
+                                    "data/graphics/field/selected/"
                                             + (selectedField.getBuilding().isBuiltUp()
                                                     ? selectedField.getBuilding().type().substring(0, 1).toUpperCase()
                                                             + selectedField.getBuilding().type().substring(1)
-                                                    : (isAccessibleOnRoad(selectedField) ? "Build" : "UnableBuild"))
+                                                    : (isAccessibleOnRoad(selectedField) ? "build" : "unableBuild"))
                                             + ".png")
                                     .getImage());
     }
@@ -930,19 +927,19 @@ class City {
             selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax,
                     calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, 0.0,
                     selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
-                    new ImageIcon("data/graphics/" + (acc ? "selectedBuild" : "selectedUnableBuild") + ".png")
+                    new ImageIcon("data/graphics/field/selected/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         } else if (zoneClass == IndustrialZone.class) {
             selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax,
                     calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, 0.0,
                     selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
-                    new ImageIcon("data/graphics/" + (acc ? "selectedBuild" : "selectedUnableBuild") + ".png")
+                    new ImageIcon("data/graphics/field/selected/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         } else if (zoneClass == ServiceZone.class) {
             selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, calculateSafety(selectedField),
                     calculateSatBonus(selectedField), REFUND, 0.0,
                     selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
-                    new ImageIcon("data/graphics/" + (acc ? "selectedBuild" : "selectedUnableBuild") + ".png")
+                    new ImageIcon("data/graphics/field/selected/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         }
 

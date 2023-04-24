@@ -83,10 +83,10 @@ class Field extends Sprite {
     }
 
     public void select() {
-        image = new ImageIcon("data/graphics/selectedField.png").getImage(); // hex: #FF9E2A
+        image = new ImageIcon("data/graphics/field/selected/field.png").getImage();
     }
 
     public void unselect() {
-        image = new ImageIcon("data/graphics/field.png").getImage();
+        image = new ImageIcon("data/graphics/field/default/field.png").getImage();
     }
 }

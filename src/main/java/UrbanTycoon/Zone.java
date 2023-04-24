@@ -98,7 +98,7 @@ abstract class Zone extends Buildable {
             if (buildProgress >= 100) {
                 buildProgress = 100;
                 builtUp = true;
-                image = new ImageIcon("data/graphics/" + type() + ".png").getImage();
+                image = new ImageIcon("data/graphics/field/default/" + type() + ".png").getImage();
                 return true;
             }
         }
