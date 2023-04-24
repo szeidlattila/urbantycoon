@@ -17,6 +17,8 @@ public class IndustrialZone extends Workplace{
     }
 
     protected String type(){
+        if (peopleNum == 0)         return "industrialZoneEmpty";
+        if (peopleNum == capacity)  return "industrialZoneFull";
         return "industrialZone";
     }
 }

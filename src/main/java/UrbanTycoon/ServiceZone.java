@@ -17,6 +17,8 @@ public class ServiceZone extends Workplace{
     }
     
     protected String type(){
+        if (peopleNum == 0)         return "serviceZoneEmpty";
+        if (peopleNum == capacity)  return "serviceZoneFull";
         return "serviceZone";
     }
 }

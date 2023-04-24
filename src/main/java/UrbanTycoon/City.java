@@ -531,8 +531,8 @@ class City {
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
                         zone.setAnnualTax(tax);
                     }
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding() instanceof ResidentialZone residentialZone) {
-                        residentialZone.setImage(new ImageIcon("data/graphics/field/default/" + residentialZone.type() + ".png").getImage()); 
+                    if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding() instanceof Zone zone) {
+                        zone.setImage(new ImageIcon("data/graphics/field/default/" + zone.type() + ".png").getImage()); 
                     }
                 }
             if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone && zone.isBuiltUp()) {
