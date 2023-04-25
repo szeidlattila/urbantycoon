@@ -13,7 +13,7 @@ import javax.swing.ImageIcon;
  */
 public class IndustrialZone extends Workplace{
     public IndustrialZone(int capacity, int selectPrice, int annualTax, int safety, int satisfactionBonus, double refund, double chanceOfFire, int x, int y, int width, int height, Image image){
-        super(capacity, selectPrice, annualTax, safety, satisfactionBonus, refund, chanceOfFire*1.4, x, y, width, height, image);
+        super(capacity, selectPrice, annualTax, safety, satisfactionBonus, refund, chanceOfFire*2.0, x, y, width, height, image);
     }
 
     protected String type() {
