@@ -19,16 +19,12 @@ abstract class Zone extends Buildable {
     protected int satisfactionBonus;
     protected int selectPrice;
     protected int annualTaxPerPerson;
-    protected double refund;
     protected int buildProgress = 0;
     protected boolean builtUp;
-    protected boolean onFire = false;
-    protected double chanceOfFire;
 
-    protected Zone(int capacity, int selectPrice, int annualTaxPerPerson, int safety, int satisfactionBonus,
-            double refund,
-            double chanceOfFire, int x, int y, int width, int height, Image image) {
-        super(x, y, width, height, image, refund);
+    protected Zone(int capacity, int selectPrice, int annualTaxPerPerson, int safety, int satisfactionBonus, double refund, 
+                   double chanceOfFire, int x, int y, int width, int height, Image image) {
+        super(x, y, width, height, image, refund, chanceOfFire);
         this.selectPrice = selectPrice;
         if (capacity > 0) {
             this.capacity = capacity;
@@ -43,19 +39,6 @@ abstract class Zone extends Buildable {
             this.annualTaxPerPerson = annualTaxPerPerson;
         } else {
             throw new IllegalArgumentException("Invalid value! Annual tax must be at least 0!");
-        }
-
-        if (0.0 <= refund && refund <= 1.0) {
-            this.refund = refund;
-        } else {
-            throw new IllegalArgumentException("Invalid value! Refund must be greater than 0.0 and lower than 1.0!");
-        }
-
-        if (0.0 <= chanceOfFire && chanceOfFire <= 0.5) {
-            this.chanceOfFire = chanceOfFire;
-        } else {
-            throw new IllegalArgumentException(
-                    "Invalid value! Chance of fire must be greater than 0.0 and lower than 0.5!");
         }
     }
 
@@ -98,7 +81,7 @@ abstract class Zone extends Buildable {
             if (buildProgress >= 100) {
                 buildProgress = 100;
                 builtUp = true;
-                image = new ImageIcon("data/graphics/field/default/" + type() + ".png").getImage();
+                image = new ImageIcon("data/graphics/field/unselected/" + type() + ".png").getImage();
                 return true;
             }
         }
@@ -156,14 +139,6 @@ abstract class Zone extends Buildable {
         return (int) Math.ceil(selectPrice * refund);
     }
 
-    public void setRefund(double refund) {
-        if (0.0 < refund && refund < 1.0) {
-            this.refund = refund;
-        } else {
-            throw new IllegalArgumentException("Invalid value! Refund must be more than 0.0 and less than 1.0!");
-        }
-    }
-
     @Override
     public boolean isBuiltUp() {
         return builtUp;
@@ -171,26 +146,6 @@ abstract class Zone extends Buildable {
 
     public void setBuiltUp(boolean builtUp) {
         this.builtUp = builtUp;
-    }
-
-    public boolean isOnFire() {
-        return onFire;
-    }
-
-    public void setOnFire(boolean isOnFire) {
-        this.onFire = isOnFire;
-    }
-
-    public double getChanceOfFire() {
-        return chanceOfFire;
-    }
-
-    public void setChanceOfFire(double chanceOfFire) {
-        if (0.0 <= chanceOfFire && chanceOfFire < 1.0) {
-            this.chanceOfFire = chanceOfFire;
-        } else {
-            throw new IllegalArgumentException("Invalid value! Chance of fire must be at least 0.0 and less than 1.0!");
-        }
     }
 
     /**
@@ -208,14 +163,6 @@ abstract class Zone extends Buildable {
         return selectPrice;
     }
 
-    public void fireSpread() {
-        /* RÉSZFELADAT: Tűzoltóság */
-    }
-
-    public void burnsDown() {
-        /* RÉSZFELADAT: Tűzoltóság */
-    }
-
     @Override
     public int hashCode() {
         int hash = 7;
@@ -228,7 +175,7 @@ abstract class Zone extends Buildable {
         hash = 79 * hash + (int) (Double.doubleToLongBits(this.refund) ^ (Double.doubleToLongBits(this.refund) >>> 32));
         hash = 79 * hash + this.buildProgress;
         hash = 79 * hash + (this.builtUp ? 1 : 0);
-        hash = 79 * hash + (this.onFire ? 1 : 0);
+        hash = 79 * hash + (this.burning ? 1 : 0);
         hash = 79 * hash + (int) (Double.doubleToLongBits(this.chanceOfFire)
                 ^ (Double.doubleToLongBits(this.chanceOfFire) >>> 32));
         return hash;
@@ -273,7 +220,7 @@ abstract class Zone extends Buildable {
         if (this.builtUp != other.builtUp) {
             return false;
         }
-        if (this.onFire != other.onFire) {
+        if (this.burning != other.burning) {
             return false;
         }
         return Double.doubleToLongBits(this.chanceOfFire) == Double.doubleToLongBits(other.chanceOfFire);

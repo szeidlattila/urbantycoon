@@ -15,17 +15,20 @@ class Field extends Sprite {
 
     private boolean free;
     private Buildable building;
+    private boolean burntDown;
 
     public Field(Field other) {
         super(other.getX(), other.getY(), other.getWidth(), other.getHeight(), other.getImage());
         this.free = other.free;
         this.building = other.building;
+        this.burntDown = other.burntDown;
     }
 
     public Field(Buildable building, int x, int y, int width, int height, Image image) {
         super(x, y, width, height, image);
         this.building = building;
         this.free = building == null;
+        this.burntDown = false;
     }
 
     public boolean isFree() {
@@ -80,13 +83,24 @@ class Field extends Sprite {
             return;
         setBuilding(newBuilding);
         unselect();
+        burntDown = false;
     }
 
     public void select() {
-        image = new ImageIcon("data/graphics/field/selected/field.png").getImage();
+        image = new ImageIcon("data/graphics/field/selected/notBurning/" + type() + ".png").getImage();
     }
 
     public void unselect() {
-        image = new ImageIcon("data/graphics/field/default/field.png").getImage();
+        image = new ImageIcon("data/graphics/field/unselected/notBurning/" + type() + ".png").getImage();
+    }
+    
+    public void burnsDown() {
+        setBuilding(null);
+        burntDown = true;
+        
+    }
+    
+    public String type() {
+        return burntDown ? "burntDownField" : "field";
     }
 }

@@ -13,8 +13,8 @@ import java.awt.Image;
 public class Forest extends PlayerBuildIt{
     private int age=0;
 
-    public Forest(int buildingPrice, int annualFee, int x, int y, int width, int height, Image image, double refund) {
-        super(buildingPrice, annualFee, x, y, width, height, image, refund);
+    public Forest(int buildingPrice, int annualFee, int x, int y, int width, int height, Image image, double refund, double chanceOfFire) {
+        super(buildingPrice, annualFee, x, y, width, height, image, refund, chanceOfFire);
     }
 
     public int getAge() {
@@ -39,6 +39,6 @@ public class Forest extends PlayerBuildIt{
     }
 
     protected String type(){
-        return "forest";
+        return (burning ? "burning" : "notBurning") + "/forest";
     }
 }

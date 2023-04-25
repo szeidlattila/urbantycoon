@@ -54,6 +54,16 @@ class Date {
         }
     }
 
+    public Date(Date date) {
+        this.year = date.year;
+        this.month = date.month;
+        this.day = date.day;
+        this.hour = date.hour;
+        this.minute = date.minute;
+    }
+    
+    
+
     public int getYear() {
         return year;
     }
@@ -189,6 +199,30 @@ class Date {
             return days;
         }
     }
+    
+    public int hoursElapsed(Date endDate) {
+        long startDateInHours = yearsInHour(year) + monthsInHour(month) + daysInHour(day) + hour;
+        long endDateInHours = yearsInHour(endDate.year) + monthsInHour(endDate.month) + daysInHour(endDate.day) + hour;
+        long retval = Math.abs(endDateInHours - startDateInHours);
+        return (int)retval;
+    }
+    
+    private long yearsInHour(int years) {
+        return (long)years*365*24;
+    }
+    
+    private int monthsInHour(int months) {
+        int sum = 0;
+        for (int i = 1; i <= months; i++) {
+            sum += maxDaysInMonth(i);
+        }
+        return sum;
+    }
+    
+    private int daysInHour(int days)  {
+        return days*24;
+    } 
+    
     @Override
     public String toString(){
         return year + ". " + (month<10?"0":"") + month + ". " + day + ". " + (hour<10?"0":"") + hour + (minute<10?":0":":") + minute;

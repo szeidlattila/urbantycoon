@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.Month;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -47,6 +48,7 @@ class GameEngine extends JPanel {
     private final int RADIUS = 4;
     private final int CRITSATISFACTION = -5;
     private final int MOVEINATLEASTSATISFACTION = 5;
+    private final double CHANCEOFFIRE = 0.05;
 
     private City city;
     private Date time;
@@ -57,7 +59,7 @@ class GameEngine extends JPanel {
     private Timer newFrameTimer;
     private Timer gameTickTimer;
 
-    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, showBudgetButton;
+    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, buildFSButton, showBudgetButton, fireFightingButton;
     private final JLabel moneyLabel, taxLabel, dateLabel, zoneInfoLabel, satisfactionLabel, residentNumLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
@@ -131,9 +133,17 @@ class GameEngine extends JPanel {
         buildPSButton.addActionListener((ActionEvent ae) -> city.build(PoliceStation.class));
         this.add(buildPSButton);
         
+        this.buildFSButton = new JButton("build FS");
+        buildFSButton.addActionListener((ActionEvent ae) -> city.build(FireStation.class));
+        this.add(buildFSButton);
+        
         this.showBudgetButton = new JButton("show budget");
         showBudgetButton.addActionListener((ActionEvent ea) -> new PopupInfo(new JFrame(), budgetInfo(), "Budget"));
         this.add(showBudgetButton);
+        
+        this.fireFightingButton = new JButton("fire-fighting");
+        fireFightingButton.addActionListener((ActionEvent ea) -> city.fireFighting());
+        this.add(fireFightingButton);
         
         this.moneyLabel = new JLabel("Funds: ");
         this.add(moneyLabel);
@@ -179,7 +189,7 @@ class GameEngine extends JPanel {
     private void newGame() {
         city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, MOVEINATLEASTSATISFACTION, INITIALMONEY,
                 ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE,
-                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, RADIUS, WIDTH, HEIGHT);
+                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
         // date alaphelyzetbe
         time = new Date(1980, 1, 1, 0, 0);
         paused = false;
@@ -354,8 +364,16 @@ class GameEngine extends JPanel {
                 Date prevTime = new Date(time.getYear(), time.getMonth(), time.getDay(), time.getHour(),
                         time.getMinute());
                 time.nMinutesElapsed(howManyMinutes);
-                if (prevTime.getYear() != time.getYear())
+                if (prevTime.getDay() != time.getDay()) {
+                    city.dayElapsed(new Date(time));
+                }
+                if (prevTime.getMonth() != time.getMonth()) {
+                    city.monthElapsed(new Date(time));
+                }
+                if (prevTime.getYear() != time.getYear()) {
                     city.yearElapsed();
+                }
+                    
                 int modelPerformTicks = time.howManyDaysPassed(prevTime);
                 city.performTicks(modelPerformTicks);
                 if (city.getSatisfaction() <= CRITSATISFACTION) gameOver();

@@ -13,10 +13,10 @@ import java.awt.Image;
 public class Road extends PlayerBuildIt{
 
     public Road(int buildingPrice, int annualFee, int x, int y, int width, int height, Image image, double refund) {
-        super(buildingPrice, annualFee, x, y, width, height, image, refund);
+        super(buildingPrice, annualFee, x, y, width, height, image, refund, 0.0);
     }
 
     protected String type(){
-        return "road";
+        return "notBurning/road";
     }
 }

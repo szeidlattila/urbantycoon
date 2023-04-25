@@ -17,8 +17,8 @@ public class ServiceZone extends Workplace{
     }
     
     protected String type(){
-        if (peopleNum == 0)         return "serviceZoneEmpty";
-        if (peopleNum == capacity)  return "serviceZoneFull";
-        return "serviceZone";
+        if (peopleNum == 0)         return (burning ? "burning" : "notBurning") + "/serviceZoneEmpty";
+        if (peopleNum == capacity)  return (burning ? "burning" : "notBurning") + "/serviceZoneFull";
+        return (burning ? "burning" : "notBurning") + "/serviceZone";
     }
 }
