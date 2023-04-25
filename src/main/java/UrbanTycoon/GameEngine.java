@@ -45,7 +45,7 @@ class GameEngine extends JPanel {
     private final int RESIDENTCAPACITY = 5;
     private final int WORKPLACECAPACITY = 18;
     private final double REFUND = 0.4;
-    private final int RADIUS = 4;
+    private final int RADIUS = 3;
     private final int CRITSATISFACTION = -5;
     private final int MOVEINATLEASTSATISFACTION = 5;
     private final double CHANCEOFFIRE = 0.05;

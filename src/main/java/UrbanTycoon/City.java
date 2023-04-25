@@ -544,7 +544,7 @@ class City {
             for (Field field : row) {
                 if (!field.isFree() && field.getBuilding().isBuiltUp() && !field.getBuilding().isBurning()) {
                     random = 1.0 * r.nextDouble(); // random double between 0.0 and 1.0
-                    if (field.getBuilding().getChanceOfFire() > random || field.getBuilding().getChanceOfFire() == 1.0) {
+                    if (calculateChanceOfFire(field) > random || calculateChanceOfFire(field) == 1.0) {
                         field.getBuilding().startBurning(currentDate);
                     }
                 }
@@ -568,28 +568,28 @@ class City {
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding().isBurning()) {
                     if (j+1 <= fields.length && !fields[i][j+1].isFree() && fields[i][j+1].getBuilding().isBuiltUp() && !fields[i][j+1].getBuilding().isBurning()) {
                         random = 1.0 * r.nextDouble();
-                        if (fields[i][j+1].getBuilding().getChanceOfFire() > random) {
+                        if (calculateChanceOfFire(fields[i][j+1]) > random) {
                             fields[i][j+1].getBuilding().startBurning(currentDate);
                         }
                     }
 
                     if (i+1 <= fields[i].length && !fields[i+1][j].isFree() && fields[i+1][j].getBuilding().isBuiltUp() && !fields[i+1][j].getBuilding().isBurning()) {
                         random = 1.0 * r.nextDouble();
-                        if (fields[i+1][j].getBuilding().getChanceOfFire() > random) {
+                        if (calculateChanceOfFire(fields[i+1][j]) > random) {
                             fields[i+1][j].getBuilding().startBurning(currentDate);
                         }
                     }
 
                     if (j-1 >= 0 && !fields[i][j-1].isFree() && fields[i][j-1].getBuilding().isBuiltUp() && !fields[i][j-1].getBuilding().isBurning()) {
                         random = 1.0 * r.nextDouble();
-                        if (fields[i][j-1].getBuilding().getChanceOfFire() > random) {
+                        if (calculateChanceOfFire(fields[i][j-1]) > random) {
                             fields[i][j-1].getBuilding().startBurning(currentDate);
                         }
                     }
 
                     if (i-1 >= 0 && !fields[i-1][j].isFree() && fields[i-1][j].getBuilding().isBuiltUp() && !fields[i-1][j].getBuilding().isBurning()) {
                        random = 1.0 * r.nextDouble();
-                       if (fields[i-1][j].getBuilding().getChanceOfFire() > random) {
+                       if (calculateChanceOfFire(fields[i-1][j]) > random) {
                             fields[i-1][j].getBuilding().startBurning(currentDate);
                         }
                     }
@@ -1114,6 +1114,29 @@ class City {
                         }
                 }
         return bonus;
+    }
+    
+    /**
+     * A selectedField-re dolgozik
+     * 
+     * @return
+     */
+    private double calculateChanceOfFire(Field field) {
+        int x = -1, y = -1;
+        for (int i = 0; i < fields.length; i++)
+            for (int j = 0; j < fields[0].length; j++) {
+                if (fields[i][j] == field) {
+                    x = i;
+                    y = j;
+                }
+            }
+        
+        for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
+            for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
+                if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof FireStation && getDistanceAlongRoad(field, fields[i][j], fields) != -1) {
+                    return fields[x][y].getBuilding().getChanceOfFire() * 0.5;
+                }
+        return fields[x][y].getBuilding().getChanceOfFire();
     }
 
     public boolean canDeleteRoad(Field field) {
