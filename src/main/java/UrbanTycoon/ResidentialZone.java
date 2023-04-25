@@ -13,7 +13,6 @@ import javax.swing.ImageIcon;
  */
 class ResidentialZone extends Zone {
     double moveInChance;
-    
     public ResidentialZone(double moveInChance, int capacity, int selectPrice, int annualTax, int safety, int satisfactionBonus, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(capacity, selectPrice, annualTax, safety, satisfactionBonus, refund, chanceOfFire, x, y, width, height, image);
         
@@ -27,11 +26,14 @@ class ResidentialZone extends Zone {
     public void setMoveInChance(double moveInChance) {
         this.moveInChance = moveInChance;
     }
-
+    
     public double getMoveInChance() {
         return moveInChance;
     }
-
+    @Override
+    public int getAnnualTax(){
+        return annualTaxPerPerson;
+    }
     protected String type(){
         if (peopleNum == 0)         return (burning ? "burning" : "notBurning") + "/residentialZoneEmpty";
         if (peopleNum == capacity)  return (burning ? "burning" : "notBurning") + "/residentialZoneFull";

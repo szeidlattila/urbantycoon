@@ -59,7 +59,7 @@ abstract class Zone extends Buildable {
      */
     @Override
     public int getAnnualTax() {
-        return annualTaxPerPerson * peopleNum;
+        return annualTaxPerPerson;
     }
 
     public void setAnnualTax(int annualTaxPerPerson) {
