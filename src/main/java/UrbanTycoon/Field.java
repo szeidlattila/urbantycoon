@@ -34,6 +34,10 @@ class Field extends Sprite {
     public boolean isFree() {
         return free;
     }
+    
+    public boolean isBurntDown() {
+        return burntDown;
+    }
 
     public Buildable getBuilding() {
         return building;
@@ -79,8 +83,7 @@ class Field extends Sprite {
      * @param radius
      */
     public void build(Buildable newBuilding) {
-        if (!this.free)
-            return;
+        if (!this.free) return;
         setBuilding(newBuilding);
         unselect();
         burntDown = false;
@@ -97,7 +100,6 @@ class Field extends Sprite {
     public void burnsDown() {
         setBuilding(null);
         burntDown = true;
-        
     }
     
     public String type() {
