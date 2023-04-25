@@ -16,6 +16,7 @@ import javax.swing.ImageIcon;
 import java.util.*;
 import java.awt.*;
 import java.util.ArrayList;
+import javax.swing.JFrame;
 
 /**
  *
@@ -558,6 +559,17 @@ class City {
                     if (field.getBuilding() instanceof Zone zone)   moveOut(zone);
                     field.burnsDown();
                 }
+                if (!field.isFree() && field.getBuilding() instanceof FireStation fireStation) {
+                    if (!fireStation.getFireEngine().isAvailable()) {
+                        // visszamegy
+                        if (fireStation.getFireEngine().isMovingBack()) {
+                            fireStation.getFireEngine().moveBackNextRoad();
+                        } else if (fireStation.getFireEngine().moveNextRoad()) { // odamegy
+                            fireStation.getFireEngine().getDestination().stopBurning();
+                        }
+                        
+                    }
+                }
             }
         }
     }
@@ -579,6 +591,9 @@ class City {
                     }
                     if (fields[i][j].isFree() && fields[i][j].isBurntDown()) {
                         fields[i][j].setImage(new ImageIcon("data/graphics/field/" + (selectedField == fields[i][j] ? "" : "un") + "selected/notBurning/burntDownField.png").getImage());
+                    }
+                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road road) {
+                        road.setImage(new ImageIcon("data/graphics/field/" + (selectedField == fields[i][j] ? "" : "un") + "selected/" + road.type() + ".png").getImage());
                     }
                 }
             if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone && zone.isBuiltUp()) {
@@ -1128,7 +1143,7 @@ class City {
      * 
      * @param one
      * @param other
-     * @return
+     * @return distance between fields or -1
      */
     private class Coordinate {
         public int x, y;
@@ -1139,9 +1154,8 @@ class City {
         }
     }
 
-    private int getDistanceAlongRoad(Field one, Field other, Field[][] fields) {
-        if (one == other)
-            return 0;
+    private int[][] getMatrixDistanceAlongRoad(Field one, Field other, Field[][] fields) {
+        if (one == other)   return null;
         int x1 = -1, x2 = -1, y1 = -1, y2 = -1;
         int[][] distances = new int[fields.length][fields[0].length];
         for (int i = 0; i < fields.length; i++)
@@ -1194,7 +1208,22 @@ class City {
                 Q.add(new Coordinate(o.x, o.y - 1));
             }
         }
-        return distances[x2][y2];
+        return distances;
+    }
+    
+    private int getDistanceAlongRoad(Field one, Field other, Field[][] fields) {
+        if (one == other)   return 0;
+        int x2 = -1;
+        int y2 = -1;
+        for (int i = 0; i < fields.length; i++)
+            for (int j = 0; j < fields[0].length; j++) {
+                if (fields[i][j] == other) {
+                    x2 = i;
+                    y2 = j;
+                }
+            }
+        
+        return getMatrixDistanceAlongRoad(one, other, fields)[x2][y2];
     }
 
     /**
@@ -1331,9 +1360,93 @@ class City {
             return;
         }
         
-        if (true) { // TODO
-            selectedField.getBuilding().stopBurning();
+        Field fireStationField = findClosestFireStation();
+        if (fireStationField == null) {
+            new PopupInfo(new JFrame(), "There is no available fire station!", "Warning");
+            return;
+        }        
+        
+        int[][] distanceMatrix = getMatrixDistanceAlongRoad(selectedField, fireStationField, fields);
+            
+        for (int i = 0; i < distanceMatrix.length; i++) {
+            for (int j = 0; j < distanceMatrix[i].length; j++) {
+                System.out.print((distanceMatrix[i][j] < 0 ? "" : "+") + distanceMatrix[i][j] + " ");
+            }
+            System.out.println("");
         }
+        
+        ArrayList<Road> route = new ArrayList<>();
+        int x = -1;
+        int y = -1;
+        for (int i = 0; i < distanceMatrix.length; i++) {
+            for (int j = 0; j < distanceMatrix[i].length; j++) {
+                if(distanceMatrix[i][j] == getDistanceAlongRoad(selectedField, fireStationField, fields)) {
+                    x = i;
+                    y = j;
+                }
+            }
+        }
+        
+        int roadsLeft = distanceMatrix[x][y];
+        while (roadsLeft > 1) {
+            if (y+1 <= fields.length) {
+                if (distanceMatrix[x][y+1] == distanceMatrix[x][y]-1) {
+                    route.add((Road)fields[x][++y].getBuilding());
+                    roadsLeft--;
+                }
+            }
+            
+            if (x+1 <= fields[0].length) {
+                if (distanceMatrix[x+1][y] == distanceMatrix[x][y]-1) {
+                    route.add((Road)fields[++x][y].getBuilding());
+                    roadsLeft--;
+                }
+            }
+            
+            if (y-1 >= 0) {
+                if (distanceMatrix[x][y-1] == distanceMatrix[x][y]-1) {
+                    route.add((Road)fields[x][--y].getBuilding());
+                    roadsLeft--;
+                }
+            }
+            
+            if (x-1 >= 0) {
+                if (distanceMatrix[x-1][y] == distanceMatrix[x][y]-1) {
+                    route.add((Road)fields[--x][y].getBuilding());
+                    roadsLeft--;
+                }
+            }
+            
+            //System.out.println("hátralevő: " + roadsLeft);
+        }
+        
+        System.out.println(route.size());
+        
+        // set up route for fire engine
+        ((FireStation)fireStationField.getBuilding()).getFireEngine().setRouteAndDestination(route, selectedField.getBuilding());
+    }
+    
+    /**
+     * 
+     * @return closest fireStation if there is no fireStation null
+     */
+    private Field findClosestFireStation() {
+        Field closestFireStation = null;
+        int minDistance = Integer.MAX_VALUE;
+        for (Field[] fields : this.fields) {
+            for (Field field : fields) {
+                if (!field.isFree() && field.getBuilding() instanceof FireStation fireStation) {
+                    if (fireStation.getFireEngine().isAvailable()) {
+                        int distance = getDistanceAlongRoad(selectedField, field, this.fields);
+                        if (distance != -1 && distance < minDistance) {
+                            closestFireStation = field;
+                            minDistance = distance;
+                        }
+                    }
+                }
+            }
+        }
+        return closestFireStation;
     }
     
     public void moveOut(Zone zone) {
