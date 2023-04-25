@@ -578,7 +578,7 @@ class City {
                         zone.setImage(new ImageIcon("data/graphics/field/unselected/" + zone.type() + ".png").getImage()); 
                     }
                     if (fields[i][j].isFree() && fields[i][j].isBurntDown()) {
-                        fields[i][j].setImage(new ImageIcon("data/graphics/field/unselected/notBurning/burntDownField.png").getImage());
+                        fields[i][j].setImage(new ImageIcon("data/graphics/field/"+ (fields[i][j] == selectedField ? "" : "un") + "selected/notBurning/burntDownField.png").getImage());
                     }
                 }
             if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding() instanceof Zone zone && zone.isBuiltUp()) {
