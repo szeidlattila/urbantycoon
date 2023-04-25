@@ -553,13 +553,50 @@ class City {
     }
     
     public void dayElapsed(Date currentDate) {
-        for (Field[] row : fields) {
-            for (Field field : row) {
-                if (!field.isFree() && field.getBuilding().isBuiltUp() && field.getBuilding().isBurntDown(currentDate)) {
-                    if (field.getBuilding() instanceof Zone zone)   moveOut(zone);
-                    field.burnsDown();
+        Random r = new Random();
+        double random = 0.0;
+                    
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[i].length; j++) {
+                // leég a mező
+                if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding().isBurntDown(currentDate)) {
+                    if (fields[i][j].getBuilding() instanceof Zone zone)   moveOut(zone);
+                    fields[i][j].burnsDown();
                 }
-                if (!field.isFree() && field.getBuilding() instanceof FireStation fireStation) {
+                
+                // átterjedhet a tűz szomszédos mezőkre
+                if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding().isBurning()) {
+                    if (j+1 <= fields.length && !fields[i][j+1].isFree() && fields[i][j+1].getBuilding().isBuiltUp() && !fields[i][j+1].getBuilding().isBurning()) {
+                        random = 1.0 * r.nextDouble();
+                        if (fields[i][j+1].getBuilding().getChanceOfFire() > random) {
+                            fields[i][j+1].getBuilding().startBurning(currentDate);
+                        }
+                    }
+
+                    if (i+1 <= fields[i].length && !fields[i+1][j].isFree() && fields[i+1][j].getBuilding().isBuiltUp() && !fields[i+1][j].getBuilding().isBurning()) {
+                        random = 1.0 * r.nextDouble();
+                        if (fields[i+1][j].getBuilding().getChanceOfFire() > random) {
+                            fields[i+1][j].getBuilding().startBurning(currentDate);
+                        }
+                    }
+
+                    if (j-1 >= 0 && !fields[i][j-1].isFree() && fields[i][j-1].getBuilding().isBuiltUp() && !fields[i][j-1].getBuilding().isBurning()) {
+                        random = 1.0 * r.nextDouble();
+                        if (fields[i][j-1].getBuilding().getChanceOfFire() > random) {
+                            fields[i][j-1].getBuilding().startBurning(currentDate);
+                        }
+                    }
+
+                    if (i-1 >= 0 && !fields[i-1][j].isFree() && fields[i-1][j].getBuilding().isBuiltUp() && !fields[i-1][j].getBuilding().isBurning()) {
+                       random = 1.0 * r.nextDouble();
+                       if (fields[i-1][j].getBuilding().getChanceOfFire() > random) {
+                            fields[i-1][j].getBuilding().startBurning(currentDate);
+                        }
+                    }
+                }
+                
+                // tűzoltóautó mozgatása
+                if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof FireStation fireStation) {
                     if (!fireStation.getFireEngine().isAvailable()) {
                         // visszamegy
                         if (fireStation.getFireEngine().isMovingBack()) {
