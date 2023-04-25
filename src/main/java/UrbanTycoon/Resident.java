@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.util.Objects;
+import java.util.Random;
 
 /**
  *
@@ -17,10 +18,11 @@ class Resident {
     private int satisfaction;
     private ResidentialZone home;
     private Workplace workplace;
-    private long paidTaxesInLast20YearBeforeRetired = 0;    /* RÉSZFELADAT: Nyugdíj */
-    
+    private long paidTaxesBeforeRetired = 0;
+    private int workedYearsBeforeRetired = 0;
+
     public Resident(int age, ResidentialZone home, Workplace workplace){
-        if (age >= 18) {
+        if (age >= 18 && age <= 60) {
             this.age = age;
         } else {
             throw new IllegalArgumentException("Invalid value! Age must be at least 18!");
@@ -58,9 +60,40 @@ class Resident {
     public Workplace getWorkplace(){
         return workplace;
     }
-    
-    public void increaseAge(){
+    /**
+     * returns true if resident died
+     * @return 
+     */
+    public boolean increaseAge(){
+        ++age;
+        if(retired){
+            Random r = new Random();
+            if (r.nextDouble() <= chanceOfDeath){
+                die();
+                return true;
+            } else chanceOfDeath += 0.1;
+        }
+            
+        if(age >= 65 && !retired){
+            retire();
+        }
+        return false;
         /* RÉSZFELADAT: Nyugdíj */
+    }
+    public void paidTaxes(int amount){
+        if(retired) throw new IllegalArgumentException("Nyugdíjas, de adózott");
+        if(age>=45)
+            paidTaxesBeforeRetired += amount;
+    }
+    public void workedAYear(){
+        if(retired) throw new IllegalArgumentException("Nyugdíjas, de dolgozott");
+        if(age>=45)
+            workedYearsBeforeRetired++;
+    }
+    public int getYearlyRetirement(){
+        if(!retired)
+            throw new IllegalArgumentException("Nem nyugdíjas!");
+        return (int)(paidTaxesBeforeRetired / workedYearsBeforeRetired / 2);
     }
     
     public void increaseSatisfaction(){
@@ -95,11 +128,15 @@ class Resident {
     }
     
     public void retire() {
-        /* RÉSZFELADAT: Nyugdíj */
+        retired = true;
+        System.out.println("Retired! " + age +  " Paid taxes: " + paidTaxesBeforeRetired + " worked years: " + workedYearsBeforeRetired);
+        workplace.setPeopleNum(workplace.getPeopleNum()-1);
+        workplace = null;
     }
     
     public void die() {
-        /* RÉSZFELADAT: Nyugdíj */
+        home.setPeopleNum(home.getPeopleNum()-1);
+        home = null;
     }
 
     @Override

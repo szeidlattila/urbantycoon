@@ -258,7 +258,7 @@ class City {
         ArrayList<Resident> removeResidents = new ArrayList<>();
         for (Resident resident : residents) {
             resident.setSatisfaction(universialSatisfaction + whatSatisfactionFor(resident));
-            if (resident.getSatisfaction() <= criticalSatisfaction) {
+            if (resident.getSatisfaction() <= criticalSatisfaction && !resident.isRetired()) {
                 resident.movesAwayFromCity();
                 removeResidents.add(resident);
             }
@@ -306,18 +306,27 @@ class City {
                     homeIndexY = j;
                 }
             }
-        if (homeIndexX == -1 || workIndexX == -1)
-            throw new IllegalArgumentException("Workplace/Home not Found!");
-
-        sat += 5 - getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
-
+        if(homeIndexX == -1)
+            throw new IllegalArgumentException("Home not Found!");
+        sat += r.getHome().getSatisfactionBonus(); 
+        sat += r.getHome().getSafety();
         for (int i = Math.max(0, homeIndexX - 5); i < Math.min(fields.length, homeIndexX + 6); i++) {
             for (int j = Math.max(0, homeIndexY - 5); j < Math.min(fields[0].length, homeIndexY + 6); j++)
                 if (fields[i][j].getBuilding() instanceof IndustrialZone)
                     sat += Math.max(Math.abs(i - homeIndexX), Math.abs(j - homeIndexY)) - 6;
         }
-        sat += (int) ((r.getHome().getSatisfactionBonus() + r.getWorkplace().getSatisfactionBonus()) / 2);
-        sat += (int) ((r.getHome().getSafety() + r.getWorkplace().getSafety())/2);
+        if(r.isRetired()) return sat;
+
+        // Ha nem nyugdíjas
+        
+        if (workIndexX == -1)
+            throw new IllegalArgumentException("Workplace not Found!");
+        
+        sat += 5 - getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
+
+        
+        sat += r.getWorkplace().getSatisfactionBonus();
+        sat += r.getWorkplace().getSafety();
         return sat;
     }
 
@@ -518,10 +527,22 @@ class City {
         for (Field[] row : fields) {
             for (Field field : row) {
                 if (!field.isFree()) {
-                    budget += field.getBuilding().getAnnualTax();
                     budget -= field.getBuilding().getAnnualFee();
                     budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
                 }
+            }
+        }
+        for(int i=0; i<residents.size();i++){
+            Resident r = residents.get(i);
+            if(!r.isRetired()){
+                r.workedAYear();
+                budget += r.getHome().getAnnualTax() + r.getWorkplace().getAnnualTax();
+                r.paidTaxes(r.getHome().getAnnualTax() + r.getWorkplace().getAnnualTax());
+            } else budget -= r.getYearlyRetirement();
+            if(r.increaseAge()){
+                residents.remove(r);
+                i--;
+                moveInOneResident(true);
             }
         }
         if (budget < 0)
@@ -531,7 +552,7 @@ class City {
         
         if (satisfaction >= moveInSatisfaction) {
             for (int i = 0; i < (satisfaction - moveInSatisfaction) + 1; i++) { // example: moveInSat := 5 : sat := 5 => add 1 resident; sat := 6 => add 2 residents; ... 
-                moveInOneResident();
+                moveInOneResident(false);
             }
         }
     }
@@ -1271,7 +1292,7 @@ class City {
      * find a ResidentialZone (not full, already built up) with the highest movInChance which is connected to at least 1 Workplace (not full, already build up) by road
      * find the closest Workplace to this ResidentialZone connected by Road
      */
-    public void moveInOneResident() {
+    public void moveInOneResident(boolean isBecauseDeath) {
         ResidentialZone bestResidentialZone = null;
         Workplace nearestWorkplace = null;
         double highestMoveInChance = Double.NEGATIVE_INFINITY;
@@ -1295,7 +1316,7 @@ class City {
         
         Random r = new Random();
         if (bestResidentialZone != null && nearestWorkplace != null) {
-            this.residents.add(new Resident((int) r.nextInt((60 - 18) + 1) + 18, bestResidentialZone, nearestWorkplace));
+            this.residents.add(new Resident(isBecauseDeath?18:(int) r.nextInt((60 - 18) + 1) + 18, bestResidentialZone, nearestWorkplace));
             bestResidentialZone.incrementPeopleNum();
             nearestWorkplace.incrementPeopleNum();
         }
@@ -1339,7 +1360,7 @@ class City {
     public void moveOut(Zone zone) {
         ArrayList<Resident> removeResidents = new ArrayList<>();
         for (Resident resident : residents) {
-            if (resident.getHome().equals(zone) || resident.getWorkplace().equals(zone)) {
+            if (resident.getHome().equals(zone) || zone.equals(resident.getWorkplace())) {
                 resident.movesAwayFromCity();
                 removeResidents.add(resident);
             }
