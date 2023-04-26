@@ -53,6 +53,17 @@ class Date {
            throw new IllegalArgumentException("Invalid minute format!"+ minute);
         }
     }
+    public static Date parseDate(String s){
+        if(s.equals("null")) return null;
+        else return new Date(s);
+    }
+    public Date(String str){
+        year = Integer.parseInt(str.substring(0,4));
+        month = Integer.parseInt(str.substring(6,8));
+        day = Integer.parseInt(str.substring(10,12));
+        hour = Integer.parseInt(str.substring(14,16));
+        minute = Integer.parseInt(str.substring(17));
+    }
 
     public Date(Date date) {
         this.year = date.year;
@@ -225,6 +236,6 @@ class Date {
     
     @Override
     public String toString(){
-        return year + ". " + (month<10?"0":"") + month + ". " + day + ". " + (hour<10?"0":"") + hour + (minute<10?":0":":") + minute;
+        return year + ". " + (month<10?"0":"") + month + ". " + (day<10?"0":"") + day + ". " + (hour<10?"0":"") + hour + (minute<10?":0":":") + minute;
     }
 }

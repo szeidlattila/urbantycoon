@@ -27,4 +27,8 @@ public class FireStation extends ServiceBuilding {
     protected String type() {
         return "notBurning/fireStation";
     }
+    
+    public String asString(){
+        return "fs;" + super.asString();
+    }
 }

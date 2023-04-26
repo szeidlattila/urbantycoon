@@ -21,4 +21,8 @@ public class IndustrialZone extends Workplace{
         if (peopleNum == capacity)  return (burning ? "burning" : "notBurnint") + "/industrialZoneFull";
         return (burning ? "burning" : "notBurning") + "/industrialZone";
     }
+    @Override
+    public String asString(){
+        return "iz;" + super.asString();
+    }
 }

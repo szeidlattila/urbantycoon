@@ -39,4 +39,8 @@ class ResidentialZone extends Zone {
         if (peopleNum == capacity)  return (burning ? "burning" : "notBurning") + "/residentialZoneFull";
         return (burning ? "burning" : "notBurning") + "/residentialZone";
     }
+    @Override
+    public String asString(){
+        return "rz;" + super.asString() + moveInChance;
+    }
 }

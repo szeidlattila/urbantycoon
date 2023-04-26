@@ -4,6 +4,7 @@
  */
 package UrbanTycoon;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -12,15 +13,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.Month;
+import java.util.Scanner;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
+import javax.swing.JTextField;
 
 /**
  *
@@ -49,17 +57,22 @@ class GameEngine extends JPanel {
     private final int CRITSATISFACTION = -5;
     private final int MOVEINATLEASTSATISFACTION = 5;
     private final double CHANCEOFFIRE = 0.05;
+    private final JFrame saveGameFrame = new JFrame("Játék mentése");
+    private final JFrame loadGameFrame = new JFrame("Játék betöltése");
+    private final JPanel saveGamePanel = new JPanel();
+    private final JPanel loadGamePanel = new JPanel();
 
     private City city;
     private Date time;
     private boolean paused = false;
     private int speed;
     private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 ora, 2 nap, 30 nap
-    private Image background;
-    private Timer newFrameTimer;
-    private Timer gameTickTimer;
+    private final Image background;
+    private final Timer newFrameTimer;
+    private final Timer gameTickTimer;
 
-    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, buildFSButton, showBudgetButton, fireFightingButton, zoneInfoButton;
+    
+    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, buildFSButton, showBudgetButton, fireFightingButton, zoneInfoButton, saveGameButton, loadGameButton;
     private final JLabel moneyLabel, taxLabel, dateLabel, satisfactionLabel, residentNumLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
@@ -141,6 +154,33 @@ class GameEngine extends JPanel {
         this.fireFightingButton = new JButton("fire-fighting");
         fireFightingButton.addActionListener((ActionEvent ea) -> city.fireFighting());
         this.add(fireFightingButton);
+
+        saveGameButton = new JButton("Save Game");
+        saveGameButton.addActionListener((ActionEvent ea) -> initSave());
+        this.add(saveGameButton);
+
+        loadGameButton = new JButton("Load Game");
+        JComboBox<String> savesList = new JComboBox();
+        loadGameButton.addActionListener((ActionEvent ea) -> initLoad(savesList));
+        this.add(loadGameButton);
+        
+        
+        JTextField saveNameTextField = new JTextField();
+        JButton confirmSaveButton = new JButton("Save");
+        confirmSaveButton.addActionListener((var ae) -> saveGame(saveNameTextField.getText() + ".sav"));
+        saveGamePanel.add(saveNameTextField);
+        saveNameTextField.setPreferredSize(new Dimension(80,20));
+        saveGamePanel.add(confirmSaveButton);
+        saveGameFrame.add(saveGamePanel);
+        saveGameFrame.setPreferredSize(new Dimension(300,100));
+        
+
+        JButton confirmLoadButton = new JButton("Load Game");
+        confirmLoadButton.addActionListener((var ae) -> loadGame(savesList.getItemAt(savesList.getSelectedIndex())));
+        loadGamePanel.add(confirmLoadButton);
+        loadGamePanel.add(savesList);
+        loadGameFrame.add(loadGamePanel);
+        loadGameFrame.setPreferredSize(new Dimension(300,100));
         
         this.zoneInfoButton = new JButton("zone info");
         zoneInfoButton.addActionListener((ActionEvent ea) -> zoneInfoPopup());
@@ -181,7 +221,6 @@ class GameEngine extends JPanel {
                 dateLabel.setText(time.toString());
             }
         }
-
     }
 
     private void newGame() {
@@ -194,12 +233,87 @@ class GameEngine extends JPanel {
         speed = 1;
     }
 
-    private void saveGame() {
-        /* RÉSZFELADAT: Perzisztencia */
+    private void initSave(){
+        paused = true;
+        saveGameFrame.pack();
+        saveGameFrame.setVisible(true);
     }
 
-    private void loadGame() {
-        /* RÉSZFELADAT: perzisztencia */
+    private void saveGame(String saveName) {
+        File[] usedFiles = getFiles();
+        for(File f : usedFiles)
+            if(f.getName().equals(saveName)){
+                JFrame frame = new JFrame("Létező mentés!");
+                JPanel panel = new JPanel();
+                frame.add(panel);
+                panel.add(new JLabel("Felülírod?"));
+                JButton confirmButton = new JButton("Igen");
+                JButton rejectButton = new JButton("Nem");
+                confirmButton.addActionListener((var ae) -> {
+                    frame.dispose();
+                    saveInto(f);
+                    paused = false;
+                    saveGameFrame.setVisible(false);
+                });
+                rejectButton.addActionListener((var ae) -> frame.dispose());
+                panel.add(confirmButton);
+                panel.add(rejectButton);
+                frame.setPreferredSize(new Dimension(300,100));
+                frame.pack();
+                frame.setVisible(true);
+                return;
+            }
+        File f = new File("data/persistence/saves/" + saveName);
+        try{
+            f.createNewFile();
+        }catch(IOException e){
+            System.exit(1);
+        }
+        saveInto(f);
+        paused = false;
+        saveGameFrame.setVisible(false);
+    }
+
+    private void saveInto(File f){
+        try(PrintWriter pw = new PrintWriter(f)){
+            pw.println(time.toString());
+            pw.print(city.saveGame());
+        }catch(Exception e){
+            System.exit(1);
+        }
+    }
+
+    private void initLoad(JComboBox<String> savesList){
+        paused = true;
+        savesList.removeAllItems();
+        File[] saves = getFiles();
+        for(File f : saves){
+            savesList.addItem(f.getName().substring(0,f.getName().length()-4));
+        }
+        loadGameFrame.pack();
+        loadGameFrame.setVisible(true);
+    }
+
+    private void loadGame(String fileName) {
+        try(Scanner s = new Scanner(new File("data/persistence/saves/" + fileName + ".sav"))){
+            time = new Date(s.nextLine());
+            city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, MOVEINATLEASTSATISFACTION, INITIALMONEY,
+                ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE,
+                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
+            city.loadGame(s);
+            loadGameFrame.setVisible(false);
+            paused = false;
+            speed = 1;
+            prevSelectedFieldX = -1;
+            prevSelectedFieldY = -1;
+            repaint();
+        }catch(FileNotFoundException e){
+            System.exit(100);
+        }
+    }
+
+    private File[] getFiles(){
+        return new File("data/persistence/saves").listFiles();
     }
 
     private void speedUpTime() {

@@ -26,4 +26,7 @@ public abstract class ServiceBuilding extends PlayerBuildIt{
     public int getRadius() {
         return radius;
     }
+    public String asString(){
+        return super.asString() + radius;
+    }
 }

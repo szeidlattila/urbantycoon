@@ -28,4 +28,8 @@ public class Road extends PlayerBuildIt {
     protected String type() {
         return "notBurning/" + (fireTrackOnTheRoad ? "fireTruck" : "road");
     }
+    @Override
+    public String asString(){
+        return "r;" + super.asString() + fireTrackOnTheRoad;
+    }
 }

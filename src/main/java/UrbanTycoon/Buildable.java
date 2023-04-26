@@ -14,7 +14,7 @@ import javax.swing.ImageIcon;
 abstract class Buildable extends Sprite {
     protected double refund;
     protected double chanceOfFire;
-    protected int burnsDownAfterNDays = 3*31;   // 3 hónap
+    protected final int burnsDownAfterNDays = 3*31;   // 3 hónap
     protected boolean burning = false;
     public Date burningStartDate = null;
 
@@ -30,6 +30,7 @@ abstract class Buildable extends Sprite {
         if (0.0 <= chanceOfFire && chanceOfFire <= 1.0) {
             this.chanceOfFire = chanceOfFire;
         } else {
+            System.out.println(chanceOfFire);
             throw new IllegalArgumentException("Invalid value! Chance of fire must be between 0.0 and 1.0!");
         }
     }
@@ -115,6 +116,26 @@ abstract class Buildable extends Sprite {
     public void fireSpread() {
         /* RÉSZFELADAT: Tűzoltóság */
     }
+
+    public void setBurning(boolean burning) {
+        this.burning = burning;
+    }
+
+    public void setBurningStartDate(Date burningStartDate) {
+        this.burningStartDate = burningStartDate;
+    }
     
     protected abstract String type();
+    public String asString(){
+        StringBuilder b = new StringBuilder();
+        b.append(refund);
+        b.append(';');
+        b.append(chanceOfFire);
+        b.append(';');
+        b.append(burning);
+        b.append(';');
+        b.append(burningStartDate==null?"null":burningStartDate.toString());
+        b.append(';');
+        return b.toString();
+    }
 }

@@ -33,6 +33,34 @@ class Resident {
         this.workplace = workplace;
     }
 
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setRetired(boolean retired) {
+        this.retired = retired;
+    }
+
+    public void setChanceOfDeath(double chanceOfDeath) {
+        this.chanceOfDeath = chanceOfDeath;
+    }
+
+    public long getPaidTaxesBeforeRetired() {
+        return paidTaxesBeforeRetired;
+    }
+
+    public void setPaidTaxesBeforeRetired(long paidTaxesBeforeRetired) {
+        this.paidTaxesBeforeRetired = paidTaxesBeforeRetired;
+    }
+
+    public int getWorkedYearsBeforeRetired() {
+        return workedYearsBeforeRetired;
+    }
+
+    public void setWorkedYearsBeforeRetired(int workedYearsBeforeRetired) {
+        this.workedYearsBeforeRetired = workedYearsBeforeRetired;
+    }
+
     public void setSatisfaction(int satisfaction) {
         this.satisfaction = satisfaction;
     }
@@ -185,6 +213,27 @@ class Resident {
     public String toString() {
         return "age: " + age + ", satisfaction: " + satisfaction + ", workplace: " + (retired ? "retired" : (workplace.getClass() == IndustrialZone.class ? "Industrial" : "Service"));
     }
-    
-    
+    public String asString(int homeX, int homeY, int workX, int workY){
+        StringBuilder b = new StringBuilder();
+        b.append(age);
+        b.append(';');
+        b.append(retired);
+        b.append(';');
+        b.append(chanceOfDeath);
+        b.append(';');
+        b.append(homeX);
+        b.append(';');
+        b.append(homeY);
+        b.append(';');
+        b.append(workX);
+        b.append(';');
+        b.append(workY);
+        b.append(';');
+        b.append(satisfaction);
+        b.append(';');
+        b.append(workedYearsBeforeRetired);
+        b.append(';');
+        b.append(paidTaxesBeforeRetired);
+        return b.toString();
+    }
 }

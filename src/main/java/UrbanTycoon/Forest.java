@@ -20,6 +20,10 @@ public class Forest extends PlayerBuildIt{
     public int getAge() {
         return age;
     }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
     
     public void increaseAgeBy1(){
         age++;
@@ -40,5 +44,8 @@ public class Forest extends PlayerBuildIt{
 
     protected String type(){
         return (burning ? "burning" : "notBurning") + "/forest";
+    }
+    public String asString(){
+        return "for;" + super.asString() + age;
     }
 }

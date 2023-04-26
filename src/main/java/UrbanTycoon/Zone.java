@@ -41,6 +41,28 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Invalid value! Annual tax must be at least 0!");
         }
     }
+    
+    @Override
+    public String asString(){
+        StringBuilder b = new StringBuilder(super.asString());
+        b.append(annualTaxPerPerson);
+        b.append(';');
+        b.append(buildProgress);
+        b.append(';');
+        b.append(builtUp);
+        b.append(';');
+        b.append(capacity);
+        b.append(';');
+        b.append(peopleNum);
+        b.append(';');
+        b.append(safety);
+        b.append(';');
+        b.append(satisfactionBonus);
+        b.append(';');
+        b.append(selectPrice);
+        b.append(';');
+        return b.toString();
+    }
 
     public int getSatisfactionBonus() {
         return satisfactionBonus;
@@ -60,6 +82,14 @@ abstract class Zone extends Buildable {
     @Override
     public int getAnnualTax() {
         return annualTaxPerPerson;
+    }
+
+    public void setAnnualTaxPerPerson(int annualTaxPerPerson) {
+        this.annualTaxPerPerson = annualTaxPerPerson;
+    }
+
+    public void setBuildProgress(int buildProgress) {
+        this.buildProgress = buildProgress;
     }
 
     public void setAnnualTax(int annualTaxPerPerson) {
