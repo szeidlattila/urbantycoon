@@ -211,8 +211,7 @@ class Resident {
 
     @Override
     public String toString() {
-        //return "age:" + age + ", satisfaction: " + satisfaction/* + ", workplace: " + (retired ? "retired" : (workplace.getClass() == IndustrialZone.class ? "Industrial" : "Service"))*/;
-        return "sat: " + satisfaction;
+        return "age: " + age + ", satisfaction: " + satisfaction + ", workplace: " + (retired ? "retired" : (workplace.getClass() == IndustrialZone.class ? "Industrial" : "Service"));
     }
     public String asString(int homeX, int homeY, int workX, int workY){
         StringBuilder b = new StringBuilder();
