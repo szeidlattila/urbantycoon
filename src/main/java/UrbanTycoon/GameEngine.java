@@ -31,7 +31,7 @@ class GameEngine extends JPanel {
     private final int FPS = 240;
     private final int WIDTH = 80;
     private final int HEIGHT = 80;
-    private final int FIELDSIZE = 20; // TODO
+    private final int FIELDSIZE = 20;
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
@@ -59,14 +59,11 @@ class GameEngine extends JPanel {
     private Timer newFrameTimer;
     private Timer gameTickTimer;
 
-    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, buildFSButton, showBudgetButton, fireFightingButton;
-    private final JLabel moneyLabel, taxLabel, dateLabel, zoneInfoLabel, satisfactionLabel, residentNumLabel;
+    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, buildFSButton, showBudgetButton, fireFightingButton, zoneInfoButton;
+    private final JLabel moneyLabel, taxLabel, dateLabel, satisfactionLabel, residentNumLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
-    // ----------------------------
-    // fv-ek
-    // -----------------------------
 
     public GameEngine() {
         super();
@@ -145,6 +142,10 @@ class GameEngine extends JPanel {
         fireFightingButton.addActionListener((ActionEvent ea) -> city.fireFighting());
         this.add(fireFightingButton);
         
+        this.zoneInfoButton = new JButton("zone info");
+        zoneInfoButton.addActionListener((ActionEvent ea) -> zoneInfoPopup());
+        this.add(zoneInfoButton);
+        
         this.moneyLabel = new JLabel("Funds: ");
         this.add(moneyLabel);
         this.taxLabel = new JLabel("Tax: ");
@@ -155,8 +156,6 @@ class GameEngine extends JPanel {
         this.add(residentNumLabel);
         this.dateLabel = new JLabel(time.toString());
         this.add(dateLabel);
-        this.zoneInfoLabel = new JLabel("");
-        this.add(zoneInfoLabel);
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
         gameTickTimer = new Timer(1000, new GameTickListener());
@@ -180,7 +179,6 @@ class GameEngine extends JPanel {
                 satisfactionLabel.setText("City satisfaction: " + city.getSatisfaction());
                 residentNumLabel.setText("Residents: " + city.getResidents().size());
                 dateLabel.setText(time.toString());
-                zoneInfoLabel.setText(zoneInfo());
             }
         }
 
@@ -310,33 +308,41 @@ class GameEngine extends JPanel {
                "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee();
     }
     
+    private void zoneInfoPopup() {
+        if (zoneInfo() == null || zoneInfo() == "") return;
+        Zone selectedZone = (Zone)city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding();
+        String title = (selectedZone instanceof ResidentialZone ? "Residential zone (" : "Workplace zone (") + selectedZone.getPeopleNum() + "/" + selectedZone.getCapacity() + ")";
+        new PopupInfo(null, zoneInfo(), title);
+    }
+    
     private String zoneInfo() {
         if (prevSelectedFieldX != -1 && prevSelectedFieldY != -1 && !city.getFields()[prevSelectedFieldY][prevSelectedFieldX].isFree() && city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding() instanceof Zone) {
             Field selectedField = city.getFields()[prevSelectedFieldY][prevSelectedFieldX];
             Buildable selectedBuilding = selectedField.getBuilding();
             if (selectedBuilding instanceof ResidentialZone) {
                 int currentPeople = ((ResidentialZone) selectedBuilding).getPeopleNum();
-                String residents = "Residents: ";
+                String residents = "\n<html><h2><font color=#00a605>Residents</font></h2></html>\n";
+                int number = 0;
                 for (Resident person : city.getResidents()) {
                     if (person.getHome() == ((ResidentialZone)selectedBuilding)) {
-                        residents += person.toString() + " ; ";
+                        residents += "#" + ++number + ": " + person.toString() + "\n";
                     }
                 }
-                return "Residential zone info (" + currentPeople + "/" + RESIDENTCAPACITY + ") : " + residents;
+                return residents;
             } else if (selectedBuilding instanceof Workplace) {
                 int currentPeople = ((Workplace) selectedBuilding).getPeopleNum();
-                String residents = "Employers: ";
+                String residents = "\n<html><h2><font color=#00a605>Employers</font></h2></html>\n";
+                int number = 0;
                 for (Resident person : city.getResidents()) {
                     if (person.getWorkplace() == (Workplace)selectedBuilding) {
-                        residents += person.toString() + " ; ";
+                        residents += "#" + ++number + ": " + person.toString() + "\n";
                     }
                 }
-                return "Workplace zone info (" + currentPeople + "/" + WORKPLACECAPACITY + ") : " + residents;
+                return residents;
             } else {
                 throw new IllegalArgumentException("Selected field must be ResidentialZone or Workplace!");
             }
-        }
-        
+        }    
         return "";
     }
     
