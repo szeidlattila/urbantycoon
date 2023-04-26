@@ -23,4 +23,8 @@ public class Stadium extends ServiceBuilding{
         return (burning ? "burning" : "notBurning") + "/stadium";
     }
     
+    @Override
+    public String asString(){
+        return "st;" + super.asString();
+    }
 }

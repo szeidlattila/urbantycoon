@@ -37,29 +37,24 @@ class City {
     private final double SCREENHEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
     private final double SCREENWIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
+    private final int criticalSatisfaction;
+    private final int moveInSatisfaction;
+    private final int residentCapacity;
+    private final int workplaceCapacity;
+    private final int zonePrice;
+    private final int roadPrice;
+    private final int stadiumPrice;
+    private final int policeStationPrice;
+    private final int fireStationPrice;
+    private final double annualFeePercentage; // playerBuildIt -> annualFee = price * annualFeePercentage
     
     private Field selectedField = null;
 
-    private boolean showFieldInfoPopup = false;
     private int satisfaction = 0;
     private int universialSatisfaction = 0;
-    private int criticalSatisfaction;
-    private int moveInSatisfaction;
     private long budget;
-    private int zonePrice;
-    private int roadPrice;
-    private int stadiumPrice;
-    private int policeStationPrice;
-    private int fireStationPrice;
-    private double annualFeePercentage; // playerBuildIt -> annualFee = price * annualFeePercentage
     private int negativeBudgetNthYear = 0;
     private int tax = 100;
-    private int residentCapacity;
-    private int workplaceCapacity;
-    private double moveInChance;
-    private int residentialZoneNum;
-    private int serviceZoneNum;
-    private int industrialZoneNum;
 
     
     public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction, int moveInSatisfaction,
@@ -79,7 +74,7 @@ class City {
         }
         
         if (0 < moveInSatisfaction && moveInSatisfaction <= 10) {
-            this.moveInChance = moveInSatisfaction;
+            this.moveInSatisfaction = moveInSatisfaction;
         } else {
             throw new IllegalArgumentException("Invalid value! Move in satisfaction must be greater than 0 and at most 10!");
         }
@@ -366,10 +361,8 @@ class City {
             if(!selectedField.isFree())
                 selectedField.getBuilding().unselect(isAccessible);
             selectedField = null;
-            showFieldInfoPopup = false;
         } else {
             selectedField = fields[y][x];
-            showFieldInfoPopup = true;
         }
     }
 
@@ -734,9 +727,6 @@ class City {
             int fieldColsNum) {
         int rows = 0;
         int cols = 0;
-        this.residentialZoneNum = 0;
-        this.serviceZoneNum = 0;
-        this.industrialZoneNum = 0;
         this.fields = new Field[fieldRowsNum][fieldColsNum];
 
         try {
@@ -1020,7 +1010,184 @@ class City {
 
         budget -= price;
     }
-
+    
+    public String saveGame(){
+        StringBuilder b = new StringBuilder();
+        b.append(tax);
+        b.append("\n");
+        b.append(budget);
+        b.append("\n");
+        b.append(negativeBudgetNthYear);
+        b.append("\n");
+        b.append(satisfaction);
+        b.append("\n");
+        b.append(universialSatisfaction);
+        b.append("\n");
+        for(var row : fields){
+            for(Field field:row){
+                b.append(field.asString());
+                b.append("\n");
+            }
+        }
+        int homeX=-1,homeY=-1,workX=-1,workY=-1;
+        for(Resident r : residents){
+            for(int i = 0; i<fields.length;i++)
+                for(int j = 0; j<fields[0].length;j++)
+                    if(fields[i][j].getBuilding() == r.getHome()){
+                        homeX = i;
+                        homeY = j;
+                    }else if (fields[i][j].getBuilding() == r.getWorkplace()){
+                        workX = i;
+                        workY = j;
+                    }
+            b.append(r.asString(homeX, homeY, workX, workY));
+            b.append('\n');
+        }
+        return b.toString();
+    }
+    
+    public void loadGame(Scanner s){
+        residents.clear();
+        tax = Integer.parseInt(s.nextLine());
+        budget = Integer.parseInt(s.nextLine());
+        negativeBudgetNthYear = Integer.parseInt(s.nextLine());
+        satisfaction = Integer.parseInt(s.nextLine());
+        universialSatisfaction = Integer.parseInt(s.nextLine());
+        boolean[][] gud = new boolean[fields.length][fields[0].length];
+        for(int i=0;i<fields.length;i++){
+            for(int j=0;j<fields[0].length; j++){
+                String[] str = s.nextLine().split(";");
+                if(str.length>3 && str[1].equals("st") && !gud[i][j]){
+                    double refund = Double.parseDouble(str[2]);
+                    double chanceOfFire = Double.parseDouble(str[3]);
+                    int buildPrice = Integer.parseInt(str[6]);
+                    int annualFee = Integer.parseInt(str[7]);
+                    int radius = Integer.parseInt(str[8]);
+                    Stadium stad = new Stadium(buildPrice,annualFee,radius,(j+1)*WIDTH,(i+1)*HEIGHT,WIDTH*2,HEIGHT*2,whatImageFor(Stadium.class,str),refund,chanceOfFire);
+                    stad.fields[0] = fields[i+1][j+1];
+                    stad.fields[0].setBuilding(stad);
+                    stad.fields[1] = fields[i][j];
+                    stad.fields[1].setBuilding(stad);
+                    stad.fields[2] = fields[i][j+1];
+                    stad.fields[2].setBuilding(stad);
+                    stad.fields[3] = fields[i+1][j];
+                    stad.fields[3].setBuilding(stad);
+                    gud[i][j] = true;
+                    gud[i+1][j+1] = true;
+                    gud[i+1][j] = true;
+                    gud[i][j+1] = true;
+                }else if(str.length > 2 && str[1].equals("st")){
+                    
+                }else{
+                    fields[i][j].setBuilding(unpack(j,i,str));
+                }
+                if(fields[i][j].isFree())
+                    fields[i][j].setBurntDown(Boolean.parseBoolean(str[0]));
+            }
+        }
+        reevaluateAccessibility();
+        while(s.hasNextLine()){
+            residents.add(residentByString(s.nextLine()));
+        }
+    }
+    private Buildable unpack(int x, int y, String[] s){
+        Buildable b;
+        if(s[1].equals("empty")) return null;
+        double refund = Double.parseDouble(s[2]);
+        double chanceOfFire = Double.parseDouble(s[3]);
+        boolean burning = Boolean.parseBoolean(s[4]);
+        Date date = Date.parseDate(s[5]);
+        switch(s[1]){
+            case "rz" -> {
+                b = new ResidentialZone(Double.parseDouble(s[14]),Integer.parseInt(s[9]),Integer.parseInt(s[13]),Integer.parseInt(s[6]),Integer.parseInt(s[11]),Integer.parseInt(s[12]),refund,chanceOfFire,(x+1)*WIDTH,(y+1)*HEIGHT,WIDTH,HEIGHT,whatImageFor(ResidentialZone.class, s));
+                Zone z = (Zone)b;
+                z.setPeopleNum(Integer.parseInt(s[10]));
+                z.setBuildProgress(Integer.parseInt(s[7]));
+                z.setBuiltUp(Boolean.parseBoolean(s[8]));
+            }
+            case "iz" -> {
+                b = new IndustrialZone(Integer.parseInt(s[9]),Integer.parseInt(s[13]),Integer.parseInt(s[6]),Integer.parseInt(s[11]),Integer.parseInt(s[12]),refund,chanceOfFire/2,(x+1)*WIDTH,(y+1)*HEIGHT,WIDTH,HEIGHT,whatImageFor(IndustrialZone.class, s));
+                Zone z = (Zone)b;
+                z.setPeopleNum(Integer.parseInt(s[10]));
+                z.setBuildProgress(Integer.parseInt(s[7]));
+                z.setBuiltUp(Boolean.parseBoolean(s[8]));
+            }
+            case "sz" -> {
+                b = new ServiceZone(Integer.parseInt(s[9]),Integer.parseInt(s[13]),Integer.parseInt(s[6]),Integer.parseInt(s[11]),Integer.parseInt(s[12]),refund,chanceOfFire,(x+1)*WIDTH,(y+1)*HEIGHT,WIDTH,HEIGHT,whatImageFor(ServiceZone.class, s));
+                Zone z = (Zone)b;
+                z.setPeopleNum(Integer.parseInt(s[10]));
+                z.setBuildProgress(Integer.parseInt(s[7]));
+                z.setBuiltUp(Boolean.parseBoolean(s[8]));
+            }
+            case "ps" -> {
+                int buildPrice = Integer.parseInt(s[6]);
+                int annualFee = Integer.parseInt(s[7]);
+                int radius = Integer.parseInt(s[8]);
+                b = new PoliceStation(buildPrice, annualFee, radius,(x+1)*WIDTH,(y+1)*HEIGHT,WIDTH,HEIGHT,whatImageFor(PoliceStation.class,s),refund,chanceOfFire);
+            }
+            case "fs" -> {
+                int buildPrice = Integer.parseInt(s[6]);
+                int annualFee = Integer.parseInt(s[7]);
+                int radius = Integer.parseInt(s[8]);
+                b = new FireStation(buildPrice,annualFee,radius,(x+1)*WIDTH,(y+1)*HEIGHT,WIDTH,HEIGHT,whatImageFor(FireStation.class,s),refund);
+            }
+            case "for" -> {
+                int buildPrice = Integer.parseInt(s[6]);
+                int annualFee = Integer.parseInt(s[7]);
+                int age = Integer.parseInt(s[8]);
+                b = new Forest(buildPrice,annualFee,(x+1)*WIDTH,(y+1)*HEIGHT,WIDTH,HEIGHT,whatImageFor(Forest.class, s),refund,chanceOfFire);
+                ((Forest)b).setAge(age);
+            }
+            case "st" -> {
+                int buildPrice = Integer.parseInt(s[6]);
+                int annualFee = Integer.parseInt(s[7]);
+                int radius = Integer.parseInt(s[8]);
+                b = new Stadium(buildPrice,annualFee,radius,(x+1)*WIDTH,(y+1)*HEIGHT,WIDTH*2,HEIGHT*2,whatImageFor(Stadium.class,s),refund,chanceOfFire);
+            }
+            default -> {
+                int buildPrice = Integer.parseInt(s[6]);
+                int annualFee = Integer.parseInt(s[7]);
+                b = new Road(buildPrice,annualFee,(x+1)*WIDTH,(y+1)*HEIGHT,WIDTH,HEIGHT,whatImageFor(Road.class,s),refund);
+            }
+        }
+        b.setBurning(burning);
+        b.setBurningStartDate(date);
+        return b;
+    }
+    private Image whatImageFor(Class buildableClass, String[] s){
+        boolean burning = Boolean.parseBoolean(s[4]);
+        StringBuilder pathName = new StringBuilder("data/graphics/field/unselected/");
+        pathName.append(burning?"burning/":"notBurning/");
+        if(PlayerBuildIt.class.isAssignableFrom(buildableClass)){
+            if (buildableClass == PoliceStation.class){
+                pathName.append("policeStation");
+            }
+            else if(buildableClass == Road.class)
+                pathName.append("road");
+            else if(buildableClass == FireStation.class)
+                pathName.append("fireStation");
+            else if(buildableClass == Forest.class)
+                pathName.append("forest");
+            else pathName.append("stadium");
+                
+        } else return null;
+        pathName.append(".png");
+        return new ImageIcon(pathName.toString()).getImage();
+    }
+    private Resident residentByString(String tmp){
+        String[] s = tmp.split(";");
+        Resident r = new Resident(42,null,null);
+        r.setAge(Integer.parseInt(s[0]));
+        r.setRetired(Boolean.parseBoolean(s[1]));
+        r.setChanceOfDeath(Double.parseDouble(s[2]));
+        r.setHome((ResidentialZone)fields[Integer.parseInt(s[3])][Integer.parseInt(s[4])].getBuilding());
+        r.setWorkplace((Workplace)fields[Integer.parseInt(s[5])][Integer.parseInt(s[6])].getBuilding());
+        r.setSatisfaction(Integer.parseInt(s[7]));
+        r.setWorkedYearsBeforeRetired(Integer.parseInt(s[8]));
+        r.setPaidTaxesBeforeRetired(Integer.parseInt(s[9]));
+        return r;
+    }
+    
     public void reevaluateAccessibility() {
         for (var row : fields)
             for (var field : row)
@@ -1127,12 +1294,13 @@ class City {
             for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Stadium stadium
                         && !usedStadiums.contains(stadium)) {
-                    for (int k = 0; k < 4; k++)
+                    for (int k = 0; k < 4; k++){
                         if (getDistanceAlongRoad(stadium.fields[k], field, fields) != -1) {
                             bonus += STADIUMSATBONUS;
                             usedStadiums.add(stadium);
                             break;
                         }
+                    }
                 }
         return bonus;
     }

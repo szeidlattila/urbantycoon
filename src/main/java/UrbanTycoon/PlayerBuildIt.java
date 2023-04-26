@@ -46,4 +46,8 @@ public abstract class PlayerBuildIt extends Buildable {
     public final int destroy(){
         return buildingPrice;
     }
+    @Override
+    public String asString(){
+        return super.asString() + buildingPrice + ";" + annualFee + ";";
+    }
 }

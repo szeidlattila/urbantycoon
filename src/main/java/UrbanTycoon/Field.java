@@ -105,4 +105,12 @@ class Field extends Sprite {
     public String type() {
         return burntDown ? "burntDownField" : "field";
     }
+
+    public void setBurntDown(boolean burntDown) {
+        this.burntDown = burntDown;
+    }
+    
+    public String asString(){
+        return burntDown + ";" + (free?"empty":building.asString());
+    }
 }

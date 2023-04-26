@@ -21,4 +21,8 @@ public class ServiceZone extends Workplace{
         if (peopleNum == capacity)  return (burning ? "burning" : "notBurning") + "/serviceZoneFull";
         return (burning ? "burning" : "notBurning") + "/serviceZone";
     }
+    @Override
+    public String asString(){
+        return "sz;" + super.asString();
+    }
 }
