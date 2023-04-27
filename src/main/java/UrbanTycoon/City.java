@@ -1063,7 +1063,7 @@ class City {
             selectedField.build(
                     new Forest(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(),
                             WIDTH, HEIGHT, new ImageIcon("data/graphics/field/selected/forest.png").getImage(),
-                            REFUND));
+                            REFUND, CHANCEOFFIRE));
             calculateForestBonusResZone();
         }
         reevaluateAccessibility();
