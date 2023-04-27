@@ -14,7 +14,7 @@ import javax.swing.ImageIcon;
 abstract class Buildable extends Sprite {
     protected double refund;
     protected double chanceOfFire;
-    protected final int burnsDownAfterNDays = 3*31;   // 3 hónap
+    protected final int burnsDownAfterNDays = 60;
     protected boolean burning = false;
     public Date burningStartDate = null;
 
@@ -113,10 +113,6 @@ abstract class Buildable extends Sprite {
         return burningStartDate.hoursElapsed(currentDate) > burnsDownAfterNDays*24;
     }
     
-    public void fireSpread() {
-        /* RÉSZFELADAT: Tűzoltóság */
-    }
-
     public void setBurning(boolean burning) {
         this.burning = burning;
     }

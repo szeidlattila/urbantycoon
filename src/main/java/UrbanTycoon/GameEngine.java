@@ -57,8 +57,8 @@ class GameEngine extends JPanel {
     private final int CRITSATISFACTION = -5;
     private final int MOVEINATLEASTSATISFACTION = 5;
     private final double CHANCEOFFIRE = 0.05;
-    private final JFrame saveGameFrame = new JFrame("Játék mentése");
-    private final JFrame loadGameFrame = new JFrame("Játék betöltése");
+    private final JFrame saveGameFrame = new JFrame("Save game");
+    private final JFrame loadGameFrame = new JFrame("Load game");
     private final JPanel saveGamePanel = new JPanel();
     private final JPanel loadGamePanel = new JPanel();
 
@@ -175,7 +175,7 @@ class GameEngine extends JPanel {
         saveGameFrame.setPreferredSize(new Dimension(300,100));
         
 
-        JButton confirmLoadButton = new JButton("Load Game");
+        JButton confirmLoadButton = new JButton("Load");
         confirmLoadButton.addActionListener((var ae) -> loadGame(savesList.getItemAt(savesList.getSelectedIndex())));
         loadGamePanel.add(confirmLoadButton);
         loadGamePanel.add(savesList);
@@ -461,8 +461,8 @@ class GameEngine extends JPanel {
     }
     
     private void gameOver() {
-        //new PopupInfo(new JFrame(), "You lost!\nCity satisfaction is critical.", "Game over");
-        //newGame();
+        new PopupInfo(new JFrame(), "You lost!\nCity satisfaction is critical.", "Game over");
+        newGame();
     }
             
     class NewFrameListener implements ActionListener {

@@ -211,11 +211,10 @@ class Date {
         }
     }
     
-    public int hoursElapsed(Date endDate) {
-        long startDateInHours = yearsInHour(year) + monthsInHour(month) + daysInHour(day) + hour;
+    public long hoursElapsed(Date endDate) {
+        long startDateInHours = yearsInHour(this.year) + monthsInHour(this.month) + daysInHour(this.day) + this.hour;
         long endDateInHours = yearsInHour(endDate.year) + monthsInHour(endDate.month) + daysInHour(endDate.day) + hour;
-        long retval = Math.abs(endDateInHours - startDateInHours);
-        return (int)retval;
+        return Math.abs(endDateInHours - startDateInHours);
     }
     
     private long yearsInHour(int years) {
@@ -227,7 +226,7 @@ class Date {
         for (int i = 1; i <= months; i++) {
             sum += maxDaysInMonth(i);
         }
-        return sum;
+        return daysInHour(sum);
     }
     
     private int daysInHour(int days)  {
