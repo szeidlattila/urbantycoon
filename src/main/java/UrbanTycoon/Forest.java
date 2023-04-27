@@ -24,6 +24,17 @@ public class Forest extends PlayerBuildIt{
     public void setAge(int age) {
         this.age = age;
     }
+
+    public int getBonusMultiplier() {
+        if (age == 0) {
+            return 1;
+        } else if (age >= 10) {
+            return 10;
+        } else {
+            return age;
+        }
+
+    }
     
     public void increaseAgeBy1(){
         age++;

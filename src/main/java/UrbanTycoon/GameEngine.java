@@ -49,6 +49,7 @@ class GameEngine extends JPanel {
     private final int STADIUMPRICE = 1000;
     private final int POLICESTATIONPRICE = 750;
     private final int FIRESTATIONPRICE = 750;
+    private final int FORESTPRICE = 500;
     private final double ANNUALFEEPERCENTAGE = 0.3; // playerBuildIt annualFee = price * ANNUALFEEPERCENTAGE
     private final int RESIDENTCAPACITY = 5;
     private final int WORKPLACECAPACITY = 18;
@@ -72,7 +73,7 @@ class GameEngine extends JPanel {
     private final Timer gameTickTimer;
 
     
-    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, buildFSButton, showBudgetButton, fireFightingButton, zoneInfoButton, saveGameButton, loadGameButton;
+    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton, nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton, buildFSButton, buildForestButton, showBudgetButton, fireFightingButton, zoneInfoButton, saveGameButton, loadGameButton;
     private final JLabel moneyLabel, taxLabel, dateLabel, satisfactionLabel, residentNumLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
@@ -146,6 +147,10 @@ class GameEngine extends JPanel {
         this.buildFSButton = new JButton("build FS");
         buildFSButton.addActionListener((ActionEvent ae) -> city.build(FireStation.class));
         this.add(buildFSButton);
+
+        this.buildForestButton = new JButton("build Forest");
+        buildForestButton.addActionListener((ActionEvent ae) -> city.build(Forest.class));
+        this.add(buildForestButton);
         
         this.showBudgetButton = new JButton("show budget");
         showBudgetButton.addActionListener((ActionEvent ea) -> new PopupInfo(new JFrame(), budgetInfo(), "Budget"));
@@ -225,7 +230,7 @@ class GameEngine extends JPanel {
 
     private void newGame() {
         city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, MOVEINATLEASTSATISFACTION, INITIALMONEY,
-                ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE,
+                ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE, ANNUALFEEPERCENTAGE,
                 RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
         // date alaphelyzetbe
         time = new Date(1980, 1, 1, 0, 0);
@@ -298,8 +303,8 @@ class GameEngine extends JPanel {
         try(Scanner s = new Scanner(new File("data/persistence/saves/" + fileName + ".sav"))){
             time = new Date(s.nextLine());
             city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION, MOVEINATLEASTSATISFACTION, INITIALMONEY,
-                ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, ANNUALFEEPERCENTAGE,
-                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
+            ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE, ANNUALFEEPERCENTAGE,
+            RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
             city.loadGame(s);
             loadGameFrame.setVisible(false);
             paused = false;
