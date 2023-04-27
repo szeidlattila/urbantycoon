@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 class FireEngine extends Sprite{
     private ArrayList<Road> route = new ArrayList<>();
-    private ArrayList<Road> routeBack = new ArrayList<>();
+    private final ArrayList<Road> routeBack = new ArrayList<>();
     private Road currentRoad = null;
     private Buildable destination = null;
     private boolean movingBack = false;
@@ -46,6 +46,7 @@ class FireEngine extends Sprite{
      */
     public boolean moveNextRoad() {
         if (currentRoad != null)    currentRoad.setFireTrackOnTheRoad(false);
+        this.available = false;
         if (!route.isEmpty()) {
             Road nextRoad = route.remove(0);
             routeBack.add(nextRoad);
@@ -71,9 +72,5 @@ class FireEngine extends Sprite{
             this.movingBack = false;
             this.available = true;
         }
-    }
-    
-    public void fireFight(Zone zoneOnFire){
-        
     }
 }

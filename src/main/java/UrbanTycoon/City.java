@@ -580,14 +580,14 @@ class City {
                 
                 // átterjedhet a tűz szomszédos mezőkre
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp() && fields[i][j].getBuilding().isBurning()) {
-                    if (j+1 <= fields.length && !fields[i][j+1].isFree() && fields[i][j+1].getBuilding().isBuiltUp() && !fields[i][j+1].getBuilding().isBurning()) {
+                    if (j+1 < fields[i].length && !fields[i][j+1].isFree() && fields[i][j+1].getBuilding().isBuiltUp() && !fields[i][j+1].getBuilding().isBurning()) {
                         random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i][j+1]) > random) {
                             fields[i][j+1].getBuilding().startBurning(currentDate);
                         }
                     }
 
-                    if (i+1 <= fields[i].length && !fields[i+1][j].isFree() && fields[i+1][j].getBuilding().isBuiltUp() && !fields[i+1][j].getBuilding().isBurning()) {
+                    if (i+1 < fields.length && !fields[i+1][j].isFree() && fields[i+1][j].getBuilding().isBuiltUp() && !fields[i+1][j].getBuilding().isBurning()) {
                         random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i+1][j]) > random) {
                             fields[i+1][j].getBuilding().startBurning(currentDate);
@@ -1616,55 +1616,63 @@ class City {
         }        
         
         int[][] distanceMatrix = getMatrixDistanceAlongRoad(selectedField, fireStationField, fields);
-         /*  Printelés bugfixhez 
-        for (int i = 0; i < distanceMatrix.length; i++) {
+        
+        /*for (int i = 0; i < distanceMatrix.length; i++) {
             for (int j = 0; j < distanceMatrix[i].length; j++) {
-                System.out.print((distanceMatrix[i][j] < 0 ? "" : "+") + distanceMatrix[i][j] + " ");
+                System.out.print((0 <= distanceMatrix[i][j] && distanceMatrix[i][j] < 10 ? "+" : "") + distanceMatrix[i][j] + " ");
             }
             System.out.println("");
         }
-        */
+        System.out.println("-------------------------------------------------");*/
         
         ArrayList<Road> route = new ArrayList<>();
         int x = -1;
         int y = -1;
-        for (int i = 0; i < distanceMatrix.length; i++) {
-            for (int j = 0; j < distanceMatrix[i].length; j++) {
-                if(distanceMatrix[i][j] == getDistanceAlongRoad(selectedField, fireStationField, fields)) {
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[i].length; j++) {
+                if(fields[i][j].equals(fireStationField)) {
                     x = i;
                     y = j;
+                    break;
                 }
+            }
+            if (x != -1 && y != 1) {
+                break;
             }
         }
         
         int roadsLeft = distanceMatrix[x][y];
         while (roadsLeft > 1) {
-            if (y+1 <= fields.length) {
-                if (distanceMatrix[x][y+1] == distanceMatrix[x][y]-1) {
-                    route.add((Road)fields[x][++y].getBuilding());
-                    roadsLeft--;
+            if (y+1 < fields[0].length && distanceMatrix[x][y+1] == distanceMatrix[x][y]-1) {
+                route.add((Road)fields[x][++y].getBuilding());
+                roadsLeft--;
+                //System.out.println("Jobbra");
+            } else if (x+1 < fields.length && distanceMatrix[x+1][y] == distanceMatrix[x][y]-1) {
+                route.add((Road)fields[++x][y].getBuilding());
+                roadsLeft--;
+                //System.out.println("Lefele");
+            } else if (y-1 >= 0 && distanceMatrix[x][y-1] == distanceMatrix[x][y]-1) {
+                route.add((Road)fields[x][--y].getBuilding());
+                roadsLeft--;
+                //System.out.println("Balra");
+            } else if (x-1 >= 0 && distanceMatrix[x-1][y] == distanceMatrix[x][y]-1) {
+                route.add((Road)fields[--x][y].getBuilding());
+                roadsLeft--;
+                //System.out.println("Felfele");
+            } else {
+                // -0 would be fire truck next position
+                for (int i = 0; i < distanceMatrix.length; i++) {
+                    for (int j = 0; j < distanceMatrix[i].length; j++) {
+                        if (x == i && y == j) {
+                            System.out.print("-0 ");
+                        } else {
+                            System.out.print((0 <= distanceMatrix[i][j] && distanceMatrix[i][j] < 10 ? "+" : "") + distanceMatrix[i][j] + " ");
+                        }
+                    }
+                    System.out.println("");
                 }
-            }
-            
-            if (x+1 <= fields[0].length) {
-                if (distanceMatrix[x+1][y] == distanceMatrix[x][y]-1) {
-                    route.add((Road)fields[++x][y].getBuilding());
-                    roadsLeft--;
-                }
-            }
-            
-            if (y-1 >= 0) {
-                if (distanceMatrix[x][y-1] == distanceMatrix[x][y]-1) {
-                    route.add((Road)fields[x][--y].getBuilding());
-                    roadsLeft--;
-                }
-            }
-            
-            if (x-1 >= 0) {
-                if (distanceMatrix[x-1][y] == distanceMatrix[x][y]-1) {
-                    route.add((Road)fields[--x][y].getBuilding());
-                    roadsLeft--;
-                }
+                
+                throw new IllegalArgumentException("Fire truck cannot move to destination!");
             }
             
             //System.out.println("hátralevő: " + roadsLeft);

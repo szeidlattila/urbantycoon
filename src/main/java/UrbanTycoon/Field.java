@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import java.util.Objects;
 import javax.swing.ImageIcon;
 
 /**
@@ -100,6 +101,33 @@ class Field extends Sprite {
     public void burnsDown() {
         setBuilding(null);
         burntDown = true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Field other = (Field) obj;
+        if (this.free != other.free) {
+            return false;
+        }
+        if (this.burntDown != other.burntDown) {
+            return false;
+        }
+        return Objects.equals(this.building, other.building);
     }
     
     public String type() {

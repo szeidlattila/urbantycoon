@@ -461,8 +461,8 @@ class GameEngine extends JPanel {
     }
     
     private void gameOver() {
-        new PopupInfo(new JFrame(), "You lost!\nCity satisfaction is critical.", "Game over");
-        newGame();
+        //new PopupInfo(new JFrame(), "You lost!\nCity satisfaction is critical.", "Game over");
+        //newGame();
     }
             
     class NewFrameListener implements ActionListener {
