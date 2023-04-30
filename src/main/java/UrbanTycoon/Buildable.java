@@ -20,13 +20,13 @@ abstract class Buildable extends Sprite {
 
     protected Buildable(int x, int y, int width, int height, Image image, double refund, double chanceOfFire) {
         super(x, y, width, height, image);
-        
+
         if (0.0 <= refund && refund <= 1.0) {
             this.refund = refund;
         } else {
             throw new IllegalArgumentException("Invalid value! Refund must be greater than 0.0 and lower than 1.0!");
         }
-        
+
         if (0.0 <= chanceOfFire && chanceOfFire <= 1.0) {
             this.chanceOfFire = chanceOfFire;
         } else {
@@ -43,14 +43,18 @@ abstract class Buildable extends Sprite {
         if (isBuiltUp())
             image = new ImageIcon("data/graphics/field/selected/" + type() + ".png").getImage();
         else
-            image = new ImageIcon("data/graphics/field/selected/notBurning/" + (accessible ? "build" : "unableBuild") + ".png").getImage();
+            image = new ImageIcon(
+                    "data/graphics/field/selected/notBurning/" + (accessible ? "build" : "unableBuild") + ".png")
+                    .getImage();
     }
 
     protected final void unselect(boolean accessible) {
         if (isBuiltUp())
             image = new ImageIcon("data/graphics/field/unselected/" + type() + ".png").getImage();
         else
-            image = new ImageIcon("data/graphics/field/unselected/notBurning/" + (accessible ? "build" : "unableBuild") + ".png").getImage();
+            image = new ImageIcon(
+                    "data/graphics/field/unselected/notBurning/" + (accessible ? "build" : "unableBuild") + ".png")
+                    .getImage();
     }
 
     public boolean isBuiltUp() {
@@ -68,7 +72,7 @@ abstract class Buildable extends Sprite {
     public double getRefund() {
         return refund;
     }
-    
+
     public void setRefund(double refund) {
         if (0.0 < refund && refund < 1.0) {
             this.refund = refund;
@@ -88,7 +92,7 @@ abstract class Buildable extends Sprite {
             throw new IllegalArgumentException("Invalid value! Chance of fire must be greater between 0.0 and 1.0!");
         }
     }
-    
+
     public boolean isBurning() {
         return burning;
     }
@@ -97,22 +101,25 @@ abstract class Buildable extends Sprite {
         if (!burning && this.burningStartDate == null) {
             this.burning = true;
             this.burningStartDate = burningStartDate;
-            //System.out.println("Égés kezdete: " + this.burningStartDate.toString());
+            // System.out.println("Égés kezdete: " + this.burningStartDate.toString());
         }
     }
-    
+
     public void stopBurning() {
         this.burning = false;
         this.burningStartDate = null;
     }
-    
+
     public boolean isBurntDown(Date currentDate) {
-        if (!isBurning())   return false;
-        //System.out.println("Eltelt órák égés óta: " + burningStartDate.hoursElapsed(currentDate));
-        //System.out.println("Égés start: " + burningStartDate.toString() + ", current: " + currentDate.toString());
-        return burningStartDate.hoursElapsed(currentDate) > burnsDownAfterNDays*24;
+        if (!isBurning())
+            return false;
+        // System.out.println("Eltelt órák égés óta: " +
+        // burningStartDate.hoursElapsed(currentDate));
+        // System.out.println("Égés start: " + burningStartDate.toString() + ", current:
+        // " + currentDate.toString());
+        return burningStartDate.hoursElapsed(currentDate) > burnsDownAfterNDays * 24;
     }
-    
+
     public void setBurning(boolean burning) {
         this.burning = burning;
     }
@@ -120,9 +127,10 @@ abstract class Buildable extends Sprite {
     public void setBurningStartDate(Date burningStartDate) {
         this.burningStartDate = burningStartDate;
     }
-    
+
     protected abstract String type();
-    public String asString(){
+
+    public String asString() {
         StringBuilder b = new StringBuilder();
         b.append(refund);
         b.append(';');
@@ -130,7 +138,7 @@ abstract class Buildable extends Sprite {
         b.append(';');
         b.append(burning);
         b.append(';');
-        b.append(burningStartDate==null?"null":burningStartDate.toString());
+        b.append(burningStartDate == null ? "null" : burningStartDate.toString());
         b.append(';');
         return b.toString();
     }

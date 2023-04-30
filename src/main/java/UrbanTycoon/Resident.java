@@ -20,17 +20,35 @@ class Resident {
     private Workplace workplace;
     private long paidTaxesBeforeRetired = 0;
     private int workedYearsBeforeRetired = 0;
+    private Field homeField;
+    private Field workplaceField;    
 
-    public Resident(int age, ResidentialZone home, Workplace workplace){
+    public Resident(int age, ResidentialZone home, Workplace workplace) {
         if (age >= 18 && age <= 60) {
             this.age = age;
         } else {
             throw new IllegalArgumentException("Invalid value! Age must be at least 18!");
         }
-        
+
         this.satisfaction = 0;
         this.home = home;
         this.workplace = workplace;
+    }
+
+    public Field getHomeField() {
+        return homeField;
+    }
+
+    public void setHomeField(Field homeField) {
+        this.homeField = homeField;
+    }
+
+    public Field getWorkplaceField() {
+        return workplaceField;
+    }
+
+    public void setWorkplaceField(Field workplaceField) {
+        this.workplaceField = workplaceField;
     }
 
     public void setAge(int age) {
@@ -64,86 +82,94 @@ class Resident {
     public void setSatisfaction(int satisfaction) {
         this.satisfaction = satisfaction;
     }
-    
-    public int getAge(){
+
+    public int getAge() {
         return age;
     }
-    
-    public boolean isRetired(){
+
+    public boolean isRetired() {
         return retired;
     }
-    
-    public double getChanceOfDeath(){
+
+    public double getChanceOfDeath() {
         return chanceOfDeath;
     }
-    
-    public int getSatisfaction(){
+
+    public int getSatisfaction() {
         return satisfaction;
     }
-    
-    public ResidentialZone getHome(){
+
+    public ResidentialZone getHome() {
         return home;
     }
-    
-    public Workplace getWorkplace(){
+
+    public Workplace getWorkplace() {
         return workplace;
     }
+
     /**
      * returns true if resident died
-     * @return 
+     * 
+     * @return
      */
-    public boolean increaseAge(){
+    public boolean increaseAge() {
         ++age;
-        if(retired){
+        if (retired) {
             Random r = new Random();
-            if (r.nextDouble() <= chanceOfDeath){
+            if (r.nextDouble() <= chanceOfDeath) {
                 die();
                 return true;
-            } else chanceOfDeath += 0.1;
+            } else
+                chanceOfDeath += 0.1;
         }
-            
-        if(age >= 65 && !retired){
+
+        if (age >= 65 && !retired) {
             retire();
         }
         return false;
         /* RÉSZFELADAT: Nyugdíj */
     }
-    public void paidTaxes(int amount){
-        if(retired) throw new IllegalArgumentException("Nyugdíjas, de adózott");
-        if(age>=45)
+
+    public void paidTaxes(int amount) {
+        if (retired)
+            throw new IllegalArgumentException("Nyugdíjas, de adózott");
+        if (age >= 45)
             paidTaxesBeforeRetired += amount;
     }
-    public void workedAYear(){
-        if(retired) throw new IllegalArgumentException("Nyugdíjas, de dolgozott");
-        if(age>=45)
+
+    public void workedAYear() {
+        if (retired)
+            throw new IllegalArgumentException("Nyugdíjas, de dolgozott");
+        if (age >= 45)
             workedYearsBeforeRetired++;
     }
-    public int getYearlyRetirement(){
-        if(!retired)
+
+    public int getYearlyRetirement() {
+        if (!retired)
             throw new IllegalArgumentException("Nem nyugdíjas!");
-        return (int)(paidTaxesBeforeRetired / workedYearsBeforeRetired / 2);
+        return (int) (paidTaxesBeforeRetired / workedYearsBeforeRetired / 2);
     }
-    
-    public void increaseSatisfaction(){
+
+    public void increaseSatisfaction() {
         if (satisfaction < 10) {
             satisfaction++;
         }
     }
-    
-    public void decreaseSatisfaction(){
+
+    public void decreaseSatisfaction() {
         if (satisfaction > -10) {
             satisfaction--;
         }
     }
-    
+
     public void setHome(ResidentialZone home) {
         this.home = home;
     }
-    
+
     public void setWorkplace(Workplace workplace) {
         this.workplace = workplace;
     }
-    
+
     public void movesAwayFromCity() {
         if (home != null) {
             home.setPeopleNum(home.getPeopleNum() - 1);
@@ -154,16 +180,17 @@ class Resident {
             workplace = null;
         }
     }
-    
+
     public void retire() {
         retired = true;
-        System.out.println("Retired! " + age +  " Paid taxes: " + paidTaxesBeforeRetired + " worked years: " + workedYearsBeforeRetired);
-        workplace.setPeopleNum(workplace.getPeopleNum()-1);
+        System.out.println("Retired! " + age + " Paid taxes: " + paidTaxesBeforeRetired + " worked years: "
+                + workedYearsBeforeRetired);
+        workplace.setPeopleNum(workplace.getPeopleNum() - 1);
         workplace = null;
     }
-    
+
     public void die() {
-        home.setPeopleNum(home.getPeopleNum()-1);
+        home.setPeopleNum(home.getPeopleNum() - 1);
         home = null;
     }
 
@@ -172,7 +199,8 @@ class Resident {
         int hash = 7;
         hash = 79 * hash + this.age;
         hash = 79 * hash + (this.retired ? 1 : 0);
-        hash = 79 * hash + (int) (Double.doubleToLongBits(this.chanceOfDeath) ^ (Double.doubleToLongBits(this.chanceOfDeath) >>> 32));
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.chanceOfDeath)
+                ^ (Double.doubleToLongBits(this.chanceOfDeath) >>> 32));
         hash = 79 * hash + this.satisfaction;
         hash = 79 * hash + Objects.hashCode(this.home);
         hash = 79 * hash + Objects.hashCode(this.workplace);
@@ -211,9 +239,11 @@ class Resident {
 
     @Override
     public String toString() {
-        return "age: " + age + ", satisfaction: " + satisfaction + ", workplace: " + (retired ? "retired" : (workplace.getClass() == IndustrialZone.class ? "Industrial" : "Service"));
+        return "age: " + age + ", satisfaction: " + satisfaction + ", workplace: "
+                + (retired ? "retired" : (workplace.getClass() == IndustrialZone.class ? "Industrial" : "Service"));
     }
-    public String asString(int homeX, int homeY, int workX, int workY){
+
+    public String asString(int homeX, int homeY, int workX, int workY) {
         StringBuilder b = new StringBuilder();
         b.append(age);
         b.append(';');

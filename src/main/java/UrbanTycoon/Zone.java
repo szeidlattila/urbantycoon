@@ -22,8 +22,9 @@ abstract class Zone extends Buildable {
     protected int buildProgress = 0;
     protected boolean builtUp;
 
-    protected Zone(int capacity, int selectPrice, int annualTaxPerPerson, int safety, int satisfactionBonus, double refund, 
-                   double chanceOfFire, int x, int y, int width, int height, Image image) {
+    protected Zone(int capacity, int selectPrice, int annualTaxPerPerson, int safety, int satisfactionBonus,
+            double refund,
+            double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(x, y, width, height, image, refund, chanceOfFire);
         this.selectPrice = selectPrice;
         if (capacity > 0) {
@@ -41,9 +42,9 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Invalid value! Annual tax must be at least 0!");
         }
     }
-    
+
     @Override
-    public String asString(){
+    public String asString() {
         StringBuilder b = new StringBuilder(super.asString());
         b.append(annualTaxPerPerson);
         b.append(';');
@@ -187,9 +188,7 @@ abstract class Zone extends Buildable {
     }
 
     @Override
-    public int destroy() {
-        if (builtUp)
-            return 0;
+    public int destroy() {        
         return selectPrice;
     }
 
