@@ -35,7 +35,7 @@ class Field extends Sprite {
     public boolean isFree() {
         return free;
     }
-    
+
     public boolean isBurntDown() {
         return burntDown;
     }
@@ -52,7 +52,8 @@ class Field extends Sprite {
     public String getInfo() {
         String out;
         if (building instanceof Zone zone) {
-            out = "Residents: " + zone.getCapacity() + "/" + zone.getPeopleNum() + "\nSafety: " + zone.getSafety() + "\nSatBonus: " + zone.getSatisfactionBonus();
+            out = "Residents: " + zone.getCapacity() + "/" + zone.getPeopleNum() + "\nSafety: " + zone.getSafety()
+                    + "\nSatBonus: " + zone.getSatisfactionBonus();
             return out;
         }
         if (building instanceof PlayerBuildIt pbi) {
@@ -84,7 +85,8 @@ class Field extends Sprite {
      * @param radius
      */
     public void build(Buildable newBuilding) {
-        if (!this.free) return;
+        if (!this.free)
+            return;
         setBuilding(newBuilding);
         unselect();
         burntDown = false;
@@ -97,7 +99,7 @@ class Field extends Sprite {
     public void unselect() {
         image = new ImageIcon("data/graphics/field/unselected/notBurning/" + type() + ".png").getImage();
     }
-    
+
     public void burnsDown() {
         setBuilding(null);
         burntDown = true;
@@ -129,7 +131,7 @@ class Field extends Sprite {
         }
         return Objects.equals(this.building, other.building);
     }
-    
+
     public String type() {
         return burntDown ? "burntDownField" : "field";
     }
@@ -137,8 +139,8 @@ class Field extends Sprite {
     public void setBurntDown(boolean burntDown) {
         this.burntDown = burntDown;
     }
-    
-    public String asString(){
-        return burntDown + ";" + (free?"empty":building.asString());
+
+    public String asString() {
+        return burntDown + ";" + (free ? "empty" : building.asString());
     }
 }
