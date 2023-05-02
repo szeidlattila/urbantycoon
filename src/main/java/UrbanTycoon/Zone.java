@@ -133,9 +133,16 @@ abstract class Zone extends Buildable {
 
     public void incrementPeopleNum() {
         if (peopleNum + 1 > capacity) {
-            throw new IllegalArgumentException("peopleNum cannot be bigger than the capacity");
+            throw new IllegalArgumentException("peopleNum cannot be more than the capacity");
         }
         peopleNum++;
+    }
+    
+    public void decreasePeopleNum() {
+        if (peopleNum - 1 < 0) {
+            throw new IllegalArgumentException("peopleNum cannot be less than 0");
+        }
+        peopleNum--;
     }
 
     public int getSafety() {

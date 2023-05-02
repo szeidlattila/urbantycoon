@@ -167,6 +167,7 @@ class Resident {
     }
 
     public void setWorkplace(Workplace workplace) {
+        if (this.workplace != null && workplace == null) this.workplace.decreasePeopleNum();
         this.workplace = workplace;
     }
 
