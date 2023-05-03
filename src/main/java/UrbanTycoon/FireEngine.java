@@ -9,7 +9,7 @@ import java.util.ArrayList;
  *
  * @author Felhasználó
  */
-class FireEngine extends Sprite{
+class FireEngine extends Sprite {
     private ArrayList<Road> route = new ArrayList<>();
     private final ArrayList<Road> routeBack = new ArrayList<>();
     private Road currentRoad = null;
@@ -59,8 +59,7 @@ class FireEngine extends Sprite{
     }
     
     /**
-     * move fire engine to next road
-     * @return true if fire engine has arrived, otherwise false
+     * move fire engine to next road (back to fire station)
      */
     public void moveBackNextRoad() {
         if (currentRoad != null)    currentRoad.setFireTrackOnTheRoad(false);
@@ -71,6 +70,7 @@ class FireEngine extends Sprite{
         } else {
             this.movingBack = false;
             this.available = true;
+            this.destination = null;
         }
     }
 }
