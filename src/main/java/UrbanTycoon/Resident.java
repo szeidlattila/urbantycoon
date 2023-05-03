@@ -179,8 +179,6 @@ class Resident {
 
     public void retire() {
         retired = true;
-        System.out.println("Retired! " + age + " Paid taxes: " + paidTaxesBeforeRetired + " worked years: "
-                + workedYearsBeforeRetired);
         if(workplace != null){
             workplace.setPeopleNum(workplace.getPeopleNum() - 1);
             workplace = null;

@@ -47,8 +47,13 @@ public class NyugdijTest {
     @Test
     public void paidTaxesFor20Years(){
         r.setAge(44);
-        r.setWorkplace(new IndustrialZone(5, 200, 500, 2, 2, 0.3, 0.1, 0, 0, 0, 0, null));
-        r.setHome(new ResidentialZone(0.4,5,200,500,2,2,0.2,0.1,0,0,0,0,null));
+        IndustrialZone iz = new IndustrialZone(5, 200, 500, 2, 2, 0.3, 0.1, 0, 0, 0, 0, null);
+        iz.incrementPeopleNum();
+        r.setWorkplace(iz);
+        ResidentialZone rz = new ResidentialZone(0.4,5,200,500,2,2,0.2,0.1,0,0,0,0,null);
+        rz.incrementPeopleNum();
+        r.setHome(rz);
+        
         assertEquals(r.getPaidTaxesBeforeRetired(),0);
         assertEquals(r.getWorkedYearsBeforeRetired(), 0);
         
@@ -66,8 +71,14 @@ public class NyugdijTest {
     @Test
     public void paidTaxesFor10Years(){
         r.setAge(55);
-        r.setWorkplace(new IndustrialZone(5, 200, 500, 2, 2, 0.3, 0.1, 0, 0, 0, 0, null));
-        r.setHome(new ResidentialZone(0.4,5,200,500,2,2,0.2,0.1,0,0,0,0,null));
+        
+        IndustrialZone iz = new IndustrialZone(5, 200, 500, 2, 2, 0.3, 0.1, 0, 0, 0, 0, null);
+        iz.incrementPeopleNum();
+        r.setWorkplace(iz);
+        ResidentialZone rz = new ResidentialZone(0.4,5,200,500,2,2,0.2,0.1,0,0,0,0,null);
+        rz.incrementPeopleNum();
+        r.setHome(rz);
+        
         assertEquals(r.getPaidTaxesBeforeRetired(),0);
         assertEquals(r.getWorkedYearsBeforeRetired(), 0);
         for(int i=0;i<10;i++){
