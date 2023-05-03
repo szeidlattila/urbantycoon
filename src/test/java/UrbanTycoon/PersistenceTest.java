@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PersistenceTest {
     
-    public static City city;
+    static City city;
     
     @BeforeEach
-    public void setup(){
+    public void setUp(){
         city = new GameEngine().getCity();
     }
     
