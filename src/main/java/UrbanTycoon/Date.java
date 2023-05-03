@@ -186,6 +186,7 @@ class Date {
         
         return maxDaysInMonth;
     }
+    
     public int howManyDaysPassed(Date other){
         if(year == other.getYear() && month == other.getMonth())
             return day-other.getDay();
@@ -213,7 +214,7 @@ class Date {
     
     public long hoursElapsed(Date endDate) {
         long startDateInHours = yearsInHour(this.year) + monthsInHour(this.month) + daysInHour(this.day) + this.hour;
-        long endDateInHours = yearsInHour(endDate.year) + monthsInHour(endDate.month) + daysInHour(endDate.day) + hour;
+        long endDateInHours = yearsInHour(endDate.year) + monthsInHour(endDate.month) + daysInHour(endDate.day) + endDate.hour;
         return Math.abs(endDateInHours - startDateInHours);
     }
     
@@ -223,7 +224,7 @@ class Date {
     
     private int monthsInHour(int months) {
         int sum = 0;
-        for (int i = 1; i <= months; i++) {
+        for (int i = 1; i < months; i++) {
             sum += maxDaysInMonth(i);
         }
         return daysInHour(sum);
@@ -236,5 +237,43 @@ class Date {
     @Override
     public String toString(){
         return year + ". " + (month<10?"0":"") + month + ". " + (day<10?"0":"") + day + ". " + (hour<10?"0":"") + hour + (minute<10?":0":":") + minute;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + this.year;
+        hash = 67 * hash + this.month;
+        hash = 67 * hash + this.day;
+        hash = 67 * hash + this.hour;
+        hash = 67 * hash + this.minute;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Date other = (Date) obj;
+        if (this.year != other.year) {
+            return false;
+        }
+        if (this.month != other.month) {
+            return false;
+        }
+        if (this.day != other.day) {
+            return false;
+        }
+        if (this.hour != other.hour) {
+            return false;
+        }
+        return this.minute == other.minute;
     }
 }
