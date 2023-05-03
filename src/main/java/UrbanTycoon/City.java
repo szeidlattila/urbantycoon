@@ -621,9 +621,7 @@ class City {
         for (int i = 0; i < residents.size(); i++) {
             Resident r = residents.get(i);
             if (!r.isRetired()) {
-                r.workedAYear();
-                budget += r.getHome().getAnnualTax() + r.getWorkplace().getAnnualTax();
-                r.paidTaxes(r.getHome().getAnnualTax() + r.getWorkplace().getAnnualTax());
+                budget += r.tax();
             } else
                 budget -= r.getYearlyRetirement();
             if (r.increaseAge()) {

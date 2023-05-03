@@ -227,7 +227,7 @@ class GameEngine extends JPanel {
         }
     }
 
-    private void newGame() {
+    void newGame() {
         city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION,
                 MOVEINATLEASTSATISFACTION, INITIALMONEY,
                 ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
@@ -525,5 +525,8 @@ class GameEngine extends JPanel {
                     gameOver();
             }
         }
+    }
+    public City getCity(){
+        return city;
     }
 }
