@@ -50,4 +50,28 @@ public abstract class PlayerBuildIt extends Buildable {
     public String asString(){
         return super.asString() + buildingPrice + ";" + annualFee + ";";
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PlayerBuildIt other = (PlayerBuildIt) obj;
+        
+        if (Double.doubleToLongBits(this.refund) != Double.doubleToLongBits(other.refund)) {
+            return false;
+        }
+        if (this.burning != other.burning) {
+            return false;
+        }
+        if(Double.doubleToLongBits(this.chanceOfFire) != Double.doubleToLongBits(other.chanceOfFire)){
+            return false;
+        }
+        return this.x == other.x && this.y == other.y && this.annualFee == other.annualFee && this.buildingPrice == other.buildingPrice;
+    }
 }

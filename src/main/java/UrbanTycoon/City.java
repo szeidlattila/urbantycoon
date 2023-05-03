@@ -302,7 +302,7 @@ class City {
             universialSatisfaction -= (int) ((Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size())
                     * 10);
         }
-
+        System.out.println(universialSatisfaction);
     }
 
     private int whatSatisfactionFor(Resident r) {
