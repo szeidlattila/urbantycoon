@@ -611,9 +611,10 @@ class City {
             for (Field field : row) {
                 if (!field.isFree()) {
                     budget -= field.getBuilding().getAnnualFee();
-                    budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2
-                                                                                          // and decrease budget 4 times
-                                                                                          // more
+                    budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
+                    if (field.getBuilding() instanceof Forest forest) {
+                        forest.increaseAgeBy1();
+                    }
                 }
             }
         }
@@ -1045,6 +1046,15 @@ class City {
                                     (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/road.png").getImage(),
                                     REFUND),
+                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
+                    break;
+                case "f":
+                    fields[rowIndex][i] = new Field(
+                            new Forest(forestPrice, (int) (forestPrice * annualFeePercentage), (i + 1) * WIDTH,
+                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                                    new ImageIcon("data/graphics/field/unselected/notBurning/forest.png").getImage(),
+                                    REFUND, CHANCEOFFIRE),
                             (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
