@@ -34,8 +34,6 @@ class City {
     private final int STADIUMSATBONUS = 1;
     private final int WIDTH;
     private final int HEIGHT;
-    private final double SCREENHEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-    private final double SCREENWIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
     private final int criticalSatisfaction;
     private final int moveInSatisfaction;
@@ -302,7 +300,6 @@ class City {
             universialSatisfaction -= (int) ((Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size())
                     * 10);
         }
-
     }
 
     private int whatSatisfactionFor(Resident r) {

@@ -259,7 +259,10 @@ abstract class Zone extends Buildable {
         if (this.burning != other.burning) {
             return false;
         }
-        return Double.doubleToLongBits(this.chanceOfFire) == Double.doubleToLongBits(other.chanceOfFire);
+        if(Double.doubleToLongBits(this.chanceOfFire) != Double.doubleToLongBits(other.chanceOfFire)){
+            return false;
+        }
+        return this.x == other.x && this.y == other.y;
     }
 
 }
