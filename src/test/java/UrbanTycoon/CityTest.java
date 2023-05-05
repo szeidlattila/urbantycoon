@@ -4,6 +4,7 @@
  */
 package UrbanTycoon;
 
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -270,5 +271,143 @@ public class CityTest {
     	city.performTicks(1);
     	
     	assertTrue(r.getSatisfaction() == prevSat + 2); // 2 - vel közelebb van a munkahelye
+    }
+    
+    /**
+     * getZonePeople method test
+     */
+    @Test
+    public void residentTest1() {
+        ResidentialZone home1 = new ResidentialZone(0.1, 10, 1, 1, 1, 1, 1, 0.1, 1, 1, 1, 1, null);
+        ResidentialZone home2 = new ResidentialZone(0.1, 10, 1, 1, 1, 1, 1, 0.1, 2, 2, 1, 1, null);
+        ServiceZone workplace = new ServiceZone(15, 1, 1, 1, 1, 0.1, 0.1, 1, 1, 1, 1, null);
+        city.getFields()[0][0].setBuilding(home1);
+        city.getFields()[0][1].setBuilding(home2);
+        city.getFields()[1][1].setBuilding(workplace);
+        Resident r1 = new Resident(30, home1, workplace);
+        Resident r2 = new Resident(35, home1, workplace);
+        Resident r3 = new Resident(40, home1, workplace);
+        Resident r4 = new Resident(45, home1, workplace);
+        Resident r5 = new Resident(50, home2, workplace);
+        Resident r6 = new Resident(55, home2, workplace);
+        city.addResident(r1);
+        city.addResident(r2);
+        city.addResident(r3);
+        city.addResident(r4);
+        city.addResident(r5);
+        city.addResident(r6);
+        
+        assertIterableEquals(List.of(r1, r2, r3, r4, r5, r6), city.getZonePeople(workplace));
+        assertIterableEquals(List.of(r1, r2, r3, r4), city.getZonePeople(home1));
+        assertIterableEquals(List.of(r5, r6), city.getZonePeople(home2));
+    }
+    
+    /**
+     * moveInOneResident method test: at least resident can move in (city is not full)
+     */
+    @Test
+    public void residentTest2() {
+        ResidentialZone home = new ResidentialZone(0.9, 100, 1, 1, 1, 1, 1, 0.1, 2, 2, 1, 1, null);
+        ServiceZone workplace = new ServiceZone(150, 1, 1, 1, 1, 0.1, 0.1, 1, 1, 1, 1, null);
+        city.getFields()[0][0].setBuilding(home);
+        city.getFields()[0][1].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[0][2].setBuilding(workplace);
+        ((Zone)city.getFields()[0][0].getBuilding()).setBuiltUp(true);
+        ((Zone)city.getFields()[0][2].getBuilding()).setBuiltUp(true);
+        
+        int prevCityResidentsNum = city.getResidentsNum();
+        city.moveInOneResident(false);
+        
+        assertEquals(prevCityResidentsNum + 1, city.getResidentsNum());
+    }
+    
+    /**
+     * moveInOneResident method test: resident cannot move in (city is full)
+     */
+    @Test
+    public void residentTest3() {
+        int prevCityResidentsNum = city.getResidentsNum();
+        city.moveInOneResident(false);
+        
+        assertEquals(prevCityResidentsNum, city.getResidentsNum());
+    }
+    
+    /**
+     * moveInOneResident method test: 4 residents can move in (city is not full)
+     */
+    @Test
+    public void residentTest4() {
+        ResidentialZone home = new ResidentialZone(0.9, 4, 1, 1, 1, 1, 1, 0.1, 2, 2, 1, 1, null);
+        ServiceZone workplace = new ServiceZone(150, 1, 1, 1, 1, 0.1, 0.1, 1, 1, 1, 1, null);
+        city.getFields()[0][0].setBuilding(home);
+        city.getFields()[0][1].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[0][2].setBuilding(workplace);
+        ((Zone)city.getFields()[0][0].getBuilding()).setBuiltUp(true);
+        ((Zone)city.getFields()[0][2].getBuilding()).setBuiltUp(true);
+        
+        int prevCityResidentsNum = city.getResidentsNum();
+        assertEquals(prevCityResidentsNum, city.getResidentsNum());
+        city.moveInOneResident(false); // 1
+        assertEquals(prevCityResidentsNum + 1, city.getResidentsNum());
+        city.moveInOneResident(false); // 2
+        assertEquals(prevCityResidentsNum + 2, city.getResidentsNum());
+        city.moveInOneResident(false); // 3
+        assertEquals(prevCityResidentsNum + 3, city.getResidentsNum());
+        city.moveInOneResident(false); // 4     -> last move in
+        assertEquals(prevCityResidentsNum + 4, city.getResidentsNum());
+        city.moveInOneResident(false); // 5     -> city is full, no more move in
+        assertEquals(prevCityResidentsNum + 4, city.getResidentsNum());
+        city.moveInOneResident(false); // 6
+        assertEquals(prevCityResidentsNum + 4, city.getResidentsNum());
+    }
+    
+    /**
+     * moveOut method test: not empty zone
+     */
+    @Test
+    public void residentTest5() {
+        ResidentialZone home = new ResidentialZone(0.9, 4, 1, 1, 1, 1, 1, 0.1, 2, 2, 1, 1, null);
+        ServiceZone workplace = new ServiceZone(150, 1, 1, 1, 1, 0.1, 0.1, 1, 1, 1, 1, null);
+        city.getFields()[0][0].setBuilding(home);
+        city.getFields()[0][1].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[0][2].setBuilding(workplace);
+        ((Zone)city.getFields()[0][0].getBuilding()).setBuiltUp(true);
+        ((Zone)city.getFields()[0][2].getBuilding()).setBuiltUp(true);
+        city.moveInOneResident(false);
+        city.moveInOneResident(false);
+        city.moveInOneResident(false);
+        city.moveInOneResident(false);
+        int prevCityResidentsNum = city.getResidentsNum();
+        
+        assertEquals(4, home.getPeopleNum());
+        assertEquals(4, workplace.getPeopleNum());
+        assertEquals(prevCityResidentsNum, city.getResidentsNum());
+        city.moveOut(home);
+        assertEquals(0, home.getPeopleNum());
+        assertEquals(0, workplace.getPeopleNum());
+        assertEquals(prevCityResidentsNum - 4, city.getResidentsNum());
+    }
+    
+    /**
+     * moveOut method test: empty zone
+     */
+    @Test
+    public void residentTest6() {
+        ResidentialZone home = new ResidentialZone(0.9, 4, 1, 1, 1, 1, 1, 0.1, 2, 2, 1, 1, null);
+        ServiceZone workplace = new ServiceZone(150, 1, 1, 1, 1, 0.1, 0.1, 1, 1, 1, 1, null);
+        city.getFields()[0][0].setBuilding(home);
+        city.getFields()[0][1].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[0][2].setBuilding(workplace);
+        ((Zone)city.getFields()[0][0].getBuilding()).setBuiltUp(true);
+        ((Zone)city.getFields()[0][2].getBuilding()).setBuiltUp(true);
+        int prevCityResidentsNum = city.getResidentsNum();
+        
+        assertEquals(0, home.getPeopleNum());
+        assertEquals(0, workplace.getPeopleNum());
+        assertEquals(prevCityResidentsNum, city.getResidentsNum());
+        city.moveOut(home);
+        assertEquals(0, home.getPeopleNum());
+        assertEquals(0, workplace.getPeopleNum());
+        assertEquals(prevCityResidentsNum, city.getResidentsNum());
     }
 }

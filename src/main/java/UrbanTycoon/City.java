@@ -1857,7 +1857,7 @@ class City {
                 }
             }
         }
-
+        
         Random r = new Random();
         if (bestResidentialZone != null && nearestWorkplace != null) {
             this.residents.add(new Resident(isBecauseDeath ? 18 : (int) r.nextInt((60 - 18) + 1) + 18,
