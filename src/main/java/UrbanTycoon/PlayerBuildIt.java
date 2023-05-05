@@ -30,6 +30,7 @@ public abstract class PlayerBuildIt extends Buildable {
         }
     }
     
+    @Override
     public boolean progressBuilding(int progressInDays){
         return false;
     }
@@ -43,6 +44,7 @@ public abstract class PlayerBuildIt extends Buildable {
         return annualFee;
     }
     
+    @Override
     public final int destroy(){
         return buildingPrice;
     }
@@ -73,5 +75,13 @@ public abstract class PlayerBuildIt extends Buildable {
             return false;
         }
         return this.x == other.x && this.y == other.y && this.annualFee == other.annualFee && this.buildingPrice == other.buildingPrice;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + this.buildingPrice;
+        hash = 53 * hash + this.annualFee;
+        return hash;
     }
 }
