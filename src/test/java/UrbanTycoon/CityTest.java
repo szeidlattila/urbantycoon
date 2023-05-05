@@ -410,4 +410,45 @@ public class CityTest {
         assertEquals(0, workplace.getPeopleNum());
         assertEquals(prevCityResidentsNum, city.getResidentsNum());
     }
+    
+    /**
+     * home and workplace are accessible on road
+     */
+    @Test
+    public void isAccessibleOnRoadTest1() {
+        ResidentialZone home = new ResidentialZone(0.9, 4, 1, 1, 1, 1, 1, 0.1, 2, 2, 1, 1, null);
+        ServiceZone workplace = new ServiceZone(150, 1, 1, 1, 1, 0.1, 0.1, 1, 1, 1, 1, null);
+        city.getFields()[0][0].setBuilding(home);
+        city.getFields()[0][1].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[0][2].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[0][3].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[1][3].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[2][3].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[2][4].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[2][5].setBuilding(new Road(1, 1, 1, 1, 1, 1, null, 0.1));
+        city.getFields()[2][6].setBuilding(workplace);
+;
+        ((Zone)city.getFields()[0][0].getBuilding()).setBuiltUp(true);
+        ((Zone)city.getFields()[2][6].getBuilding()).setBuiltUp(true);
+        
+        assertTrue(city.isAccessibleOnRoad(city.getFields()[0][0]));
+        assertTrue(city.isAccessibleOnRoad(city.getFields()[2][6]));
+    }
+    
+    /**
+     * home and workplace are not accessible on road
+     */
+    @Test
+    public void isAccessibleOnRoadTest2() {
+        ResidentialZone home = new ResidentialZone(0.9, 4, 1, 1, 1, 1, 1, 0.1, 2, 2, 1, 1, null);
+        ServiceZone workplace = new ServiceZone(150, 1, 1, 1, 1, 0.1, 0.1, 1, 1, 1, 1, null);
+        city.getFields()[0][0].setBuilding(home);
+        city.getFields()[2][6].setBuilding(workplace);
+;
+        ((Zone)city.getFields()[0][0].getBuilding()).setBuiltUp(true);
+        ((Zone)city.getFields()[2][6].getBuilding()).setBuiltUp(true);
+        
+        assertFalse(city.isAccessibleOnRoad(city.getFields()[0][0]));
+        assertFalse(city.isAccessibleOnRoad(city.getFields()[2][6]));
+    }
 }
