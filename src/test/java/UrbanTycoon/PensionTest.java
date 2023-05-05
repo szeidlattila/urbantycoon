@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @author Felhasználó
  */
-public class NyugdijTest {
+public class PensionTest {
     
     static Resident r;
     
