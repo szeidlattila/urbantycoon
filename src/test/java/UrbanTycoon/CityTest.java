@@ -159,29 +159,116 @@ public class CityTest {
         assertEquals(budgetBefore + yearlyProfit(city), city.getBudget());
         
     }
+    
     /**
-     * profit nem változik, ha nem felépült zónával ér véget az év
+     * évi költségek változnak minden felépült zónával
      */
     @Test
     public void moneyTest3(){
-        int profitBefore = yearlyProfit(city);
-        long budgetBefore = city.getBudget();
-        city.fieldSelect(0,  2);
-        city.selectField(IndustrialZone.class);
-        city.yearElapsed();
-        assertEquals(budgetBefore - ZONEPRICE + profitBefore, city.getBudget());
-    }
-    
-    /**
-     * profit változik minden felépült zónával
-     */
-    @Test
-    public void moneyTest4(){
         long budgetBefore = city.getBudget();
         int profitBefore = yearlyProfit(city);
         city.fieldSelect(0,0);
         city.build(PoliceStation.class);
         city.yearElapsed();
         assertNotEquals(budgetBefore - POLICESTATIONPRICE + profitBefore, city.getBudget());
+    }
+    
+    /**
+     * adó növelése
+     */
+    @Test
+    public void satisfactionTest1() {
+    	int satisfactionBefore = city.getSatisfaction();
+    	city.increaseTax();
+    	city.increaseTax();
+    	city.performTicks(1); // csak naponta számolja újra a satisfactiont jelenleg, ezért kell ez
+    	assertTrue(city.getSatisfaction() < satisfactionBefore);
+    }
+    
+    /**
+     * népesség növekedés biztonság
+     */
+    @Test
+    public void satisfactionTest2() {
+    	int satisfactionBefore = city.getSatisfaction();
+    	for(int i=0;i<10;i++) {
+    		city.addResident(new Resident(20, (ResidentialZone)city.getFields()[2][2].getBuilding(), (Workplace)city.getFields()[5][4].getBuilding()));
+    		city.addResident(new Resident(20, (ResidentialZone)city.getFields()[4][14].getBuilding(), (Workplace)city.getFields()[5][11].getBuilding()));    		
+    	}
+    	// ugyanannyi resident ment serviceZone-ba és IndustrialZone-ba, ezért a szolg-ipar dolgozók aránya nem változott
+    	// csak a safety változott
+    	city.performTicks(1);
+    	assertTrue(city.getSatisfaction() < satisfactionBefore);
+    }
+    
+    /**
+     * lakóépületek közelébe ipari zónák kerültek
+     */
+    @Test
+    public void satisfactionTest3() {
+    	int satisfactionBefore = city.getSatisfaction();
+    	city.fieldSelect(3, 1);
+    	city.selectField(IndustrialZone.class);
+    	city.fieldSelect(3, 6);
+    	city.selectField(IndustrialZone.class);
+     	city.fieldSelect(3, 13);
+     	city.selectField(IndustrialZone.class);
+     	city.performTicks(1);
+    	assertTrue(city.getSatisfaction() < satisfactionBefore);
+    }
+    
+    /**
+     * ipar-szolgáltatás arány
+     */
+    @Test
+    public void satisfactionTest4() {
+    	int prevUniSat = city.universialSatisfaction;
+    	for(Resident r: city.getResidents()) {
+    		r.setWorkplace((Workplace)city.getFields()[5][4].getBuilding());
+    		r.setHome((ResidentialZone)city.getFields()[2][2].getBuilding());
+    	}
+    	city.performTicks(1);
+    	// a resident szám nem változik, csak most mindenki iparban dolgozik, szolgáltatásban senki.
+    	assertTrue(city.universialSatisfaction < prevUniSat);
+    }
+    
+    /**
+     * negatív büdzsé
+     */
+    @Test
+    public void satisfactionTest5() {
+    	
+    	int prevUniSat = city.universialSatisfaction;
+    	city.setBudget(-7616);
+    	city.yearElapsed();
+    	assertTrue(city.getBudget() == -4308);
+    	city.performTicks(1);
+    	assertTrue(city.universialSatisfaction == prevUniSat - 4);// 1*(-4308/1000)
+    	
+    	city.yearElapsed();
+    	assertTrue(city.getBudget() == -1000);
+    	city.performTicks(1);
+    	assertTrue(city.universialSatisfaction == prevUniSat - 2); // 2*(-1000/1000) (2 éve negatív büdzsé)
+    }
+    
+    /**
+     * munkahely közelsége
+     */
+    
+    @Test
+    public void satisfactionTest6() {
+    	// ez inkább resident
+    	Resident r = new Resident(20, (ResidentialZone)city.getFields()[2][2].getBuilding(), (Workplace)city.getFields()[5][4].getBuilding());
+    	city.addResident(r);
+    	city.performTicks(1);
+    	int prevSat = r.getSatisfaction();
+    	
+    	city.fieldSelect(5, 2);
+    	city.selectField(ServiceZone.class);
+    	
+    	r.setWorkplace((Workplace)city.getFields()[5][2].getBuilding());
+    	city.performTicks(1);
+    	
+    	assertTrue(r.getSatisfaction() == prevSat + 2); // 2 - vel közelebb van a munkahelye
     }
 }

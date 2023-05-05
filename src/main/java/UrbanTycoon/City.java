@@ -262,6 +262,7 @@ class City {
      * satisfaction
      */
     private void changeSatisfaction() {
+    	reevaluateAccessibility();
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
         ArrayList<Resident> removeResidents = new ArrayList<>();
@@ -286,7 +287,7 @@ class City {
 
     private void calculateUniversialSatisfaction() {
         universialSatisfaction = (int) ((1000 - tax) / 100);
-        universialSatisfaction -= negativeBudgetNthYear * (int) (Math.abs(budget) / 1000);
+        universialSatisfaction -= negativeBudgetNthYear * Math.abs(Math.ceil(budget / 1000.0));
         int szolgaltatasbanDolgozok = 0, iparbanDolgozok = 0;
         for (Resident res : residents) {
             if (res.getWorkplace() instanceof IndustrialZone)
@@ -331,8 +332,9 @@ class City {
 
         if (workIndexX == -1)
             throw new IllegalArgumentException("Workplace not Found!");
-
-        sat += 5 - getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
+        int d = getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
+        if (d==-1) throw new IllegalArgumentException("Work and home not connected! work: " + workIndexX + " " + workIndexY + " Home: " + homeIndexX + " " + homeIndexY);
+        sat += 5 - d;
 
         sat += r.getWorkplace().getSatisfactionBonus();
         sat += r.getWorkplace().getSafety();
