@@ -72,9 +72,9 @@ public class PersistenceTest {
     }
     @Test
     public void changeThenLoad(){
-        city.fieldSelect( 5,1);
+        city.fieldSelect( 1,5);
         city.build(Stadium.class);
-        city.fieldSelect(6,0);
+        city.fieldSelect(0,6);
         city.selectField(IndustrialZone.class);
         city.yearElapsed();
         city.moveInOneResident(false);

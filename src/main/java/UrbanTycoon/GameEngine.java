@@ -377,7 +377,7 @@ class GameEngine extends JPanel {
                 city.getFields()[fieldIndexY][fieldIndexX].getBuilding().select(accessible);
             }
 
-            city.fieldSelect(fieldIndexX, fieldIndexY);
+            city.fieldSelect(fieldIndexY, fieldIndexX);
             // elmenteni x, y indexeket, hogy legközelebbi kiválasztáskor visszarakja
             // unselected-re
             prevSelectedFieldX = fieldIndexX;
@@ -386,34 +386,6 @@ class GameEngine extends JPanel {
     }
 
     // itt minden a ( city.selectedField : Field )-del dolgozik
-
-    private void nominateAsIndustrialZone() {
-        city.nominateAsIndustrialZone();
-    }
-
-    private void nominateAsServiceZone() {
-        city.nominateAsServiceZone();
-    }
-
-    private void nominateAsResidentialZone() {
-        city.nominateAsResidentialZone();
-    }
-
-    private void buildRoad() {
-        city.buildRoad();
-    }
-
-    private void buildPoliceStation() {
-        city.buildPoliceStation();
-    }
-
-    private void buildFireStation() {
-
-    }
-
-    private void buildStadium() {
-        city.buildStadium();
-    }
 
     private void tryDenominateOrDestroyZone() {
         city.tryDenominateOrDestroyZone();

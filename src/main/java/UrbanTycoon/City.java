@@ -47,12 +47,12 @@ class City {
     private int forestPrice;
     private final double annualFeePercentage; // playerBuildIt -> annualFee = price * annualFeePercentage
 
-    private Field selectedField = null;
+    Field selectedField = null;
 
-    private int satisfaction = 0;
-    private int universialSatisfaction = 0;
+    int satisfaction = 0;
+    int universialSatisfaction = 0;
     private long budget;
-    private int negativeBudgetNthYear = 0;
+    int negativeBudgetNthYear = 0;
     private int tax = 100;
 
     public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction,
@@ -367,8 +367,8 @@ class City {
     }
 
     public void fieldSelect(int x, int y) {
-        if (selectedField != null && (selectedField == fields[y][x]
-                || (!selectedField.isFree() && selectedField.getBuilding() == fields[y][x].getBuilding()))) {
+        if (selectedField != null && (selectedField == fields[x][y]
+                || (!selectedField.isFree() && selectedField.getBuilding() == fields[x][y].getBuilding()))) {
             selectedField.unselect();
             boolean isAccessible = false;
             if (!selectedField.isFree() && !selectedField.getBuilding().isBuiltUp())
@@ -377,7 +377,7 @@ class City {
                 selectedField.getBuilding().unselect(isAccessible);
             selectedField = null;
         } else {
-            selectedField = fields[y][x];
+            selectedField = fields[x][y];
         }
     }
 
@@ -390,61 +390,12 @@ class City {
         return selectedField.getInfo();
     }
 
-    public void nominateAsIndustrialZone() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void nominateAsServiceZone() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void nominateAsResidentialZone() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void buildRoad() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void buildPoliceStation() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void buildFireStation() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void buildStadium() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
     public void tryDenominateOrDestroyZone() {
         boolean agreeToDelete = true;
         boolean disconnectedRoad = false;
         boolean residentProblem = false;
         if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
+            return;
         }
         if (!selectedField.isFree()) {
             int refund = 0;
@@ -606,15 +557,15 @@ class City {
     public void yearElapsed() {
         for (Field[] row : fields) {
             for (Field field : row) {
-                if (!field.isFree()) {
+                if (!field.isFree() && field.getBuilding().isBuiltUp()) {
                     budget -= field.getBuilding().getAnnualFee();
-                    budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
                     if (field.getBuilding() instanceof Forest forest) {
                         forest.increaseAgeBy1();
                     }
                 }
             }
         }
+        budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
         for (int i = 0; i < residents.size(); i++) {
             Resident r = residents.get(i);
             if (!r.isRetired()) {
