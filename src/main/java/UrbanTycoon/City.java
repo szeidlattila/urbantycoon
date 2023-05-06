@@ -347,12 +347,15 @@ class City {
 
     public void increaseTax() {
         tax += 50;
+        changeSatisfaction();
     }
 
     public void lowerTax() {
         tax -= 50;
-        if (tax <= 0)
-            tax = 0;
+        if (tax <= 0) {
+        	tax = 0;
+            changeSatisfaction();
+        }
     }
 
     /**
@@ -402,10 +405,8 @@ class City {
         if (!selectedField.isFree()) {
             int refund = 0;
             if (selectedField.getBuilding() instanceof PoliceStation) {
-                // setSafetyAround(selectedField, -POLICESTATIONSAFETY);
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
             } else if (selectedField.getBuilding() instanceof Stadium) {
-                // setSatisfactionBonusAround(selectedField, -STADIUMSATBONUS);
                 Stadium s = (Stadium) selectedField.getBuilding();
                 for (int i = 0; i < 4; i++) {
                     refund = (int) (s.fields[i].destroyOrDenominate() * REFUND);
@@ -427,7 +428,7 @@ class City {
                     refreshResidentData();
                 }
             }
-            if (agreeToDelete) {
+            if (agreeToDelete && refund == 0) {
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
                 if (disconnectedRoad) {
                     refreshWorkplaces();
@@ -439,7 +440,7 @@ class City {
             if (refund != 0) {
                 budget += refund;
                 selectedField.select();
-                reevaluateAccessibility();
+                changeSatisfaction();
             }
             //checkResidentData();
         }
@@ -592,6 +593,7 @@ class City {
                 moveInOneResident(false);
             }
         }
+        changeSatisfaction();
     }
 
     public void monthElapsed(Date currentDate) {
@@ -683,9 +685,7 @@ class City {
                 for (int j = 0; j < fields[0].length; j++) {
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone
                             && isAccessibleOnRoad(fields[i][j]))
-                        if (fields[i][j].getBuilding().progressBuilding(ticks)) {
-                            reevaluateAccessibility();
-                        }
+                        fields[i][j].getBuilding().progressBuilding(ticks);
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
                         zone.setAnnualTax(tax);
                     }
@@ -1075,11 +1075,11 @@ class City {
                     fields[iIndex - 1][jIndex].build(s);
                     fields[iIndex][jIndex - 1].build(s);
                 } else {
-                    throw new IllegalArgumentException("Invalid value! Nearby fields are occupied.");
+                	return;
 
                 }
             } else {
-                throw new IllegalArgumentException("Invalid value! Can't build on selected field.");
+                return;
             }
         } else if (playerBuildItClass == PoliceStation.class) {
             selectedField.build(
@@ -1100,7 +1100,7 @@ class City {
                             REFUND, CHANCEOFFIRE));
             calculateForestBonusResZone();
         }
-        reevaluateAccessibility();
+        changeSatisfaction();
 
         budget -= price;
     }
@@ -1180,7 +1180,7 @@ class City {
                     fields[i][j].setBurntDown(Boolean.parseBoolean(str[0]));
             }
         }
-        reevaluateAccessibility();
+        changeSatisfaction();
         while (s.hasNextLine()) {
             residents.add(residentByString(s.nextLine()));
         }
@@ -1864,6 +1864,7 @@ class City {
                     bestResidentialZone, nearestWorkplace));
             bestResidentialZone.incrementPeopleNum();
             nearestWorkplace.incrementPeopleNum();
+            changeSatisfaction();
         }
     }
 

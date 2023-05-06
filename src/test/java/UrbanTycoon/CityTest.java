@@ -182,7 +182,6 @@ public class CityTest {
     	int satisfactionBefore = city.getSatisfaction();
     	city.increaseTax();
     	city.increaseTax();
-    	city.performTicks(1); // csak naponta számolja újra a satisfactiont jelenleg, ezért kell ez
     	assertTrue(city.getSatisfaction() < satisfactionBefore);
     }
     
@@ -198,7 +197,7 @@ public class CityTest {
     	}
     	// ugyanannyi resident ment serviceZone-ba és IndustrialZone-ba, ezért a szolg-ipar dolgozók aránya nem változott
     	// csak a safety változott
-    	city.performTicks(1);
+    	city.performTicks(1); //ilyenkor refresh-elődik a sat
     	assertTrue(city.getSatisfaction() < satisfactionBefore);
     }
     
@@ -214,7 +213,7 @@ public class CityTest {
     	city.selectField(IndustrialZone.class);
      	city.fieldSelect(3, 13);
      	city.selectField(IndustrialZone.class);
-     	city.performTicks(1);
+     	city.performTicks(1); //ilyenkor refresh-elődik a sat
     	assertTrue(city.getSatisfaction() < satisfactionBefore);
     }
     
@@ -228,7 +227,7 @@ public class CityTest {
     		r.setWorkplace((Workplace)city.getFields()[5][4].getBuilding());
     		r.setHome((ResidentialZone)city.getFields()[2][2].getBuilding());
     	}
-    	city.performTicks(1);
+    	city.performTicks(1); //ilyenkor refresh-elődik a sat
     	// a resident szám nem változik, csak most mindenki iparban dolgozik, szolgáltatásban senki.
     	assertTrue(city.universialSatisfaction < prevUniSat);
     }
@@ -243,12 +242,10 @@ public class CityTest {
     	city.setBudget(-7616);
     	city.yearElapsed();
     	assertTrue(city.getBudget() == -4308);
-    	city.performTicks(1);
     	assertTrue(city.universialSatisfaction == prevUniSat - 4);// 1*(-4308/1000)
     	
     	city.yearElapsed();
     	assertTrue(city.getBudget() == -1000);
-    	city.performTicks(1);
     	assertTrue(city.universialSatisfaction == prevUniSat - 2); // 2*(-1000/1000) (2 éve negatív büdzsé)
     }
     
@@ -261,14 +258,14 @@ public class CityTest {
     	// ez inkább resident
     	Resident r = new Resident(20, (ResidentialZone)city.getFields()[2][2].getBuilding(), (Workplace)city.getFields()[5][4].getBuilding());
     	city.addResident(r);
-    	city.performTicks(1);
+    	city.performTicks(1); //ilyenkor refresh-elődik a sat
     	int prevSat = r.getSatisfaction();
     	
     	city.fieldSelect(5, 2);
     	city.selectField(ServiceZone.class);
     	
     	r.setWorkplace((Workplace)city.getFields()[5][2].getBuilding());
-    	city.performTicks(1);
+    	city.performTicks(1); // ilyenkor refresh-elődik a sat
     	
     	assertTrue(r.getSatisfaction() == prevSat + 2); // 2 - vel közelebb van a munkahelye
     }
@@ -450,5 +447,161 @@ public class CityTest {
         
         assertFalse(city.isAccessibleOnRoad(city.getFields()[0][0]));
         assertFalse(city.isAccessibleOnRoad(city.getFields()[2][6]));
+    }
+    
+    /**
+     * rendőrségek építése növeli a biztonságot és az elégedettséget a közeli zónákban
+     */
+    @Test
+    public void safetyTest1() {
+    	
+    	Zone zone = (Zone)city.getFields()[2][2].getBuilding();
+    	Zone zoneFar = (Zone)city.getFields()[4][14].getBuilding();
+    	assertEquals(zone.getSafety(), 0);
+    	assertEquals(zoneFar.getSafety(), 0);
+    	
+    	Resident personInZone = city.getZonePeople(zone).get(0);
+    	int satPrior = personInZone.getSatisfaction();
+    	
+    	//épít egy úton elérhető rendőrséget
+    	city.fieldSelect(3,1);
+    	city.build(PoliceStation.class);
+    	
+    	assertEquals(zone.getSafety(), 1);
+    	assertEquals(zoneFar.getSafety(), 0);
+    	assertTrue(satPrior < personInZone.getSatisfaction());
+    	
+    	// mégegyet
+    	satPrior = personInZone.getSatisfaction();
+    	city.fieldSelect(4,1);
+    	city.build(PoliceStation.class);
+    	
+    	assertEquals(zone.getSafety(), 2);
+    	assertTrue(satPrior < personInZone.getSatisfaction());	
+    }
+    
+    /**
+     * úton nem elérhető rendőrség építése nem változtat
+     */
+    @Test
+    public void safetyTest2() {
+
+    	Zone zone = (Zone)city.getFields()[2][2].getBuilding();
+    	assertEquals(zone.getSafety(), 0);
+    	
+    	Resident personInZone = city.getZonePeople(zone).get(0);
+    	int satPrior = personInZone.getSatisfaction();
+    	
+    	//épít egy úton nem elérhető rendőrséget
+    	city.fieldSelect(3,0);
+    	city.build(PoliceStation.class);
+    	
+    	assertEquals(zone.getSafety(), 0);
+    	assertEquals(satPrior, personInZone.getSatisfaction());
+    	
+    }
+    
+    /**
+     * rendőrség építése és lerombolása
+     */
+    @Test
+    public void safetyTest3() {
+    	
+    	Zone zone = (Zone)city.getFields()[2][2].getBuilding();
+    	assertEquals(zone.getSafety(), 0);
+    	
+    	Resident personInZone = city.getZonePeople(zone).get(0);
+    	int satPrior = personInZone.getSatisfaction();
+    	
+    	//épít egy úton elérhető rendőrséget
+    	city.fieldSelect(3,1);
+    	city.build(PoliceStation.class);
+    	
+    	assertEquals(zone.getSafety(), 1);
+    	assertTrue(satPrior < personInZone.getSatisfaction());
+    	
+    	// lerombolja
+    	city.tryDenominateOrDestroyZone();
+    	
+    	assertEquals(zone.getSafety(), 0);
+    	assertEquals(satPrior, personInZone.getSatisfaction());
+    }
+    
+    /**
+     * stadionok építése növeli a biztonságot és az elégedettséget
+     */
+    @Test
+    public void satBonusTest1() {
+    	
+    	Zone zone = (Zone)city.getFields()[2][2].getBuilding();
+    	Zone zoneFar = (Zone)city.getFields()[4][14].getBuilding();
+    	assertEquals(zone.getSatisfactionBonus(), 0);
+    	assertEquals(zoneFar.getSatisfactionBonus(), 0);
+    	
+    	Resident personInZone = city.getZonePeople(zone).get(0);
+    	int satPrior = personInZone.getSatisfaction();
+    	
+    	//épít egy úton elérhető stadiont
+    	city.fieldSelect(3,1);
+    	city.build(Stadium.class);
+    	
+    	assertEquals(zone.getSatisfactionBonus(), 1);
+    	assertEquals(zoneFar.getSatisfactionBonus(), 0);
+    	assertTrue(satPrior < personInZone.getSatisfaction());
+    	
+    	// mégegyet
+    	satPrior = personInZone.getSatisfaction();
+    	city.fieldSelect(5,1);
+    	city.build(Stadium.class);
+    	
+    	assertEquals(zone.getSatisfactionBonus(), 2);
+    	assertTrue(satPrior < personInZone.getSatisfaction());	
+    }
+    
+    /**
+     * úton nem elérhető stadion építése nem változtat
+     */
+    @Test
+    public void satBonusTest2() {
+
+    	Zone zone = (Zone)city.getFields()[2][2].getBuilding();
+    	assertEquals(zone.getSatisfactionBonus(), 0);
+    	
+    	Resident personInZone = city.getZonePeople(zone).get(0);
+    	int satPrior = personInZone.getSatisfaction();
+    	
+    	//épít egy úton nem elérhető stadiont
+    	city.fieldSelect(2,5);
+    	city.build(Stadium.class);
+    	
+    	assertEquals(zone.getSatisfactionBonus(), 0);
+    	assertEquals(satPrior, personInZone.getSatisfaction());
+    	
+    }
+    
+    /**
+     * stadion építése és lerombolása
+     */
+    @Test
+    public void satBonusTest3() {
+    	
+    	Zone zone = (Zone)city.getFields()[2][2].getBuilding();
+    	assertEquals(zone.getSafety(), 0);
+    	
+    	Resident personInZone = city.getZonePeople(zone).get(0);
+    	int satPrior = personInZone.getSatisfaction();
+    	
+    	//épít egy úton elérhető stadiont
+    	city.fieldSelect(3,1);
+    	city.build(Stadium.class);
+    	
+    	assertEquals(zone.getSatisfactionBonus(), 1);
+    	assertTrue(satPrior < personInZone.getSatisfaction());
+    	
+    	// lerombolja
+    	city.tryDenominateOrDestroyZone();
+    	
+    	assertEquals(zone.getSatisfactionBonus(), 0);
+    	assertEquals(satPrior, personInZone.getSatisfaction());
     }
 }
