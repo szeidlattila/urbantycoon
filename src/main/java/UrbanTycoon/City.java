@@ -54,9 +54,6 @@ class City {
     private long budget;
     private int negativeBudgetNthYear = 0;
     private int tax = 100;
-    private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    private int screenWidth = screenSize.width;
-    private int screenHeight = screenSize.height;
     private int xOffset, yOffset;
 
     public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction,
@@ -64,7 +61,7 @@ class City {
             int budget, int zonePrice, int roadPrice, int stadiumPrice, int policeStationPrice, int fireStationPrice,
             int forestPrice,
             double annualFeePercentage, int residentCapacity, int workplaceCapacity, double refund, double chanceOfFire,
-            int radius) {
+            int radius, boolean onScreen) {
         if (residentsNum > 0) {
             this.residents = new ArrayList<>(residentsNum);
         } else {
@@ -165,8 +162,13 @@ class City {
             throw new IllegalArgumentException("Invalid value! Fieldsize must be greater than 0!");
         }
 
-        this.xOffset = (screenWidth - (fieldSize * fieldColsNum)) / 2;
-        this.yOffset = (screenHeight - (fieldSize * fieldRowsNum)) / 2;
+        if (onScreen) {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int screenWidth = screenSize.width;
+            int screenHeight = screenSize.height;
+            this.xOffset = (screenWidth - (fieldSize * fieldColsNum)) / 2;
+            this.yOffset = (screenHeight - (fieldSize * fieldRowsNum)) / 2;
+        }
 
         initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
         initResidents(residentsNum);

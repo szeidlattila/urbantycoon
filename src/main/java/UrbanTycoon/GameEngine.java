@@ -234,7 +234,7 @@ class GameEngine extends JPanel {
                 MOVEINATLEASTSATISFACTION, INITIALMONEY,
                 ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                 ANNUALFEEPERCENTAGE,
-                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS);
+                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, true);
         // date alaphelyzetbe
         time = new Date(1980, 1, 1, 0, 0);
         paused = false;
@@ -309,7 +309,7 @@ class GameEngine extends JPanel {
                     MOVEINATLEASTSATISFACTION, INITIALMONEY,
                     ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                     ANNUALFEEPERCENTAGE,
-                    RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS);
+                    RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, true);
             city.loadGame(s, true);
             loadGameFrame.setVisible(false);
             paused = false;
