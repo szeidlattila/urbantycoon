@@ -310,7 +310,7 @@ class GameEngine extends JPanel {
                     ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                     ANNUALFEEPERCENTAGE,
                     RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS);
-            city.loadGame(s);
+            city.loadGame(s, true);
             loadGameFrame.setVisible(false);
             paused = false;
             speed = 1;

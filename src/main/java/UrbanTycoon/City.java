@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 //tryagain commit
 
-
 /**
  *
  * @author Felhasználó
@@ -1202,7 +1201,7 @@ class City {
         return b.toString();
     }
 
-    public void loadGame(Scanner s) {
+    public void loadGame(Scanner s, boolean onScreen) {
         residents.clear();
         tax = Integer.parseInt(s.nextLine());
         budget = Integer.parseInt(s.nextLine());
@@ -1214,13 +1213,19 @@ class City {
             for (int j = 0; j < fields[0].length; j++) {
                 String[] str = s.nextLine().split(";");
                 if (str.length > 3 && str[1].equals("st") && !gud[i][j]) {
+                    int offsetY = (i + 1) * FIELDSIZE;
+                    int offsetX = (j + 1) * FIELDSIZE;
+                    if (onScreen) {
+                        offsetY = yOffset + i * FIELDSIZE;
+                        offsetX = xOffset + j * FIELDSIZE;
+                    }
                     double refund = Double.parseDouble(str[2]);
                     double chanceOfFire = Double.parseDouble(str[3]);
                     int buildPrice = Integer.parseInt(str[6]);
                     int annualFee = Integer.parseInt(str[7]);
                     int radius = Integer.parseInt(str[8]);
-                    Stadium stad = new Stadium(buildPrice, annualFee, radius, xOffset + j * FIELDSIZE,
-                            yOffset + i * FIELDSIZE,
+                    Stadium stad = new Stadium(buildPrice, annualFee, radius, offsetX,
+                            offsetY,
                             FIELDSIZE * 2, FIELDSIZE * 2, whatImageFor(Stadium.class, str), refund, chanceOfFire);
                     stad.fields[0] = fields[i + 1][j + 1];
                     stad.fields[0].setBuilding(stad);
@@ -1237,7 +1242,7 @@ class City {
                 } else if (str.length > 2 && str[1].equals("st")) {
 
                 } else {
-                    fields[i][j].setBuilding(unpack(j, i, str));
+                    fields[i][j].setBuilding(unpack(j, i, str, onScreen));
                 }
                 if (fields[i][j].isFree())
                     fields[i][j].setBurntDown(Boolean.parseBoolean(str[0]));
@@ -1249,7 +1254,7 @@ class City {
         }
     }
 
-    private Buildable unpack(int x, int y, String[] s) {
+    private Buildable unpack(int x, int y, String[] s, boolean onScreen) {
         Buildable b;
         if (s[1].equals("empty"))
             return null;
@@ -1257,8 +1262,12 @@ class City {
         double chanceOfFire = Double.parseDouble(s[3]);
         boolean burning = Boolean.parseBoolean(s[4]);
         Date date = Date.parseDate(s[5]);
-        int offsetX = xOffset + x * FIELDSIZE;
-        int offsetY = yOffset + y * FIELDSIZE;
+        int offsetX = (x + 1) * FIELDSIZE;
+        int offsetY = (y + 1) * FIELDSIZE;
+        if (onScreen) {
+            offsetX = xOffset + x * FIELDSIZE;
+            offsetY = yOffset + y * FIELDSIZE;
+        }
         switch (s[1]) {
             case "rz" -> {
                 b = new ResidentialZone(Double.parseDouble(s[14]), Integer.parseInt(s[9]), Integer.parseInt(s[13]),

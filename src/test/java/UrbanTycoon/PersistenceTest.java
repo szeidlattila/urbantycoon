@@ -65,7 +65,7 @@ public class PersistenceTest {
                 assertEquals(city.getFields()[i][j],city2.getFields()[i][j]);
         String str = city.saveGame();
         Scanner sc = new Scanner(str);
-        city.loadGame(sc);
+        city.loadGame(sc, false);
         for(int i=0;i<city.getFields().length;i++)
             for(int j=0; j<city.getFields()[0].length;j++)
                 assertEquals(city.getFields()[i][j],city2.getFields()[i][j]);
@@ -79,7 +79,7 @@ public class PersistenceTest {
         city.yearElapsed();
         city.moveInOneResident(false);
         String str = city.saveGame();
-        city2.loadGame(new Scanner(str));
+        city2.loadGame(new Scanner(str), false);
         for(int i=0;i<city.getFields().length;i++)
             for(int j=0; j<city.getFields()[0].length;j++)
                 assertEquals(city.getFields()[i][j],city2.getFields()[i][j]);
