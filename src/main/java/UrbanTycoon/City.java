@@ -32,8 +32,7 @@ class City {
     private final int RADIUS;
     private final int POLICESTATIONSAFETY = 1;
     private final int STADIUMSATBONUS = 1;
-    private final int WIDTH;
-    private final int HEIGHT;
+    private final int FIELDSIZE;
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
     private final int criticalSatisfaction;
     private final int moveInSatisfaction;
@@ -54,14 +53,17 @@ class City {
     private long budget;
     private int negativeBudgetNthYear = 0;
     private int tax = 100;
+    private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    private int screenWidth = screenSize.width;
+    private int screenHeight = screenSize.height;
+    private int xOffset, yOffset;
 
     public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction,
             int moveInSatisfaction,
             int budget, int zonePrice, int roadPrice, int stadiumPrice, int policeStationPrice, int fireStationPrice,
             int forestPrice,
             double annualFeePercentage, int residentCapacity, int workplaceCapacity, double refund, double chanceOfFire,
-            int radius,
-            int width, int height) {
+            int radius) {
         if (residentsNum > 0) {
             this.residents = new ArrayList<>(residentsNum);
         } else {
@@ -156,17 +158,14 @@ class City {
             throw new IllegalArgumentException("Invalid value! Radius must be greater than 0!");
         }
 
-        if (width > 0) {
-            WIDTH = width;
+        if (fieldSize > 0) {
+            FIELDSIZE = fieldSize;
         } else {
-            throw new IllegalArgumentException("Invalid value! Width must be greater than 0!");
+            throw new IllegalArgumentException("Invalid value! Fieldsize must be greater than 0!");
         }
 
-        if (height > 0) {
-            HEIGHT = height;
-        } else {
-            throw new IllegalArgumentException("Invalid value! Height must be greater than 0!");
-        }
+        this.xOffset = (screenWidth - (fieldSize * fieldColsNum)) / 2;
+        this.yOffset = (screenHeight - (fieldSize * fieldRowsNum)) / 2;
 
         initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
         initResidents(residentsNum);
@@ -184,6 +183,14 @@ class City {
             }
             System.out.println();
         }
+    }
+
+    public int getyOffset() {
+        return yOffset;
+    }
+
+    public int getxOffset() {
+        return xOffset;
     }
 
     public ArrayList<Resident> getResidents() {
@@ -488,7 +495,7 @@ class City {
                 selectedField.select();
                 reevaluateAccessibility();
             }
-            //checkResidentData();
+            // checkResidentData();
         }
     }
 
@@ -608,7 +615,9 @@ class City {
             for (Field field : row) {
                 if (!field.isFree()) {
                     budget -= field.getBuilding().getAnnualFee();
-                    budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
+                    budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2
+                                                                                          // and decrease budget 4 times
+                                                                                          // more
                     if (field.getBuilding() instanceof Forest forest) {
                         forest.increaseAgeBy1();
                     }
@@ -956,7 +965,7 @@ class City {
                             if (getDistanceAlongRoad(r.getHomeField(), workplaceField, fields) > -1) {
                                 workplace = freeWorkplace;
                                 freeWorkplace.incrementPeopleNum();
-                                //System.out.printf("Workpace is (%d,%d)%n", j, k);
+                                // System.out.printf("Workpace is (%d,%d)%n", j, k);
                             }
                         }
                     }
@@ -999,58 +1008,61 @@ class City {
         String[] fieldStrings = line.split("\\s+"); // It will split the string by single or multiple whitespace
                                                     // characters
         for (int i = 0; i < fieldStrings.length; i++) {
+            int offsetX = xOffset + i * FIELDSIZE;
+            int offsetY = yOffset + rowIndex * FIELDSIZE;
             String fieldType = fieldStrings[i];
             switch (fieldType) {
                 case "0":
-                    fields[rowIndex][i] = new Field(null, (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                    fields[rowIndex][i] = new Field(null, offsetX, offsetY, FIELDSIZE,
+                            FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "rz":
                     fields[rowIndex][i] = new Field(
                             new ResidentialZone(1.0, residentCapacity, zonePrice, tax, 0, 0, REFUND, CHANCEOFFIRE,
-                                    (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                                    offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/residentialZoneEmpty.png")
                                             .getImage()),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "sz":
                     fields[rowIndex][i] = new Field(
                             new ServiceZone(workplaceCapacity, zonePrice, tax, 0, 0, REFUND, CHANCEOFFIRE,
-                                    (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                                    offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/serviceZone.png")
                                             .getImage()),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "iz":
                     fields[rowIndex][i] = new Field(
                             new IndustrialZone(workplaceCapacity, zonePrice, tax, 0, 0, REFUND, CHANCEOFFIRE,
-                                    (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                                    offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/industrialZone.png")
                                             .getImage()),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "r":
                     fields[rowIndex][i] = new Field(
-                            new Road(roadPrice, (int) (roadPrice * annualFeePercentage), (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            new Road(roadPrice, (int) (roadPrice * annualFeePercentage), offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/road.png").getImage(),
                                     REFUND),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "f":
                     fields[rowIndex][i] = new Field(
-                            new Forest(forestPrice, (int) (forestPrice * annualFeePercentage), (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            new Forest(forestPrice, (int) (forestPrice * annualFeePercentage), offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/forest.png").getImage(),
                                     REFUND, CHANCEOFFIRE),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 default:
@@ -1089,8 +1101,9 @@ class City {
 
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
-            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH,
-                    HEIGHT, new ImageIcon("data/graphics/field/selected/notBurning/road.png").getImage(), REFUND));
+            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(),
+                    FIELDSIZE,
+                    FIELDSIZE, new ImageIcon("data/graphics/field/selected/notBurning/road.png").getImage(), REFUND));
         } else if (playerBuildItClass == Stadium.class) {
             int iIndex = 0, jIndex = 0;
             for (int i = 0; i < fields.length; i++) {
@@ -1108,9 +1121,9 @@ class City {
             if (iIndex > 0 && jIndex > 0) {
                 if (fields[iIndex - 1][jIndex - 1].isFree() && fields[iIndex - 1][jIndex].isFree()
                         && fields[iIndex][jIndex - 1].isFree()) {
-                    Stadium s = new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX() - WIDTH,
-                            selectedField.getY() - HEIGHT,
-                            WIDTH * 2, HEIGHT * 2,
+                    Stadium s = new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX() - FIELDSIZE,
+                            selectedField.getY() - FIELDSIZE,
+                            FIELDSIZE * 2, FIELDSIZE * 2,
                             new ImageIcon("data/graphics/field/selected/notBurning/stadium.png").getImage(),
                             REFUND, CHANCEOFFIRE);
                     selectedField.build(s);
@@ -1131,19 +1144,19 @@ class City {
         } else if (playerBuildItClass == PoliceStation.class) {
             selectedField.build(
                     new PoliceStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(),
-                            WIDTH, HEIGHT,
+                            FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/selected/notBurning/policeStation.png").getImage(),
                             REFUND, CHANCEOFFIRE));
         } else if (playerBuildItClass == FireStation.class) {
             selectedField.build(
                     new FireStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(),
-                            WIDTH, HEIGHT,
+                            FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/selected/notBurning/fireStation.png").getImage(),
                             REFUND));
         } else if (playerBuildItClass == Forest.class) {
             selectedField.build(
                     new Forest(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(),
-                            WIDTH, HEIGHT, new ImageIcon("data/graphics/field/selected/forest.png").getImage(),
+                            FIELDSIZE, FIELDSIZE, new ImageIcon("data/graphics/field/selected/forest.png").getImage(),
                             REFUND, CHANCEOFFIRE));
             calculateForestBonusResZone();
         }
@@ -1204,8 +1217,9 @@ class City {
                     int buildPrice = Integer.parseInt(str[6]);
                     int annualFee = Integer.parseInt(str[7]);
                     int radius = Integer.parseInt(str[8]);
-                    Stadium stad = new Stadium(buildPrice, annualFee, radius, (j + 1) * WIDTH, (i + 1) * HEIGHT,
-                            WIDTH * 2, HEIGHT * 2, whatImageFor(Stadium.class, str), refund, chanceOfFire);
+                    Stadium stad = new Stadium(buildPrice, annualFee, radius, xOffset + j * FIELDSIZE,
+                            yOffset + i * FIELDSIZE,
+                            FIELDSIZE * 2, FIELDSIZE * 2, whatImageFor(Stadium.class, str), refund, chanceOfFire);
                     stad.fields[0] = fields[i + 1][j + 1];
                     stad.fields[0].setBuilding(stad);
                     stad.fields[1] = fields[i][j];
@@ -1241,11 +1255,14 @@ class City {
         double chanceOfFire = Double.parseDouble(s[3]);
         boolean burning = Boolean.parseBoolean(s[4]);
         Date date = Date.parseDate(s[5]);
+        int offsetX = xOffset + x * FIELDSIZE;
+        int offsetY = yOffset + y * FIELDSIZE;
         switch (s[1]) {
             case "rz" -> {
                 b = new ResidentialZone(Double.parseDouble(s[14]), Integer.parseInt(s[9]), Integer.parseInt(s[13]),
                         Integer.parseInt(s[6]), Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire,
-                        (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT, whatImageFor(ResidentialZone.class, s));
+                        offsetX, offsetY, FIELDSIZE, FIELDSIZE,
+                        whatImageFor(ResidentialZone.class, s));
                 Zone z = (Zone) b;
                 z.setPeopleNum(Integer.parseInt(s[10]));
                 z.setBuildProgress(Integer.parseInt(s[7]));
@@ -1253,8 +1270,8 @@ class City {
             }
             case "iz" -> {
                 b = new IndustrialZone(Integer.parseInt(s[9]), Integer.parseInt(s[13]), Integer.parseInt(s[6]),
-                        Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire / 2, (x + 1) * WIDTH,
-                        (y + 1) * HEIGHT, WIDTH, HEIGHT, whatImageFor(IndustrialZone.class, s));
+                        Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire / 2, offsetX,
+                        offsetY, FIELDSIZE, FIELDSIZE, whatImageFor(IndustrialZone.class, s));
                 Zone z = (Zone) b;
                 z.setPeopleNum(Integer.parseInt(s[10]));
                 z.setBuildProgress(Integer.parseInt(s[7]));
@@ -1262,8 +1279,8 @@ class City {
             }
             case "sz" -> {
                 b = new ServiceZone(Integer.parseInt(s[9]), Integer.parseInt(s[13]), Integer.parseInt(s[6]),
-                        Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire, (x + 1) * WIDTH,
-                        (y + 1) * HEIGHT, WIDTH, HEIGHT, whatImageFor(ServiceZone.class, s));
+                        Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire, offsetX,
+                        offsetY, FIELDSIZE, FIELDSIZE, whatImageFor(ServiceZone.class, s));
                 Zone z = (Zone) b;
                 z.setPeopleNum(Integer.parseInt(s[10]));
                 z.setBuildProgress(Integer.parseInt(s[7]));
@@ -1273,21 +1290,23 @@ class City {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
                 int radius = Integer.parseInt(s[8]);
-                b = new PoliceStation(buildPrice, annualFee, radius, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT,
+                b = new PoliceStation(buildPrice, annualFee, radius, offsetX, offsetY,
+                        FIELDSIZE, FIELDSIZE,
                         whatImageFor(PoliceStation.class, s), refund, chanceOfFire);
             }
             case "fs" -> {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
                 int radius = Integer.parseInt(s[8]);
-                b = new FireStation(buildPrice, annualFee, radius, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT,
+                b = new FireStation(buildPrice, annualFee, radius, offsetX, offsetY, FIELDSIZE,
+                        FIELDSIZE,
                         whatImageFor(FireStation.class, s), refund);
             }
             case "for" -> {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
                 int age = Integer.parseInt(s[8]);
-                b = new Forest(buildPrice, annualFee, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT,
+                b = new Forest(buildPrice, annualFee, offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                         whatImageFor(Forest.class, s), refund, chanceOfFire);
                 ((Forest) b).setAge(age);
             }
@@ -1295,13 +1314,14 @@ class City {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
                 int radius = Integer.parseInt(s[8]);
-                b = new Stadium(buildPrice, annualFee, radius, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH * 2, HEIGHT * 2,
+                b = new Stadium(buildPrice, annualFee, radius, offsetX, offsetY, FIELDSIZE * 2,
+                        FIELDSIZE * 2,
                         whatImageFor(Stadium.class, s), refund, chanceOfFire);
             }
             default -> {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
-                b = new Road(buildPrice, annualFee, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT,
+                b = new Road(buildPrice, annualFee, offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                         whatImageFor(Road.class, s), refund);
             }
         }
@@ -1388,19 +1408,19 @@ class City {
         if (zoneClass == ResidentialZone.class) {
             selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax,
                     calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, CHANCEOFFIRE,
-                    selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
+                    selectedField.getX(), selectedField.getY(), FIELDSIZE, FIELDSIZE,
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         } else if (zoneClass == IndustrialZone.class) {
             selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax,
                     calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, CHANCEOFFIRE,
-                    selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
+                    selectedField.getX(), selectedField.getY(), FIELDSIZE, FIELDSIZE,
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         } else if (zoneClass == ServiceZone.class) {
             selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, calculateSafety(selectedField),
                     calculateSatBonus(selectedField), REFUND, CHANCEOFFIRE,
-                    selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
+                    selectedField.getX(), selectedField.getY(), FIELDSIZE, FIELDSIZE,
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         }
