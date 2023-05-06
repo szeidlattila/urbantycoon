@@ -20,13 +20,14 @@ import java.awt.event.*;
 public class UrbanTycoonGUI {
     private JFrame frame;
     private GameEngine gameArea;
+    private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
     public UrbanTycoonGUI() {
         frame = new JFrame("UrbanTycoon");
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        gameArea = new GameEngine();
+        gameArea = new GameEngine(screenSize);
 
         frame.add(gameArea);
 

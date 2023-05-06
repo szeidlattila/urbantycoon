@@ -70,9 +70,9 @@ class GameEngine extends JPanel {
     private final Image background;
     private final Timer newFrameTimer;
     private final Timer gameTickTimer;
-    private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    public int screenWidth = screenSize.width;
-    public int screenHeight = screenSize.height;
+    private Dimension screenSize;
+    private int screenWidth;
+    private int screenHeight;
 
     private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton,
             nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton,
@@ -82,8 +82,11 @@ class GameEngine extends JPanel {
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
-    public GameEngine() {
+    public GameEngine(Dimension screenSize) {
         super();
+        this.screenSize = screenSize;
+        this.screenWidth = screenSize.width;
+        this.screenHeight = screenSize.height;
         background = new ImageIcon("data/graphics/other/background.jpeg").getImage();
 
         addMouseListener(new MouseAdapter() {
@@ -234,7 +237,7 @@ class GameEngine extends JPanel {
                 MOVEINATLEASTSATISFACTION, INITIALMONEY,
                 ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                 ANNUALFEEPERCENTAGE,
-                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, true);
+                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, screenSize);
         // date alaphelyzetbe
         time = new Date(1980, 1, 1, 0, 0);
         paused = false;
@@ -309,7 +312,7 @@ class GameEngine extends JPanel {
                     MOVEINATLEASTSATISFACTION, INITIALMONEY,
                     ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                     ANNUALFEEPERCENTAGE,
-                    RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, true);
+                    RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, screenSize);
             city.loadGame(s, true);
             loadGameFrame.setVisible(false);
             paused = false;

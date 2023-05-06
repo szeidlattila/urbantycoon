@@ -61,7 +61,7 @@ class City {
             int budget, int zonePrice, int roadPrice, int stadiumPrice, int policeStationPrice, int fireStationPrice,
             int forestPrice,
             double annualFeePercentage, int residentCapacity, int workplaceCapacity, double refund, double chanceOfFire,
-            int radius, boolean onScreen) {
+            int radius, Dimension screenSize) {
         if (residentsNum > 0) {
             this.residents = new ArrayList<>(residentsNum);
         } else {
@@ -162,8 +162,7 @@ class City {
             throw new IllegalArgumentException("Invalid value! Fieldsize must be greater than 0!");
         }
 
-        if (onScreen) {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        if (screenSize != null) {
             int screenWidth = screenSize.width;
             int screenHeight = screenSize.height;
             this.xOffset = (screenWidth - (fieldSize * fieldColsNum)) / 2;
