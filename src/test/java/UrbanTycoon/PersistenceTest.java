@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+//tryagain commit
+
 
 /**
  *
@@ -19,9 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 public class PersistenceTest {
-    private final int WIDTH = 80;
-    private final int HEIGHT = 80;
-    private final int FIELDSIZE = 20;
+    private final int FIELDSIZE = 80;
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
