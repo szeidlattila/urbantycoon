@@ -55,6 +55,7 @@ class City {
     int negativeBudgetNthYear = 0;
     private int tax = 100;
     private int xOffset, yOffset;
+    private Dimension screenSize;
 
     public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction,
             int moveInSatisfaction,
@@ -163,6 +164,7 @@ class City {
         }
 
         if (screenSize != null) {
+            this.screenSize = screenSize;
             int screenWidth = screenSize.width;
             int screenHeight = screenSize.height;
             this.xOffset = (screenWidth - (fieldSize * fieldColsNum)) / 2;
@@ -271,7 +273,7 @@ class City {
      * satisfaction
      */
     private void changeSatisfaction() {
-    	reevaluateAccessibility();
+        reevaluateAccessibility();
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
         ArrayList<Resident> removeResidents = new ArrayList<>();
@@ -342,7 +344,9 @@ class City {
         if (workIndexX == -1)
             throw new IllegalArgumentException("Workplace not Found!");
         int d = getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
-        if (d==-1) throw new IllegalArgumentException("Work and home not connected! work: " + workIndexX + " " + workIndexY + " Home: " + homeIndexX + " " + homeIndexY);
+        if (d == -1)
+            throw new IllegalArgumentException("Work and home not connected! work: " + workIndexX + " " + workIndexY
+                    + " Home: " + homeIndexX + " " + homeIndexY);
         sat += 5 - d;
 
         sat += r.getWorkplace().getSatisfactionBonus();
@@ -362,7 +366,7 @@ class City {
     public void lowerTax() {
         tax -= 50;
         if (tax <= 0) {
-        	tax = 0;
+            tax = 0;
             changeSatisfaction();
         }
     }
@@ -577,7 +581,8 @@ class City {
                 }
             }
         }
-        budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
+        budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and
+                                                                              // decrease budget 4 times more
         for (int i = 0; i < residents.size(); i++) {
             Resident r = residents.get(i);
             if (!r.isRetired()) {
@@ -961,8 +966,12 @@ class City {
         String[] fieldStrings = line.split("\\s+"); // It will split the string by single or multiple whitespace
                                                     // characters
         for (int i = 0; i < fieldStrings.length; i++) {
-            int offsetX = xOffset + i * FIELDSIZE;
-            int offsetY = yOffset + rowIndex * FIELDSIZE;
+            int offsetX = (i + 1) * FIELDSIZE;
+            int offsetY = (rowIndex + 1) * FIELDSIZE;
+            if (screenSize != null) {
+                offsetX = xOffset + i * FIELDSIZE;
+                offsetY = yOffset + rowIndex * FIELDSIZE;
+            }
             String fieldType = fieldStrings[i];
             switch (fieldType) {
                 case "0":
@@ -1088,7 +1097,7 @@ class City {
                     fields[iIndex - 1][jIndex].build(s);
                     fields[iIndex][jIndex - 1].build(s);
                 } else {
-                	return;
+                    return;
 
                 }
             } else {
@@ -1887,7 +1896,7 @@ class City {
                 }
             }
         }
-        
+
         Random r = new Random();
         if (bestResidentialZone != null && nearestWorkplace != null) {
             this.residents.add(new Resident(isBecauseDeath ? 18 : (int) r.nextInt((60 - 18) + 1) + 18,
