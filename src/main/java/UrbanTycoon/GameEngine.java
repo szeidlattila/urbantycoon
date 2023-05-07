@@ -38,7 +38,7 @@ import javax.swing.JTextField;
 class GameEngine extends JPanel {
 
     private final int FPS = 240;
-    private final int FIELDSIZE = 80;
+    private final int FIELDSIZE;
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
@@ -63,31 +63,29 @@ class GameEngine extends JPanel {
     private final JPanel loadGamePanel = new JPanel();
 
     private City city;
-    private Date time;
+    private Date time;    
+
     private boolean paused = false;
+
     private int speed;
     private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 ora, 2 nap, 30 nap
-    private final Image background;
     private final Timer newFrameTimer;
     private final Timer gameTickTimer;
     private Dimension screenSize;
     private int screenWidth;
     private int screenHeight;
+    public JComboBox<String> savesList;
 
-    private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton,
-            nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton,
-            buildFSButton, buildForestButton, showBudgetButton, fireFightingButton, zoneInfoButton, saveGameButton,
-            loadGameButton;
     private final JLabel moneyLabel, taxLabel, dateLabel, satisfactionLabel, residentNumLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
-    public GameEngine(Dimension screenSize) {
+    public GameEngine(Dimension screenSize, int fieldSize) {
         super();
+        this.FIELDSIZE = fieldSize;
         this.screenSize = screenSize;
         this.screenWidth = screenSize.width;
         this.screenHeight = screenSize.height;
-        background = new ImageIcon("data/graphics/other/background.jpeg").getImage();
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -102,79 +100,7 @@ class GameEngine extends JPanel {
 
         newGame();
 
-        this.pauseButton = new JButton("pause");
-        pauseButton.addActionListener((ActionEvent ae) -> togglePause());
-        this.add(pauseButton);
-
-        this.timeSlowButton = new JButton("slow Time");
-        timeSlowButton.addActionListener((ActionEvent ae) -> slowDownTime());
-        this.add(timeSlowButton);
-
-        this.timeAccButton = new JButton("acc Time");
-        timeAccButton.addActionListener((ActionEvent ae) -> speedUpTime());
-        this.add(timeAccButton);
-
-        this.taxUpButton = new JButton("inc Tax");
-        taxUpButton.addActionListener((ActionEvent ae) -> increaseTax());
-        this.add(taxUpButton);
-
-        this.taxDownButton = new JButton("lower Tax");
-        taxDownButton.addActionListener((ActionEvent ae) -> lowerTax());
-        this.add(taxDownButton);
-
-        this.destroyButton = new JButton("Destroy");
-        destroyButton.addActionListener((ActionEvent ae) -> tryDenominateOrDestroyZone());
-        this.add(destroyButton);
-
-        this.nominateIndButton = new JButton("nominate industrial");
-        nominateIndButton.addActionListener((ActionEvent ae) -> city.selectField(IndustrialZone.class));
-        this.add(nominateIndButton);
-
-        this.nominateResButton = new JButton("nominate residential");
-        nominateResButton.addActionListener((ActionEvent ae) -> city.selectField(ResidentialZone.class));
-        this.add(nominateResButton);
-
-        this.nominateSerButton = new JButton("nominate service");
-        nominateSerButton.addActionListener((ActionEvent ae) -> city.selectField(ServiceZone.class));
-        this.add(nominateSerButton);
-
-        this.buildRoadButton = new JButton("build Road");
-        buildRoadButton.addActionListener((ActionEvent ae) -> city.build(Road.class));
-        this.add(buildRoadButton);
-
-        this.buildStadiumButton = new JButton("build Stad");
-        buildStadiumButton.addActionListener((ActionEvent ae) -> city.build(Stadium.class));
-        this.add(buildStadiumButton);
-
-        this.buildPSButton = new JButton("build PS");
-        buildPSButton.addActionListener((ActionEvent ae) -> city.build(PoliceStation.class));
-        this.add(buildPSButton);
-
-        this.buildFSButton = new JButton("build FS");
-        buildFSButton.addActionListener((ActionEvent ae) -> city.build(FireStation.class));
-        this.add(buildFSButton);
-
-        this.buildForestButton = new JButton("build Forest");
-        buildForestButton.addActionListener((ActionEvent ae) -> city.build(Forest.class));
-        this.add(buildForestButton);
-
-        this.showBudgetButton = new JButton("show budget");
-        showBudgetButton.addActionListener((ActionEvent ea) -> new PopupInfo(new JFrame(), budgetInfo(), "Budget"));
-        this.add(showBudgetButton);
-
-        this.fireFightingButton = new JButton("fire-fighting");
-        fireFightingButton.addActionListener((ActionEvent ea) -> city.fireFighting());
-        this.add(fireFightingButton);
-
-        saveGameButton = new JButton("Save Game");
-        saveGameButton.addActionListener((ActionEvent ea) -> initSave());
-        this.add(saveGameButton);
-
-        loadGameButton = new JButton("Load Game");
-        JComboBox<String> savesList = new JComboBox();
-        loadGameButton.addActionListener((ActionEvent ea) -> initLoad(savesList));
-        this.add(loadGameButton);
-
+        savesList = new JComboBox();
         JTextField saveNameTextField = new JTextField();
         JButton confirmSaveButton = new JButton("Save");
         confirmSaveButton.addActionListener((var ae) -> saveGame(saveNameTextField.getText() + ".sav"));
@@ -191,20 +117,16 @@ class GameEngine extends JPanel {
         loadGameFrame.add(loadGamePanel);
         loadGameFrame.setPreferredSize(new Dimension(300, 100));
 
-        this.zoneInfoButton = new JButton("zone info");
-        zoneInfoButton.addActionListener((ActionEvent ea) -> zoneInfoPopup());
-        this.add(zoneInfoButton);
-
         this.moneyLabel = new JLabel("Funds: ");
-        this.add(moneyLabel);
+        // this.add(moneyLabel);
         this.taxLabel = new JLabel("Tax: ");
-        this.add(taxLabel);
+        // this.add(taxLabel);
         this.satisfactionLabel = new JLabel("City satisfaction: ");
-        this.add(satisfactionLabel);
+        // this.add(satisfactionLabel);
         this.residentNumLabel = new JLabel("Residents: ");
-        this.add(residentNumLabel);
+        // this.add(residentNumLabel);
         this.dateLabel = new JLabel(time.toString());
-        this.add(dateLabel);
+        // this.add(dateLabel);
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
         gameTickTimer = new Timer(1000, new GameTickListener());
@@ -214,8 +136,6 @@ class GameEngine extends JPanel {
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
-        grphcs.drawImage(background, 0, 0, screenWidth,
-                screenHeight, null); // háttérkép kirajzolása
         for (int i = 0; i < FIELDROWSNUM; i++) {
             for (int j = 0; j < FIELDCOLSNUM; j++) {
                 if (!city.getFields()[i][j].isFree()) {
@@ -223,6 +143,7 @@ class GameEngine extends JPanel {
                 } else { // Buildable is null so cannot draw it -> have to call Field draw method
                     city.getFields()[i][j].draw(grphcs);
                 }
+                UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(), city.getTax() + "$", city.getBudget() + "$");
                 moneyLabel.setText("Funds: " + city.getBudget() + "$");
                 taxLabel.setText("Tax: " + city.getTax() + "$");
                 satisfactionLabel.setText("City satisfaction: " + city.getSatisfaction());
@@ -244,7 +165,7 @@ class GameEngine extends JPanel {
         speed = 1;
     }
 
-    private void initSave() {
+    public void initSave() {
         paused = true;
         saveGameFrame.pack();
         saveGameFrame.setVisible(true);
@@ -294,7 +215,7 @@ class GameEngine extends JPanel {
         }
     }
 
-    private void initLoad(JComboBox<String> savesList) {
+    public void initLoad(JComboBox<String> savesList) {
         paused = true;
         savesList.removeAllItems();
         File[] saves = getFiles();
@@ -325,31 +246,67 @@ class GameEngine extends JPanel {
         }
     }
 
+    public int getSpeed() {
+        return speed;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public int getZONEPRICE() {
+        return ZONEPRICE;
+    }
+
+    public int getROADPRICE() {
+        return ROADPRICE;
+    }
+
+    public int getSTADIUMPRICE() {
+        return STADIUMPRICE;
+    }
+
+    public int getPOLICESTATIONPRICE() {
+        return POLICESTATIONPRICE;
+    }
+
+    public int getFIRESTATIONPRICE() {
+        return FIRESTATIONPRICE;
+    }
+
+    public int getFORESTPRICE() {
+        return FORESTPRICE;
+    }
+
     private File[] getFiles() {
         return new File("data/persistence/saves").listFiles();
     }
 
-    private void speedUpTime() {
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public void speedUpTime() {
         if (speed < 3) {
             speed++;
         }
     }
 
-    private void slowDownTime() {
+    public void slowDownTime() {
         if (speed > 1) {
             speed--;
         }
     }
 
-    private void togglePause() {
+    public void togglePause() {
         paused = !paused;
     }
 
-    private void increaseTax() {
+    public void increaseTax() {
         city.increaseTax();
     }
 
-    private void lowerTax() {
+    public void lowerTax() {
         city.lowerTax();
     }
 
@@ -392,11 +349,11 @@ class GameEngine extends JPanel {
 
     // itt minden a ( city.selectedField : Field )-del dolgozik
 
-    private void tryDenominateOrDestroyZone() {
+    public void tryDenominateOrDestroyZone() {
         city.tryDenominateOrDestroyZone();
     }
 
-    private String budgetInfo() { // city.getTax()*city.getResidentsNum()*2, mert munkahely + lakóhely, nyugdíj
+    public String budgetInfo() { // city.getTax()*city.getResidentsNum()*2, mert munkahely + lakóhely, nyugdíj
                                   // bezavarhat majd (aki már nem dolgozik)
         return "<html><h2><font color=#00a605>Annual incomes</font><h2></html>\nResident tax: " + city.getTax()
                 + "$/residential  (" + city.getResidentsNum() +
@@ -415,7 +372,7 @@ class GameEngine extends JPanel {
                 "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee();
     }
 
-    private void zoneInfoPopup() {
+    public void zoneInfoPopup() {
         if (zoneInfo() == null || zoneInfo() == "")
             return;
         Zone selectedZone = (Zone) city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding();
