@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+//tryagain commit
+
 
 /**
  *
@@ -19,9 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 public class PersistenceTest {
-    private final int WIDTH = 80;
-    private final int HEIGHT = 80;
-    private final int FIELDSIZE = 20;
+    private final int FIELDSIZE = 80;
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
@@ -50,12 +50,12 @@ public class PersistenceTest {
                 MOVEINATLEASTSATISFACTION, INITIALMONEY,
                 ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                 ANNUALFEEPERCENTAGE,
-                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
+                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, null);
         city2 = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION,
                 MOVEINATLEASTSATISFACTION, INITIALMONEY,
                 ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                 ANNUALFEEPERCENTAGE,
-                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
+                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, null);
     }
     
     @Test
@@ -65,7 +65,7 @@ public class PersistenceTest {
                 assertEquals(city.getFields()[i][j],city2.getFields()[i][j]);
         String str = city.saveGame();
         Scanner sc = new Scanner(str);
-        city.loadGame(sc);
+        city.loadGame(sc, false);
         for(int i=0;i<city.getFields().length;i++)
             for(int j=0; j<city.getFields()[0].length;j++)
                 assertEquals(city.getFields()[i][j],city2.getFields()[i][j]);
@@ -79,7 +79,7 @@ public class PersistenceTest {
         city.yearElapsed();
         city.moveInOneResident(false);
         String str = city.saveGame();
-        city2.loadGame(new Scanner(str));
+        city2.loadGame(new Scanner(str), false);
         for(int i=0;i<city.getFields().length;i++)
             for(int j=0; j<city.getFields()[0].length;j++)
                 assertEquals(city.getFields()[i][j],city2.getFields()[i][j]);

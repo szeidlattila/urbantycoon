@@ -71,7 +71,7 @@ abstract class Zone extends Buildable {
 
     public void setSatisfactionBonus(int satisfactionBonus) {
         if (satisfactionBonus > 10 || satisfactionBonus < -10)
-            throw new IllegalArgumentException("Satisfaction Bonus out of range");
+            throw new IllegalArgumentException("Satisfaction bonus out of range!");
         else
             this.satisfactionBonus = satisfactionBonus;
     }

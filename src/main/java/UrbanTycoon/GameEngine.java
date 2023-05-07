@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 import javax.swing.JTextField;
+//tryagain commit
 
 /**
  *
@@ -37,9 +38,7 @@ import javax.swing.JTextField;
 class GameEngine extends JPanel {
 
     private final int FPS = 240;
-    private final int WIDTH = 80;
-    private final int HEIGHT = 80;
-    private final int FIELDSIZE = 20;
+    private final int FIELDSIZE = 80;
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
@@ -71,6 +70,9 @@ class GameEngine extends JPanel {
     private final Image background;
     private final Timer newFrameTimer;
     private final Timer gameTickTimer;
+    private Dimension screenSize;
+    private int screenWidth;
+    private int screenHeight;
 
     private final JButton pauseButton, timeSlowButton, timeAccButton, taxUpButton, taxDownButton, destroyButton,
             nominateIndButton, nominateResButton, nominateSerButton, buildRoadButton, buildStadiumButton, buildPSButton,
@@ -80,8 +82,11 @@ class GameEngine extends JPanel {
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
-    public GameEngine() {
+    public GameEngine(Dimension screenSize) {
         super();
+        this.screenSize = screenSize;
+        this.screenWidth = screenSize.width;
+        this.screenHeight = screenSize.height;
         background = new ImageIcon("data/graphics/other/background.jpeg").getImage();
 
         addMouseListener(new MouseAdapter() {
@@ -209,8 +214,8 @@ class GameEngine extends JPanel {
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
-        grphcs.drawImage(background, 0, 0, (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-                (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight(), null); // háttérkép kirajzolása
+        grphcs.drawImage(background, 0, 0, screenWidth,
+                screenHeight, null); // háttérkép kirajzolása
         for (int i = 0; i < FIELDROWSNUM; i++) {
             for (int j = 0; j < FIELDCOLSNUM; j++) {
                 if (!city.getFields()[i][j].isFree()) {
@@ -232,7 +237,7 @@ class GameEngine extends JPanel {
                 MOVEINATLEASTSATISFACTION, INITIALMONEY,
                 ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                 ANNUALFEEPERCENTAGE,
-                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
+                RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, screenSize);
         // date alaphelyzetbe
         time = new Date(1980, 1, 1, 0, 0);
         paused = false;
@@ -307,8 +312,8 @@ class GameEngine extends JPanel {
                     MOVEINATLEASTSATISFACTION, INITIALMONEY,
                     ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
                     ANNUALFEEPERCENTAGE,
-                    RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, WIDTH, HEIGHT);
-            city.loadGame(s);
+                    RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, screenSize);
+            city.loadGame(s, true);
             loadGameFrame.setVisible(false);
             paused = false;
             speed = 1;
@@ -351,8 +356,8 @@ class GameEngine extends JPanel {
     private void fieldSelect(int mouseX, int mouseY) {
         int fieldIndexX, fieldIndexY;
 
-        fieldIndexX = (int) Math.floor(mouseX / (double) WIDTH) - 1;
-        fieldIndexY = (int) Math.floor(mouseY / (double) HEIGHT) - 1;
+        fieldIndexX = (int) Math.floor((mouseX - city.getxOffset()) / (double) FIELDSIZE);
+        fieldIndexY = (int) Math.floor((mouseY - city.getyOffset()) / (double) FIELDSIZE);
 
         if (fieldIndexX >= 0 && fieldIndexX < FIELDCOLSNUM && fieldIndexY >= 0 && fieldIndexY < FIELDROWSNUM) {
             if (prevSelectedFieldX != -1 && prevSelectedFieldY != -1) { // ha már van selected Field
@@ -498,7 +503,8 @@ class GameEngine extends JPanel {
             }
         }
     }
-    public City getCity(){
+
+    public City getCity() {
         return city;
     }
 }

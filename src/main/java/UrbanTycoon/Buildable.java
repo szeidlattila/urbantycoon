@@ -89,7 +89,7 @@ abstract class Buildable extends Sprite {
         if (0.0 <= chanceOfFire && chanceOfFire <= 1.0) {
             this.chanceOfFire = chanceOfFire;
         } else {
-            throw new IllegalArgumentException("Invalid value! Chance of fire must be greater between 0.0 and 1.0!");
+            throw new IllegalArgumentException("Invalid value! Chance of fire must be between 0.0 and 1.0!");
         }
     }
 
