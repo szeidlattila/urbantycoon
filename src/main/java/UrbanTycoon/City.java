@@ -1641,6 +1641,8 @@ class City {
     }
 
     public boolean canDeleteRoad(Field field) {
+        if (field == null)  return false;
+        
         // copy fields matrix to simulate road deleting
         Field[][] copyFields = new Field[fields.length][fields[0].length];
 
