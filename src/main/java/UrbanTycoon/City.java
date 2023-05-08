@@ -1209,10 +1209,10 @@ class City {
                     fields[i][j].setBurntDown(Boolean.parseBoolean(str[0]));
             }
         }
-        changeSatisfaction();
         while (s.hasNextLine()) {
             residents.add(residentByString(s.nextLine()));
         }
+        changeSatisfaction();
     }
 
     private Buildable unpack(int x, int y, String[] s, boolean onScreen) {
@@ -1396,7 +1396,7 @@ class City {
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         }
-
+        changeSatisfaction();
         budget -= zonePrice;
     }
 
