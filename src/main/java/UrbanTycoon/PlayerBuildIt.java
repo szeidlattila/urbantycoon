@@ -30,6 +30,7 @@ public abstract class PlayerBuildIt extends Buildable {
         }
     }
     
+    @Override
     public boolean progressBuilding(int progressInDays){
         return false;
     }
@@ -43,11 +44,44 @@ public abstract class PlayerBuildIt extends Buildable {
         return annualFee;
     }
     
+    @Override
     public final int destroy(){
         return buildingPrice;
     }
     @Override
     public String asString(){
         return super.asString() + buildingPrice + ";" + annualFee + ";";
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PlayerBuildIt other = (PlayerBuildIt) obj;
+        
+        if (Double.doubleToLongBits(this.refund) != Double.doubleToLongBits(other.refund)) {
+            return false;
+        }
+        if (this.burning != other.burning) {
+            return false;
+        }
+        if(Double.doubleToLongBits(this.chanceOfFire) != Double.doubleToLongBits(other.chanceOfFire)){
+            return false;
+        }
+        return this.x == other.x && this.y == other.y && this.annualFee == other.annualFee && this.buildingPrice == other.buildingPrice;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + this.buildingPrice;
+        hash = 53 * hash + this.annualFee;
+        return hash;
     }
 }

@@ -127,23 +127,18 @@ class Resident {
             retire();
         }
         return false;
-        /* RÉSZFELADAT: Nyugdíj */
     }
-
-    public void paidTaxes(int amount) {
-        if (retired)
-            throw new IllegalArgumentException("Nyugdíjas, de adózott");
-        if (age >= 45)
-            paidTaxesBeforeRetired += amount;
-    }
-
-    public void workedAYear() {
-        if (retired)
-            throw new IllegalArgumentException("Nyugdíjas, de dolgozott");
-        if (age >= 45)
+    
+    public int tax(){
+        if(retired) throw new IllegalArgumentException("Retired, but paying taxes");
+        int tax = home.getAnnualTax() + workplace.getAnnualTax();
+        if(age >= 45){
+            paidTaxesBeforeRetired += tax;
             workedYearsBeforeRetired++;
+        }
+        return tax;
     }
-
+    
     public int getYearlyRetirement() {
         if (!retired)
             throw new IllegalArgumentException("Nem nyugdíjas!");
@@ -184,15 +179,17 @@ class Resident {
 
     public void retire() {
         retired = true;
-        System.out.println("Retired! " + age + " Paid taxes: " + paidTaxesBeforeRetired + " worked years: "
-                + workedYearsBeforeRetired);
-        workplace.setPeopleNum(workplace.getPeopleNum() - 1);
-        workplace = null;
+        if(workplace != null){
+            workplace.setPeopleNum(workplace.getPeopleNum() - 1);
+            workplace = null;
+        }
     }
 
     public void die() {
-        home.setPeopleNum(home.getPeopleNum() - 1);
-        home = null;
+        if(home != null){
+            home.setPeopleNum(home.getPeopleNum() - 1);
+            home = null;
+        }
     }
 
     @Override

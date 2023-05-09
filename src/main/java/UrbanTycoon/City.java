@@ -17,6 +17,7 @@ import java.util.*;
 import java.awt.*;
 import java.util.ArrayList;
 import javax.swing.JFrame;
+//tryagain commit
 
 /**
  *
@@ -32,10 +33,7 @@ class City {
     private final int RADIUS;
     private final int POLICESTATIONSAFETY = 1;
     private final int STADIUMSATBONUS = 1;
-    private final int WIDTH;
-    private final int HEIGHT;
-    private final double SCREENHEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-    private final double SCREENWIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+    private final int FIELDSIZE;
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
     private final int criticalSatisfaction;
     private final int moveInSatisfaction;
@@ -49,21 +47,22 @@ class City {
     private int forestPrice;
     private final double annualFeePercentage; // playerBuildIt -> annualFee = price * annualFeePercentage
 
-    private Field selectedField = null;
+    Field selectedField = null;
 
-    private int satisfaction = 0;
-    private int universialSatisfaction = 0;
+    int satisfaction = 0;
+    int universialSatisfaction = 0;
     private long budget;
-    private int negativeBudgetNthYear = 0;
+    int negativeBudgetNthYear = 0;
     private int tax = 100;
+    private int xOffset, yOffset;
+    private Dimension screenSize;
 
     public City(int residentsNum, int fieldSize, int fieldRowsNum, int fieldColsNum, int criticalSatisfaction,
             int moveInSatisfaction,
             int budget, int zonePrice, int roadPrice, int stadiumPrice, int policeStationPrice, int fireStationPrice,
             int forestPrice,
             double annualFeePercentage, int residentCapacity, int workplaceCapacity, double refund, double chanceOfFire,
-            int radius,
-            int width, int height) {
+            int radius, Dimension screenSize) {
         if (residentsNum > 0) {
             this.residents = new ArrayList<>(residentsNum);
         } else {
@@ -158,16 +157,37 @@ class City {
             throw new IllegalArgumentException("Invalid value! Radius must be greater than 0!");
         }
 
-        if (width > 0) {
-            WIDTH = width;
+        if (fieldSize > 0) {
+            FIELDSIZE = fieldSize;
         } else {
-            throw new IllegalArgumentException("Invalid value! Width must be greater than 0!");
+            throw new IllegalArgumentException("Invalid value! Fieldsize must be greater than 0!");
         }
 
-        if (height > 0) {
-            HEIGHT = height;
+        if (screenSize != null) {
+            this.screenSize = screenSize;
+            int screenWidth = screenSize.width;
+            int screenHeight = screenSize.height;
+            this.xOffset = (screenWidth - (fieldSize * fieldColsNum)) / 2;
+            this.yOffset = (screenHeight - (fieldSize * fieldRowsNum)) / 2;
+        }
+
+        initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
+        initResidents(residentsNum);
+        changeSatisfaction();
+    }
+    
+    public void restart(int residentsNum, int fieldRowsNum, int fieldColsNum, int budget) {
+        this.selectedField = null;
+        this.satisfaction = 0;
+        this.universialSatisfaction = 0;
+        this.negativeBudgetNthYear = 0;
+        this.tax = 100;
+        this.budget = budget;
+    
+        if (residentsNum > 0) {
+            this.residents = new ArrayList<>(residentsNum);
         } else {
-            throw new IllegalArgumentException("Invalid value! Height must be greater than 0!");
+            throw new IllegalArgumentException("Invalid value! Residents number must be greater than 0!");
         }
 
         initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
@@ -176,16 +196,24 @@ class City {
     }
 
     public void printFields() {
-        for (int i = 0; i < fields.length; i++) {
+        for (Field[] field : fields) {
             for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j].getBuilding() == null) {
+                if (field[j].getBuilding() == null) {
                     System.out.print("E ");
                 } else {
-                    System.out.print(fields[i][j].getBuilding().getClass().getSimpleName() + " ");
+                    System.out.print(field[j].getBuilding().getClass().getSimpleName() + " ");
                 }
             }
             System.out.println();
         }
+    }
+
+    public int getyOffset() {
+        return yOffset;
+    }
+
+    public int getxOffset() {
+        return xOffset;
     }
 
     public ArrayList<Resident> getResidents() {
@@ -264,6 +292,7 @@ class City {
      * satisfaction
      */
     private void changeSatisfaction() {
+        reevaluateAccessibility();
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
         ArrayList<Resident> removeResidents = new ArrayList<>();
@@ -288,7 +317,7 @@ class City {
 
     private void calculateUniversialSatisfaction() {
         universialSatisfaction = (int) ((1000 - tax) / 100);
-        universialSatisfaction -= negativeBudgetNthYear * (int) (Math.abs(budget) / 1000);
+        universialSatisfaction -= negativeBudgetNthYear * Math.abs(Math.ceil(budget / 1000.0));
         int szolgaltatasbanDolgozok = 0, iparbanDolgozok = 0;
         for (Resident res : residents) {
             if (res.getWorkplace() instanceof IndustrialZone)
@@ -302,7 +331,6 @@ class City {
             universialSatisfaction -= (int) ((Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size())
                     * 10);
         }
-
     }
 
     private int whatSatisfactionFor(Resident r) {
@@ -334,8 +362,11 @@ class City {
 
         if (workIndexX == -1)
             throw new IllegalArgumentException("Workplace not Found!");
-
-        sat += 5 - getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
+        int d = getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
+        if (d == -1)
+            throw new IllegalArgumentException("Work and home not connected! work: " + workIndexX + " " + workIndexY
+                    + " Home: " + homeIndexX + " " + homeIndexY);
+        sat += 5 - d;
 
         sat += r.getWorkplace().getSatisfactionBonus();
         sat += r.getWorkplace().getSafety();
@@ -348,12 +379,15 @@ class City {
 
     public void increaseTax() {
         tax += 50;
+        changeSatisfaction();
     }
 
     public void lowerTax() {
         tax -= 50;
-        if (tax <= 0)
+        if (tax <= 0) {
             tax = 0;
+            changeSatisfaction();
+        }
     }
 
     /**
@@ -370,8 +404,8 @@ class City {
     }
 
     public void fieldSelect(int x, int y) {
-        if (selectedField != null && (selectedField == fields[y][x]
-                || (!selectedField.isFree() && selectedField.getBuilding() == fields[y][x].getBuilding()))) {
+        if (selectedField != null && (selectedField == fields[x][y]
+                || (!selectedField.isFree() && selectedField.getBuilding() == fields[x][y].getBuilding()))) {
             selectedField.unselect();
             boolean isAccessible = false;
             if (!selectedField.isFree() && !selectedField.getBuilding().isBuiltUp())
@@ -380,7 +414,7 @@ class City {
                 selectedField.getBuilding().unselect(isAccessible);
             selectedField = null;
         } else {
-            selectedField = fields[y][x];
+            selectedField = fields[x][y];
         }
     }
 
@@ -393,69 +427,18 @@ class City {
         return selectedField.getInfo();
     }
 
-    public void nominateAsIndustrialZone() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void nominateAsServiceZone() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void nominateAsResidentialZone() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void buildRoad() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void buildPoliceStation() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void buildFireStation() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
-    public void buildStadium() {
-        if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
-        }
-        // TODO
-    }
-
     public void tryDenominateOrDestroyZone() {
         boolean agreeToDelete = true;
         boolean disconnectedRoad = false;
         boolean residentProblem = false;
         if (selectedField == null) {
-            throw new IllegalArgumentException("Trying to get info when selected Field is null");
+            return;
         }
         if (!selectedField.isFree()) {
             int refund = 0;
             if (selectedField.getBuilding() instanceof PoliceStation) {
-                // setSafetyAround(selectedField, -POLICESTATIONSAFETY);
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
             } else if (selectedField.getBuilding() instanceof Stadium) {
-                // setSatisfactionBonusAround(selectedField, -STADIUMSATBONUS);
                 Stadium s = (Stadium) selectedField.getBuilding();
                 for (int i = 0; i < 4; i++) {
                     refund = (int) (s.fields[i].destroyOrDenominate() * REFUND);
@@ -477,7 +460,7 @@ class City {
                     refreshResidentData();
                 }
             }
-            if (agreeToDelete) {
+            if (agreeToDelete && refund == 0) {
                 refund = (int) (selectedField.destroyOrDenominate() * REFUND);
                 if (disconnectedRoad) {
                     refreshWorkplaces();
@@ -489,9 +472,9 @@ class City {
             if (refund != 0) {
                 budget += refund;
                 selectedField.select();
-                reevaluateAccessibility();
+                changeSatisfaction();
             }
-            //checkResidentData();
+            // checkResidentData();
         }
     }
 
@@ -609,21 +592,20 @@ class City {
     public void yearElapsed() {
         for (Field[] row : fields) {
             for (Field field : row) {
-                if (!field.isFree()) {
+                if (!field.isFree() && field.getBuilding().isBuiltUp()) {
                     budget -= field.getBuilding().getAnnualFee();
-                    budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
                     if (field.getBuilding() instanceof Forest forest) {
                         forest.increaseAgeBy1();
                     }
                 }
             }
         }
+        budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and
+                                                                              // decrease budget 4 times more
         for (int i = 0; i < residents.size(); i++) {
             Resident r = residents.get(i);
             if (!r.isRetired()) {
-                r.workedAYear();
-                budget += r.getHome().getAnnualTax() + r.getWorkplace().getAnnualTax();
-                r.paidTaxes(r.getHome().getAnnualTax() + r.getWorkplace().getAnnualTax());
+                budget += r.tax();
             } else
                 budget -= r.getYearlyRetirement();
             if (r.increaseAge()) {
@@ -644,6 +626,7 @@ class City {
                 moveInOneResident(false);
             }
         }
+        changeSatisfaction();
     }
 
     public void monthElapsed(Date currentDate) {
@@ -735,9 +718,7 @@ class City {
                 for (int j = 0; j < fields[0].length; j++) {
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone
                             && isAccessibleOnRoad(fields[i][j]))
-                        if (fields[i][j].getBuilding().progressBuilding(ticks)) {
-                            reevaluateAccessibility();
-                        }
+                        fields[i][j].getBuilding().progressBuilding(ticks);
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
                         zone.setAnnualTax(tax);
                     }
@@ -961,7 +942,7 @@ class City {
                             if (getDistanceAlongRoad(r.getHomeField(), workplaceField, fields) > -1) {
                                 workplace = freeWorkplace;
                                 freeWorkplace.incrementPeopleNum();
-                                //System.out.printf("Workpace is (%d,%d)%n", j, k);
+                                // System.out.printf("Workpace is (%d,%d)%n", j, k);
                             }
                         }
                     }
@@ -1004,58 +985,65 @@ class City {
         String[] fieldStrings = line.split("\\s+"); // It will split the string by single or multiple whitespace
                                                     // characters
         for (int i = 0; i < fieldStrings.length; i++) {
+            int offsetX = (i + 1) * FIELDSIZE;
+            int offsetY = (rowIndex + 1) * FIELDSIZE;
+            if (screenSize != null) {
+                offsetX = xOffset + i * FIELDSIZE;
+                offsetY = yOffset + rowIndex * FIELDSIZE;
+            }
             String fieldType = fieldStrings[i];
             switch (fieldType) {
                 case "0":
-                    fields[rowIndex][i] = new Field(null, (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                    fields[rowIndex][i] = new Field(null, offsetX, offsetY, FIELDSIZE,
+                            FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "rz":
                     fields[rowIndex][i] = new Field(
                             new ResidentialZone(1.0, residentCapacity, zonePrice, tax, 0, 0, REFUND, CHANCEOFFIRE,
-                                    (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                                    offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/residentialZoneEmpty.png")
                                             .getImage()),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "sz":
                     fields[rowIndex][i] = new Field(
                             new ServiceZone(workplaceCapacity, zonePrice, tax, 0, 0, REFUND, CHANCEOFFIRE,
-                                    (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                                    offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/serviceZone.png")
                                             .getImage()),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "iz":
                     fields[rowIndex][i] = new Field(
                             new IndustrialZone(workplaceCapacity, zonePrice, tax, 0, 0, REFUND, CHANCEOFFIRE,
-                                    (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                                    offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/industrialZone.png")
                                             .getImage()),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "r":
                     fields[rowIndex][i] = new Field(
-                            new Road(roadPrice, (int) (roadPrice * annualFeePercentage), (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            new Road(roadPrice, (int) (roadPrice * annualFeePercentage), offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/road.png").getImage(),
                                     REFUND),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 case "f":
                     fields[rowIndex][i] = new Field(
-                            new Forest(forestPrice, (int) (forestPrice * annualFeePercentage), (i + 1) * WIDTH,
-                                    (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            new Forest(forestPrice, (int) (forestPrice * annualFeePercentage), offsetX,
+                                    offsetY, FIELDSIZE, FIELDSIZE,
                                     new ImageIcon("data/graphics/field/unselected/notBurning/forest.png").getImage(),
                                     REFUND, CHANCEOFFIRE),
-                            (i + 1) * WIDTH, (rowIndex + 1) * HEIGHT, WIDTH, HEIGHT,
+                            offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/unselected/notBurning/field.png").getImage());
                     break;
                 default:
@@ -1094,8 +1082,9 @@ class City {
 
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
-            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(), WIDTH,
-                    HEIGHT, new ImageIcon("data/graphics/field/selected/notBurning/road.png").getImage(), REFUND));
+            selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(),
+                    FIELDSIZE,
+                    FIELDSIZE, new ImageIcon("data/graphics/field/selected/notBurning/road.png").getImage(), REFUND));
         } else if (playerBuildItClass == Stadium.class) {
             int iIndex = 0, jIndex = 0;
             for (int i = 0; i < fields.length; i++) {
@@ -1113,9 +1102,9 @@ class City {
             if (iIndex > 0 && jIndex > 0) {
                 if (fields[iIndex - 1][jIndex - 1].isFree() && fields[iIndex - 1][jIndex].isFree()
                         && fields[iIndex][jIndex - 1].isFree()) {
-                    Stadium s = new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX() - WIDTH,
-                            selectedField.getY() - HEIGHT,
-                            WIDTH * 2, HEIGHT * 2,
+                    Stadium s = new Stadium(price, getAnnualFee(price), RADIUS, selectedField.getX() - FIELDSIZE,
+                            selectedField.getY() - FIELDSIZE,
+                            FIELDSIZE * 2, FIELDSIZE * 2,
                             new ImageIcon("data/graphics/field/selected/notBurning/stadium.png").getImage(),
                             REFUND, CHANCEOFFIRE);
                     selectedField.build(s);
@@ -1127,32 +1116,32 @@ class City {
                     fields[iIndex - 1][jIndex].build(s);
                     fields[iIndex][jIndex - 1].build(s);
                 } else {
-                    throw new IllegalArgumentException("Invalid value! Nearby fields are occupied.");
+                    return;
 
                 }
             } else {
-                throw new IllegalArgumentException("Invalid value! Can't build on selected field.");
+                return;
             }
         } else if (playerBuildItClass == PoliceStation.class) {
             selectedField.build(
                     new PoliceStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(),
-                            WIDTH, HEIGHT,
+                            FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/selected/notBurning/policeStation.png").getImage(),
                             REFUND, CHANCEOFFIRE));
         } else if (playerBuildItClass == FireStation.class) {
             selectedField.build(
                     new FireStation(price, getAnnualFee(price), RADIUS, selectedField.getX(), selectedField.getY(),
-                            WIDTH, HEIGHT,
+                            FIELDSIZE, FIELDSIZE,
                             new ImageIcon("data/graphics/field/selected/notBurning/fireStation.png").getImage(),
                             REFUND));
         } else if (playerBuildItClass == Forest.class) {
             selectedField.build(
                     new Forest(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(),
-                            WIDTH, HEIGHT, new ImageIcon("data/graphics/field/selected/forest.png").getImage(),
+                            FIELDSIZE, FIELDSIZE, new ImageIcon("data/graphics/field/selected/forest.png").getImage(),
                             REFUND, CHANCEOFFIRE));
             calculateForestBonusResZone();
         }
-        reevaluateAccessibility();
+        changeSatisfaction();
 
         budget -= price;
     }
@@ -1192,7 +1181,7 @@ class City {
         return b.toString();
     }
 
-    public void loadGame(Scanner s) {
+    public void loadGame(Scanner s, boolean onScreen) {
         residents.clear();
         tax = Integer.parseInt(s.nextLine());
         budget = Integer.parseInt(s.nextLine());
@@ -1204,13 +1193,20 @@ class City {
             for (int j = 0; j < fields[0].length; j++) {
                 String[] str = s.nextLine().split(";");
                 if (str.length > 3 && str[1].equals("st") && !gud[i][j]) {
+                    int offsetY = (i + 1) * FIELDSIZE;
+                    int offsetX = (j + 1) * FIELDSIZE;
+                    if (onScreen) {
+                        offsetY = yOffset + i * FIELDSIZE;
+                        offsetX = xOffset + j * FIELDSIZE;
+                    }
                     double refund = Double.parseDouble(str[2]);
                     double chanceOfFire = Double.parseDouble(str[3]);
                     int buildPrice = Integer.parseInt(str[6]);
                     int annualFee = Integer.parseInt(str[7]);
                     int radius = Integer.parseInt(str[8]);
-                    Stadium stad = new Stadium(buildPrice, annualFee, radius, (j + 1) * WIDTH, (i + 1) * HEIGHT,
-                            WIDTH * 2, HEIGHT * 2, whatImageFor(Stadium.class, str), refund, chanceOfFire);
+                    Stadium stad = new Stadium(buildPrice, annualFee, radius, offsetX,
+                            offsetY,
+                            FIELDSIZE * 2, FIELDSIZE * 2, whatImageFor(Stadium.class, str), refund, chanceOfFire);
                     stad.fields[0] = fields[i + 1][j + 1];
                     stad.fields[0].setBuilding(stad);
                     stad.fields[1] = fields[i][j];
@@ -1226,19 +1222,19 @@ class City {
                 } else if (str.length > 2 && str[1].equals("st")) {
 
                 } else {
-                    fields[i][j].setBuilding(unpack(j, i, str));
+                    fields[i][j].setBuilding(unpack(j, i, str, onScreen));
                 }
                 if (fields[i][j].isFree())
                     fields[i][j].setBurntDown(Boolean.parseBoolean(str[0]));
             }
         }
-        reevaluateAccessibility();
         while (s.hasNextLine()) {
             residents.add(residentByString(s.nextLine()));
         }
+        changeSatisfaction();
     }
 
-    private Buildable unpack(int x, int y, String[] s) {
+    private Buildable unpack(int x, int y, String[] s, boolean onScreen) {
         Buildable b;
         if (s[1].equals("empty"))
             return null;
@@ -1246,11 +1242,18 @@ class City {
         double chanceOfFire = Double.parseDouble(s[3]);
         boolean burning = Boolean.parseBoolean(s[4]);
         Date date = Date.parseDate(s[5]);
+        int offsetX = (x + 1) * FIELDSIZE;
+        int offsetY = (y + 1) * FIELDSIZE;
+        if (onScreen) {
+            offsetX = xOffset + x * FIELDSIZE;
+            offsetY = yOffset + y * FIELDSIZE;
+        }
         switch (s[1]) {
             case "rz" -> {
                 b = new ResidentialZone(Double.parseDouble(s[14]), Integer.parseInt(s[9]), Integer.parseInt(s[13]),
                         Integer.parseInt(s[6]), Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire,
-                        (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT, whatImageFor(ResidentialZone.class, s));
+                        offsetX, offsetY, FIELDSIZE, FIELDSIZE,
+                        whatImageFor(ResidentialZone.class, s));
                 Zone z = (Zone) b;
                 z.setPeopleNum(Integer.parseInt(s[10]));
                 z.setBuildProgress(Integer.parseInt(s[7]));
@@ -1258,8 +1261,8 @@ class City {
             }
             case "iz" -> {
                 b = new IndustrialZone(Integer.parseInt(s[9]), Integer.parseInt(s[13]), Integer.parseInt(s[6]),
-                        Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire / 2, (x + 1) * WIDTH,
-                        (y + 1) * HEIGHT, WIDTH, HEIGHT, whatImageFor(IndustrialZone.class, s));
+                        Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire / 2, offsetX,
+                        offsetY, FIELDSIZE, FIELDSIZE, whatImageFor(IndustrialZone.class, s));
                 Zone z = (Zone) b;
                 z.setPeopleNum(Integer.parseInt(s[10]));
                 z.setBuildProgress(Integer.parseInt(s[7]));
@@ -1267,8 +1270,8 @@ class City {
             }
             case "sz" -> {
                 b = new ServiceZone(Integer.parseInt(s[9]), Integer.parseInt(s[13]), Integer.parseInt(s[6]),
-                        Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire, (x + 1) * WIDTH,
-                        (y + 1) * HEIGHT, WIDTH, HEIGHT, whatImageFor(ServiceZone.class, s));
+                        Integer.parseInt(s[11]), Integer.parseInt(s[12]), refund, chanceOfFire, offsetX,
+                        offsetY, FIELDSIZE, FIELDSIZE, whatImageFor(ServiceZone.class, s));
                 Zone z = (Zone) b;
                 z.setPeopleNum(Integer.parseInt(s[10]));
                 z.setBuildProgress(Integer.parseInt(s[7]));
@@ -1278,21 +1281,23 @@ class City {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
                 int radius = Integer.parseInt(s[8]);
-                b = new PoliceStation(buildPrice, annualFee, radius, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT,
+                b = new PoliceStation(buildPrice, annualFee, radius, offsetX, offsetY,
+                        FIELDSIZE, FIELDSIZE,
                         whatImageFor(PoliceStation.class, s), refund, chanceOfFire);
             }
             case "fs" -> {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
                 int radius = Integer.parseInt(s[8]);
-                b = new FireStation(buildPrice, annualFee, radius, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT,
+                b = new FireStation(buildPrice, annualFee, radius, offsetX, offsetY, FIELDSIZE,
+                        FIELDSIZE,
                         whatImageFor(FireStation.class, s), refund);
             }
             case "for" -> {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
                 int age = Integer.parseInt(s[8]);
-                b = new Forest(buildPrice, annualFee, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT,
+                b = new Forest(buildPrice, annualFee, offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                         whatImageFor(Forest.class, s), refund, chanceOfFire);
                 ((Forest) b).setAge(age);
             }
@@ -1300,13 +1305,14 @@ class City {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
                 int radius = Integer.parseInt(s[8]);
-                b = new Stadium(buildPrice, annualFee, radius, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH * 2, HEIGHT * 2,
+                b = new Stadium(buildPrice, annualFee, radius, offsetX, offsetY, FIELDSIZE * 2,
+                        FIELDSIZE * 2,
                         whatImageFor(Stadium.class, s), refund, chanceOfFire);
             }
             default -> {
                 int buildPrice = Integer.parseInt(s[6]);
                 int annualFee = Integer.parseInt(s[7]);
-                b = new Road(buildPrice, annualFee, (x + 1) * WIDTH, (y + 1) * HEIGHT, WIDTH, HEIGHT,
+                b = new Road(buildPrice, annualFee, offsetX, offsetY, FIELDSIZE, FIELDSIZE,
                         whatImageFor(Road.class, s), refund);
             }
         }
@@ -1393,23 +1399,23 @@ class City {
         if (zoneClass == ResidentialZone.class) {
             selectedField.setBuilding(new ResidentialZone(1.0, residentCapacity, zonePrice, tax,
                     calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, CHANCEOFFIRE,
-                    selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
+                    selectedField.getX(), selectedField.getY(), FIELDSIZE, FIELDSIZE,
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         } else if (zoneClass == IndustrialZone.class) {
             selectedField.setBuilding(new IndustrialZone(workplaceCapacity, zonePrice, tax,
                     calculateSafety(selectedField), calculateSatBonus(selectedField), REFUND, CHANCEOFFIRE,
-                    selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
+                    selectedField.getX(), selectedField.getY(), FIELDSIZE, FIELDSIZE,
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         } else if (zoneClass == ServiceZone.class) {
             selectedField.setBuilding(new ServiceZone(workplaceCapacity, zonePrice, tax, calculateSafety(selectedField),
                     calculateSatBonus(selectedField), REFUND, CHANCEOFFIRE,
-                    selectedField.getX(), selectedField.getY(), WIDTH, HEIGHT,
+                    selectedField.getX(), selectedField.getY(), FIELDSIZE, FIELDSIZE,
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         }
-
+        changeSatisfaction();
         budget -= zonePrice;
     }
 
@@ -1654,6 +1660,8 @@ class City {
     }
 
     public boolean canDeleteRoad(Field field) {
+        if (field == null)  return false;
+        
         // copy fields matrix to simulate road deleting
         Field[][] copyFields = new Field[fields.length][fields[0].length];
 
@@ -1916,6 +1924,7 @@ class City {
                     bestResidentialZone, nearestWorkplace));
             bestResidentialZone.incrementPeopleNum();
             nearestWorkplace.incrementPeopleNum();
+            changeSatisfaction();
         }
     }
 
