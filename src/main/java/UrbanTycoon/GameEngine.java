@@ -50,14 +50,14 @@ class GameEngine extends JPanel {
     private final int RADIUS = 3;
     private final int CRITSATISFACTION = -5;
     private final int MOVEINATLEASTSATISFACTION = 5;
-    private final double CHANCEOFFIRE = 0.05;
+    private final double CHANCEOFFIRE = 0.0;
     private final JFrame saveGameFrame = new JFrame("Save game");
     private final JFrame loadGameFrame = new JFrame("Load game");
     private final JPanel saveGamePanel = new JPanel();
     private final JPanel loadGamePanel = new JPanel();
 
     private City city;
-    private Date time;    
+    private Date time;
 
     private boolean paused = false;
 
@@ -68,7 +68,6 @@ class GameEngine extends JPanel {
     private final Dimension screenSize;
     public JComboBox<String> savesList;
 
-    private final JLabel moneyLabel, taxLabel, dateLabel, satisfactionLabel, residentNumLabel;
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
@@ -114,16 +113,6 @@ class GameEngine extends JPanel {
         loadGameFrame.add(loadGamePanel);
         loadGameFrame.setPreferredSize(new Dimension(300, 100));
 
-        this.moneyLabel = new JLabel("Funds: ");
-        // this.add(moneyLabel);
-        this.taxLabel = new JLabel("Tax: ");
-        // this.add(taxLabel);
-        this.satisfactionLabel = new JLabel("City satisfaction: ");
-        // this.add(satisfactionLabel);
-        this.residentNumLabel = new JLabel("Residents: ");
-        // this.add(residentNumLabel);
-        this.dateLabel = new JLabel(time.toString());
-        // this.add(dateLabel);
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
         gameTickTimer = new Timer(1000, new GameTickListener());
@@ -140,12 +129,10 @@ class GameEngine extends JPanel {
                 } else { // Buildable is null so cannot draw it -> have to call Field draw method
                     city.getFields()[i][j].draw(grphcs);
                 }
-                UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(), city.getTax() + "$", city.getBudget() + "$");
-                moneyLabel.setText("Funds: " + city.getBudget() + "$");
-                taxLabel.setText("Tax: " + city.getTax() + "$");
-                satisfactionLabel.setText("City satisfaction: " + city.getSatisfaction());
-                residentNumLabel.setText("Residents: " + city.getResidents().size());
-                dateLabel.setText(time.toString());
+                UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(),
+                        city.getTax() + "$", city.getBudget() + "$");
+                UrbanTycoonGUI.checkActionPrice(city.getBudget(), ZONEPRICE, ROADPRICE, STADIUMPRICE,
+                        POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE);
             }
         }
     }
@@ -347,7 +334,7 @@ class GameEngine extends JPanel {
     }
 
     public String budgetInfo() { // city.getTax()*city.getResidentsNum()*2, mert munkahely + lakóhely, nyugdíj
-                                  // bezavarhat majd (aki már nem dolgozik)
+                                 // bezavarhat majd (aki már nem dolgozik)
         return "<html><h2><font color=#00a605>Annual incomes</font><h2></html>\nResident tax: " + city.getTax()
                 + "$/residential  (" + city.getResidentsNum() +
                 " residents)\nEmployer tax: " + city.getTax() + "$/employer  (" + city.getResidentsNum()

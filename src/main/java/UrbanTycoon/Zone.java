@@ -19,6 +19,7 @@ abstract class Zone extends Buildable {
     protected int satisfactionBonus;
     protected int selectPrice;
     protected int annualTaxPerPerson;
+    protected int forestBonus;
     protected int buildProgress = 0;
     protected boolean builtUp;
 
@@ -66,7 +67,7 @@ abstract class Zone extends Buildable {
     }
 
     public int getSatisfactionBonus() {
-        return satisfactionBonus;
+        return satisfactionBonus + forestBonus;
     }
 
     public void setSatisfactionBonus(int satisfactionBonus) {
@@ -75,6 +76,16 @@ abstract class Zone extends Buildable {
         else
             this.satisfactionBonus = satisfactionBonus;
     }
+
+    public void setForestBonus(int bonus) {
+        if (satisfactionBonus + forestBonus > 10) {
+            forestBonus = 10 - satisfactionBonus;
+        } else {
+            forestBonus = bonus;
+        }
+    }
+
+    
 
     /**
      * 
@@ -137,7 +148,7 @@ abstract class Zone extends Buildable {
         }
         peopleNum++;
     }
-    
+
     public void decreasePeopleNum() {
         if (peopleNum - 1 < 0) {
             throw new IllegalArgumentException("peopleNum cannot be less than 0");
@@ -195,7 +206,7 @@ abstract class Zone extends Buildable {
     }
 
     @Override
-    public int destroy() {        
+    public int destroy() {
         return selectPrice;
     }
 
@@ -259,7 +270,7 @@ abstract class Zone extends Buildable {
         if (this.burning != other.burning) {
             return false;
         }
-        if(Double.doubleToLongBits(this.chanceOfFire) != Double.doubleToLongBits(other.chanceOfFire)){
+        if (Double.doubleToLongBits(this.chanceOfFire) != Double.doubleToLongBits(other.chanceOfFire)) {
             return false;
         }
         return this.x == other.x && this.y == other.y;

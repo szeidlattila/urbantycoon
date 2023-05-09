@@ -5,6 +5,7 @@
 package UrbanTycoon;
 
 import javax.swing.JFrame;
+import javax.swing.text.ChangedCharSetException;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.awt.*;
@@ -14,14 +15,17 @@ import java.awt.*;
  * @author Felhasználó
  */
 public class UrbanTycoonGUI {
-    private final int FIELDSIZE = 80;
-    private final int UIPADDING = 20;
-    private final int ACTIONBSIZE = 60;
-    private final int CONTROLBSIZE = 50;
-    private final int INFOICONSIZE = 36;
-    private final int BUTTONPADDING = 10;
-    private final String buttonFilePath = "data/graphics/other/buttons/";
-    private final String uiFilePath = "data/graphics/other/UIelements/";
+    private int FIELDSIZE = 60;
+    private int UIPADDING = 20;
+    private int ACTIONBSIZE = 60;
+    private int CONTROLBSIZE = 50;
+    private int INFOICONSIZE = 36;
+    private int BUTTONPADDING = 10;
+    private int INFOPANELWIDTH = 784;
+    private int INFOPANELHEIGHT = 50;
+    private int INFOPANELPADDING = (INFOPANELHEIGHT - INFOICONSIZE) / 2;
+    private String buttonFilePath = "data/graphics/other/buttons/";
+    private String uiFilePath = "data/graphics/other/UIelements/";
 
     private final JFrame frame;
     private final JLayeredPane layeredPane;
@@ -35,7 +39,7 @@ public class UrbanTycoonGUI {
     // action buttons
     private final String[] actionButtonNames = { "industrial", "service", "residental", "road", "stadium", "police",
             "firestation", "forest", "firefighting", "delete" };
-    private final ArrayList<CustomButton> actionButtons = new ArrayList<>();
+    private static ArrayList<CustomButton> actionButtons = new ArrayList<CustomButton>();
 
     // control buttons
     private final String[] controlButtonNames = { "play", "pause", "accTime", "deaccTime", "taxInc", "taxDec", "info", "load",
@@ -69,71 +73,18 @@ public class UrbanTycoonGUI {
         layeredPane.add(gameArea, Integer.valueOf(0));
 
         // control buttons
-        int panelLength = panelSize(controlButtonNames, CONTROLBSIZE, BUTTONPADDING);
-        int panelCenterY = centerPanelPosition(panelLength, screenHeight);
-        {
-            JPanel controlPanel = new JPanel();
-            controlPanel.setOpaque(false);
-            controlPanel.setBounds(UIPADDING, panelCenterY, CONTROLBSIZE, panelLength);
-            controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
-            controlPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-            for (int i = 0; i < controlButtonNames.length; i++) {
-                String filePath = buttonFilePath + controlButtonNames[i];
-                CustomButton controlButton = new CustomButton(filePath, CONTROLBSIZE, "controlButton",
-                        controlButtonNames[i]);
-                controlButtons.add(controlButton);
-                controlPanel.add(controlButton);
-                if (i != (controlButtonNames.length - 1)) {
-                    controlPanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
-                }
-            }
-            layeredPane.add(controlPanel, Integer.valueOf(1));
-        }
+        int panelX = UIPADDING;
+        JPanel controlPanel = new JPanel();
+        createButtonPanel(controlButtonNames, CONTROLBSIZE, panelX, controlPanel, 1, "controlButton", controlButtons);
 
         // action buttons
-        {
-            panelLength = panelSize(actionButtonNames, ACTIONBSIZE, BUTTONPADDING);
-            panelCenterY = centerPanelPosition(panelLength, screenHeight);
-            int panelX = screenWidth - ACTIONBSIZE - UIPADDING;
-            JPanel actionPanel = new JPanel();
-            actionPanel.setOpaque(false);
-            actionPanel.setBounds(panelX, panelCenterY, ACTIONBSIZE, panelLength);
-            actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.Y_AXIS));
-            actionPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-            for (int i = 0; i < actionButtonNames.length; i++) {
-                String filePath = buttonFilePath + actionButtonNames[i];
-                CustomButton actionButton = new CustomButton(filePath, ACTIONBSIZE,
-                        "actionButton",
-                        actionButtonNames[i]);
-                actionButtons.add(actionButton);
-                actionPanel.add(actionButton);
-                if (i != (actionButtonNames.length - 1)) {
-                    actionPanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
-                }
-            }
-            layeredPane.add(actionPanel, Integer.valueOf(2));
-        }
+        JPanel actionPanel = new JPanel();
+        panelX = screenWidth - ACTIONBSIZE - UIPADDING;
+        createButtonPanel(actionButtonNames, ACTIONBSIZE, panelX, actionPanel, 2, "actionButton", actionButtons);
 
         // info panel
-        {
-            CustomPanel infoPanel = new CustomPanel();
-            infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, BUTTONPADDING, 7));
-            int infoPanelX = centerPanelPosition(784, screenWidth);
-            infoPanel.setBounds(infoPanelX, UIPADDING, 784, 50);
-            infoPanel.setBackground(new Color(0, 0, 0, 0));
-            infoPanel.setImage(uiFilePath + "infoBackground");
-            for (String infoIconName : infoIconNames) {
-                String filePath = buttonFilePath + infoIconName;
-                CustomButton iconButton = new CustomButton(filePath, INFOICONSIZE, "infoIcon", infoIconName);
-                iconButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                infoIcons.add(iconButton);
-                infoPanel.add(iconButton);
-                CustomLabel infoLabel = new CustomLabel("No info", 16, "Bold", "left", infoIconName);
-                infoLabels.add(infoLabel);
-                infoPanel.add(infoLabel);
-            }
-            layeredPane.add(infoPanel, Integer.valueOf(3));
-        }
+        CustomPanel infoPanel = new CustomPanel();
+        createInfoPanel(infoPanel, 3, 16);
 
         setUpControlButtons();
         setUpActionButtons();
@@ -145,6 +96,47 @@ public class UrbanTycoonGUI {
 
     }
 
+    private void createInfoPanel(CustomPanel infoPanel, int paneIndex, int textSize) {
+        infoPanel.setLayout(new FlowLayout(FlowLayout.CENTER, BUTTONPADDING, INFOPANELPADDING));
+        int infoPanelX = centerPanelPosition(INFOPANELWIDTH, screenWidth);
+        infoPanel.setBounds(infoPanelX, UIPADDING, INFOPANELWIDTH, INFOPANELHEIGHT);
+        infoPanel.setBackground(new Color(0, 0, 0, 0));
+        infoPanel.setImage(uiFilePath + "infoBackground");
+        for (int i = 0; i < infoIconNames.length; i++) {
+            String filePath = buttonFilePath + infoIconNames[i];
+            CustomButton iconButton = new CustomButton(filePath, INFOICONSIZE, "infoIcon", infoIconNames[i]);
+            iconButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            infoIcons.add(iconButton);
+            infoPanel.add(iconButton);
+            CustomLabel infoLabel = new CustomLabel("No info", textSize, "Bold", "left", infoIconNames[i]);
+            infoLabels.add(infoLabel);
+            infoPanel.add(infoLabel);
+        }
+        layeredPane.add(infoPanel, new Integer(paneIndex));
+    }
+
+    private void createButtonPanel(String[] buttonNames, int BUTTONSIZE, int panelX, JPanel buttonPanel,
+            int paneIndex, String type, ArrayList<CustomButton> buttons) {
+        int panelLength = panelSize(buttonNames, BUTTONSIZE, BUTTONPADDING);
+        int panelCenterY = centerPanelPosition(panelLength, screenHeight);
+        buttonPanel.setOpaque(false);
+        buttonPanel.setBounds(panelX, panelCenterY, BUTTONSIZE, panelLength);
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        for (int i = 0; i < buttonNames.length; i++) {
+            String filePath = buttonFilePath + buttonNames[i];
+            CustomButton button = new CustomButton(filePath, BUTTONSIZE,
+                    type,
+                    buttonNames[i]);
+            buttons.add(button);
+            buttonPanel.add(button);
+            if (i != (buttonNames.length - 1)) {
+                buttonPanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
+            }
+        }
+        layeredPane.add(buttonPanel, new Integer(paneIndex));
+    }
+
     private int panelSize(String[] arr, int buttonSize, int buttonPadding) {
         return (arr.length * buttonSize + (arr.length - 1) * buttonPadding);
     }
@@ -153,7 +145,7 @@ public class UrbanTycoonGUI {
         return ((screenSize - panelSize) / 2);
     }
 
-    private CustomButton getButtonByName(String name, ArrayList<CustomButton> arr) {
+    private static CustomButton getButtonByName(String name, ArrayList<CustomButton> arr) {
         for (CustomButton customButton : arr) {
             if (customButton.getName() == null ? name == null : customButton.getName().equals(name)) {
                 return customButton;
@@ -219,50 +211,39 @@ public class UrbanTycoonGUI {
     }
 
     private void setUpActionButtons() {
+        // remove chechActionPrice() from all buttons
         City city = gameArea.getCity();
         CustomButton industrial = getButtonByName("industrial", actionButtons);
         industrial.setFunc(() -> {
             city.selectField(IndustrialZone.class);
-            checkActionPrice();
-
         });
         CustomButton service = getButtonByName("service", actionButtons);
         service.setFunc(() -> {
             city.selectField(ServiceZone.class);
-            checkActionPrice();
-
         });
         CustomButton residential = getButtonByName("residental", actionButtons);
         residential.setFunc(() -> {
             city.selectField(ResidentialZone.class);
-            checkActionPrice();
-
         });
         CustomButton road = getButtonByName("road", actionButtons);
         road.setFunc(() -> {
             city.build(Road.class);
-            checkActionPrice();
-
         });
         CustomButton stadium = getButtonByName("stadium", actionButtons);
         stadium.setFunc(() -> {
             city.build(Stadium.class);
-            checkActionPrice();
         });
         CustomButton police = getButtonByName("police", actionButtons);
         police.setFunc(() -> {
             city.build(PoliceStation.class);
-            checkActionPrice();
         });
         CustomButton fireStation = getButtonByName("firestation", actionButtons);
         fireStation.setFunc(() -> {
             city.build(FireStation.class);
-            checkActionPrice();
         });
         CustomButton forest = getButtonByName("forest", actionButtons);
         forest.setFunc(() -> {
             city.build(Forest.class);
-            checkActionPrice();
         });
         CustomButton firefighting = getButtonByName("firefighting", actionButtons);
         firefighting.setFunc(() -> {
@@ -271,7 +252,6 @@ public class UrbanTycoonGUI {
         CustomButton delete = getButtonByName("delete", actionButtons);
         delete.setFunc(() -> {
             gameArea.tryDenominateOrDestroyZone();
-            checkActionPrice();
         });
     }
 
@@ -282,22 +262,8 @@ public class UrbanTycoonGUI {
 
     }
 
-    public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
-        CustomLabel time = getLabelByType("time", infoLabels);
-        CustomLabel residents = getLabelByType("residents", infoLabels);
-        CustomLabel residentsSat = getLabelByType("residentsSat", infoLabels);
-        //CustomLabel selectedSat = getLabelByType("selectedSat", infoLabels);
-        CustomLabel tax = getLabelByType("tax", infoLabels);
-        CustomLabel money = getLabelByType("money", infoLabels);
-        time.setText(timeS);
-        residents.setText(residentsS + "");
-        residentsSat.setText(rSatS + "");
-        tax.setText(taxS);
-        money.setText(moneyS);
-    }
-
-    private void checkActionPrice() {
-        long currentMoney = getCurrentMoney();
+    public static void checkActionPrice(long currentMoney, int zonePrice, int roadPrice, int stadiumPrice,
+            int policePrice, int firestationPrice, int forestPrice) {
         CustomButton industrial = getButtonByName("industrial", actionButtons);
         CustomButton service = getButtonByName("service", actionButtons);
         CustomButton residental = getButtonByName("residental", actionButtons);
@@ -306,12 +272,6 @@ public class UrbanTycoonGUI {
         CustomButton police = getButtonByName("police", actionButtons);
         CustomButton fireStation = getButtonByName("firestation", actionButtons);
         CustomButton forest = getButtonByName("forest", actionButtons);
-        int zonePrice = gameArea.getZONEPRICE();
-        int roadPrice = gameArea.getROADPRICE();
-        int stadiumPrice = gameArea.getSTADIUMPRICE();
-        int policePrice = gameArea.getPOLICESTATIONPRICE();
-        int firestationPrice = gameArea.getFIRESTATIONPRICE();
-        int forestPrice = gameArea.getFORESTPRICE();
 
         if (currentMoney < zonePrice) {
             industrial.disable();
@@ -354,7 +314,17 @@ public class UrbanTycoonGUI {
         }
     }
 
-    private long getCurrentMoney() {
-        return gameArea.getCity().getBudget();
+    public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
+        CustomLabel time = getLabelByType("time", infoLabels);
+        CustomLabel residents = getLabelByType("residents", infoLabels);
+        CustomLabel residentsSat = getLabelByType("residentsSat", infoLabels);
+        CustomLabel selectedSat = getLabelByType("selectedSat", infoLabels); // TODO
+        CustomLabel tax = getLabelByType("tax", infoLabels);
+        CustomLabel money = getLabelByType("money", infoLabels);
+        time.setText(timeS);
+        residents.setText(residentsS + "");
+        residentsSat.setText(rSatS + "");
+        tax.setText(taxS);
+        money.setText(moneyS);
     }
 }
