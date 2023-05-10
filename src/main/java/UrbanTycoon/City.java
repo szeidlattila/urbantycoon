@@ -33,7 +33,7 @@ class City {
     private final int RADIUS;
     private final int POLICESTATIONSAFETY = 1;
     private final int STADIUMSATBONUS = 1;
-    private final int FORESTSATBONUS = 1;
+    final int FORESTSATBONUS = 1;
     private final int FIELDSIZE;
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
     private final int criticalSatisfaction;

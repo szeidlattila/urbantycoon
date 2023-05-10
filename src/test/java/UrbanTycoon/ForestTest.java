@@ -41,35 +41,35 @@ public class ForestTest {
 	}
 	
 	@Test
-	public void calculateForestBonusResZoneTest1(){
+	public void calculatforestBonusResZoneTest1(){
 		city.fieldSelect(1, 1);
 		city.build(Forest.class);
 								// FOREST  0   0
 								//    0  HOME 0
-		assertEquals(10, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
-	public void calculateForestBonusResZoneTest2(){
+	public void calculatforestBonusResZoneTest2(){
 		city.fieldSelect(1, 2);
 		city.build(Forest.class);
 								// 0 FOREST 0
 								// 0  HOME  0
-		assertEquals(10, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
-	public void calculateForestBonusResZoneTest3(){
+	public void calculatforestBonusResZoneTest3(){
 		city.fieldSelect(0, 0);
 		city.build(Forest.class);
 								// FOREST 0  0
 								//    0   0  0
 								//    0   0 HOME
-		assertEquals(10, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
-	public void calculateForestBonusResZoneTest4(){
+	public void calculatforestBonusResZoneTest4(){
 		city.fieldSelect(1, 1);
 		city.build(Forest.class);
 		city.fieldSelect(2, 1);
@@ -80,7 +80,7 @@ public class ForestTest {
 	}
 	
 	@Test
-	public void calculateForestBonusResZoneTest5(){
+	public void calculatforestBonusResZoneTest5(){
 		city.fieldSelect(1, 1);
 		city.build(Forest.class);
 		city.fieldSelect(1, 2);
@@ -89,18 +89,18 @@ public class ForestTest {
 		city.build(Forest.class);
 								// FOREST  FOREST FOREST
 								//    0     HOME     0
-		assertEquals(10, city.calculateForestBonusResZone()[2][2]); // 10 marad, mert nem többszöröződik
+		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]); // 10 marad, mert nem többszöröződik
 	}
 	
 	@Test
-	public void calculateForestBonusResZoneTest6(){
+	public void calculatforestBonusResZoneTest6(){
 		city.fieldSelect(1, 1);
 		city.build(Forest.class); //(0 éves)
 		city.yearElapsed();
 		city.yearElapsed();
 								// FOREST  0   0  (forest 2 éves)
 								//    0  HOME 0
-		assertEquals(20, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(2 * city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
