@@ -33,7 +33,7 @@ class City {
     private final int RADIUS;
     private final int POLICESTATIONSAFETY = 1;
     private final int STADIUMSATBONUS = 1;
-    final int FORESTSATBONUS = 1;
+    private final int FORESTSATBONUS = 1;
     private final int FIELDSIZE;
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
     private final int criticalSatisfaction;
@@ -351,9 +351,11 @@ class City {
             throw new IllegalArgumentException("Home not Found!");
         sat += r.getHome().getSatisfactionBonus();
         sat += r.getHome().getSafety();
-        sat += r.getHome().getForestBonus();
-        sat += r.getHome().getIndustrialPenalty();
-        
+        for (int i = Math.max(0, homeIndexX - 5); i < Math.min(fields.length, homeIndexX + 6); i++) {
+            for (int j = Math.max(0, homeIndexY - 5); j < Math.min(fields[0].length, homeIndexY + 6); j++)
+                if (fields[i][j].getBuilding() instanceof IndustrialZone)
+                    sat += Math.max(Math.abs(i - homeIndexX), Math.abs(j - homeIndexY)) - 6;
+        }
         if (r.isRetired())
             return sat;
 
@@ -621,6 +623,7 @@ class City {
                 moveInOneResident(false);
             }
         }
+        setForestSatisfaction();
         changeSatisfaction();
     }
 
@@ -1353,28 +1356,15 @@ class City {
     }
 
     public void reevaluateAccessibility() {
-    	int[][] bonusPerHouse = calculateForestBonusResZone();
-        for (int i=0; i<fields.length;i++) {
-            for (int j=0; j<fields[0].length;j++) {
-            	Field field = fields[i][j];
+        for (var row : fields)
+            for (var field : row)
                 if (!field.isFree() && field.getBuilding() instanceof Zone zone) {
                     boolean isAccessible = isAccessibleOnRoad(field);
                     field.getBuilding().select(isAccessible);
                     field.getBuilding().unselect(isAccessible);
                     zone.setSafety(Math.min(Math.max(calculateSafety(field), -10), 10));
                     zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field), -10), 10));
-                    if (field.getBuilding() instanceof ResidentialZone rZone) {
-                    	rZone.setForestBonus(bonusPerHouse[i][j]);
-                    	int ip = 0;
-                    	for (int k = Math.max(0, i - 5); k < Math.min(fields.length, i + 6); k++)
-                            for (int l = Math.max(0, j - 5); l < Math.min(fields[0].length, j + 6); l++)
-                                if (fields[k][l].getBuilding() instanceof IndustrialZone)
-                                    ip += Math.max(Math.abs(k - i), Math.abs(l - j)) - 6;
-                    	rZone.setIndustrialPenalty(Math.max(-10, ip));
-                    }
                 }
-            }
-        }
         if (selectedField != null && !selectedField.isFree())
             selectedField.getBuilding()
                     .setImage(
@@ -1665,6 +1655,19 @@ class City {
             }
         }
         return bonusPerHouse;
+    }
+
+    public void setForestSatisfaction() {
+        int[][] bonusPerHouse = calculateForestBonusResZone();
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[0].length; j++) {
+                if (fields[i][j].getBuilding() instanceof ResidentialZone) {
+                    ((Zone) fields[i][j].getBuilding()).setForestBonus(bonusPerHouse[i][j]);
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
 
     public boolean canDeleteRoad(Field field) {
