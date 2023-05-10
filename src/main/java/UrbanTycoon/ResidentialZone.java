@@ -5,6 +5,8 @@
 package UrbanTycoon;
 
 import java.awt.Image;
+import java.util.Objects;
+
 import javax.swing.ImageIcon;
 
 /**
@@ -13,6 +15,8 @@ import javax.swing.ImageIcon;
  */
 class ResidentialZone extends Zone {
     double moveInChance;
+    int industrialPenalty = 0;
+    int forestBonus = 0;
     public ResidentialZone(double moveInChance, int capacity, int selectPrice, int annualTax, int safety, int satisfactionBonus, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(capacity, selectPrice, annualTax, safety, satisfactionBonus, refund, chanceOfFire, x, y, width, height, image);
         
@@ -25,6 +29,32 @@ class ResidentialZone extends Zone {
 
     public void setMoveInChance(double moveInChance) {
         this.moveInChance = moveInChance;
+    }
+    
+    public void setForestBonus(int bonus) {
+        if (satisfactionBonus + forestBonus > 10) {
+            forestBonus = 10 - satisfactionBonus;
+        } else {
+            forestBonus = bonus;
+        }
+    }
+    
+    @Override
+    public int getSatisfactionBonus() {
+    	return satisfactionBonus;
+    }
+    
+    public int getForestBonus() {
+    	return forestBonus;
+    }
+    
+    public int getIndustrialPenalty() {
+    	return industrialPenalty;
+    }
+    
+    public void setIndustrialPenalty(int ip) {
+    	if(ip >= -10 && ip <= 0)
+    		industrialPenalty = ip;
     }
     
     public double getMoveInChance() {
@@ -41,6 +71,15 @@ class ResidentialZone extends Zone {
     }
     @Override
     public String asString(){
-        return "rz;" + super.asString() + moveInChance;
+        return "rz;" + super.asString() + moveInChance + ";" + forestBonus + ";" + industrialPenalty;
+    }
+    
+    @Override
+    public boolean equals(Object other) {
+    	if(super.equals(other)) {
+    		ResidentialZone rOther = (ResidentialZone) other;
+    		return this.moveInChance == rOther.moveInChance && this.forestBonus == rOther.forestBonus && this.industrialPenalty == rOther.industrialPenalty;
+    	}
+    	return false;
     }
 }

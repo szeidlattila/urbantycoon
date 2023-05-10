@@ -19,7 +19,6 @@ abstract class Zone extends Buildable {
     protected int satisfactionBonus;
     protected int selectPrice;
     protected int annualTaxPerPerson;
-    protected int forestBonus;
     protected int buildProgress = 0;
     protected boolean builtUp;
 
@@ -67,7 +66,7 @@ abstract class Zone extends Buildable {
     }
 
     public int getSatisfactionBonus() {
-        return satisfactionBonus + forestBonus;
+        return satisfactionBonus;
     }
 
     public void setSatisfactionBonus(int satisfactionBonus) {
@@ -75,14 +74,6 @@ abstract class Zone extends Buildable {
             throw new IllegalArgumentException("Satisfaction bonus out of range!");
         else
             this.satisfactionBonus = satisfactionBonus;
-    }
-
-    public void setForestBonus(int bonus) {
-        if (satisfactionBonus + forestBonus > 10) {
-            forestBonus = 10 - satisfactionBonus;
-        } else {
-            forestBonus = bonus;
-        }
     }
 
     

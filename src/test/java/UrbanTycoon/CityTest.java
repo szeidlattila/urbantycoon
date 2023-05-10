@@ -4,6 +4,7 @@
  */
 package UrbanTycoon;
 
+import java.awt.SystemColor;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
@@ -214,7 +215,7 @@ public class CityTest {
      	city.fieldSelect(3, 13);
      	city.selectField(IndustrialZone.class);
      	city.performTicks(1); //ilyenkor refresh-elődik a sat
-    	assertTrue(city.getSatisfaction() < satisfactionBefore);
+     	assertTrue(city.getSatisfaction() < satisfactionBefore);
     }
     
     /**
