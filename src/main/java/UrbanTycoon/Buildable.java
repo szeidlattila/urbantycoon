@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Image;
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author Felhasználó
- */
 abstract class Buildable extends Sprite {
     protected double refund;
     protected double chanceOfFire;
@@ -35,7 +28,7 @@ abstract class Buildable extends Sprite {
         }
     }
 
-    public abstract boolean progressBuilding(int progressInDays);
+    public abstract void progressBuilding(int progressInDays);
 
     protected abstract int destroy();
 
@@ -101,7 +94,6 @@ abstract class Buildable extends Sprite {
         if (!burning && this.burningStartDate == null) {
             this.burning = true;
             this.burningStartDate = burningStartDate;
-            // System.out.println("Égés kezdete: " + this.burningStartDate.toString());
         }
     }
 
@@ -113,10 +105,6 @@ abstract class Buildable extends Sprite {
     public boolean isBurntDown(Date currentDate) {
         if (!isBurning())
             return false;
-        // System.out.println("Eltelt órák égés óta: " +
-        // burningStartDate.hoursElapsed(currentDate));
-        // System.out.println("Égés start: " + burningStartDate.toString() + ", current:
-        // " + currentDate.toString());
         return burningStartDate.hoursElapsed(currentDate) > burnsDownAfterNDays * 24;
     }
 

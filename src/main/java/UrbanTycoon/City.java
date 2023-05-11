@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Image;
@@ -13,16 +10,9 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
 import javax.swing.ImageIcon;
-import java.util.*;
-import java.awt.*;
-import java.util.ArrayList;
+import java.awt.Dimension;
 import javax.swing.JFrame;
-//tryagain commit
 
-/**
- *
- * @author Felhasználó
- */
 class City {
 
     private ArrayList<Resident> residents;
@@ -174,7 +164,7 @@ class City {
 
         initFields(fieldRowsNum, fieldColsNum, screenSize == null); // in JUnit test there is no screenSize
         initResidents(residentsNum);
-        changeSatisfaction();
+        updateSatisfaction();
     }
 
     public void restart(int residentsNum, int fieldRowsNum, int fieldColsNum, int budget) {
@@ -193,7 +183,7 @@ class City {
 
         initFields(fieldRowsNum, fieldColsNum, screenSize == null); // in JUnit test there is no screenSize
         initResidents(residentsNum);
-        changeSatisfaction();
+        updateSatisfaction();
     }
 
     public void printFields() {
@@ -261,29 +251,14 @@ class City {
         negativeBudgetNthYear = n;
     }
 
-    /**
-     * add the given resident to residents
-     * 
-     * @param resident
-     */
     public void addResident(Resident resident) {
         residents.add(resident);
     }
 
-    /**
-     * remove the given resident from residents
-     * if the given resident is not in the city won't happen anything
-     * 
-     * @param resident
-     */
     public void removeResident(Resident resident) {
         residents.remove(resident);
     }
 
-    /**
-     * 
-     * @return true if the city satisfaction is critical otherwise false
-     */
     public boolean isSatisfactionCritical() {
         return satisfaction <= criticalSatisfaction;
     }
@@ -292,7 +267,7 @@ class City {
      * Calculate residents avarage satisfaction and this value will be the city
      * satisfaction
      */
-    private void changeSatisfaction() {
+    private void updateSatisfaction() {
         reevaluateAccessibility();
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
@@ -380,14 +355,14 @@ class City {
 
     public void increaseTax() {
         tax += 50;
-        changeSatisfaction();
+        updateSatisfaction();
     }
 
     public void lowerTax() {
         tax -= 50;
         if (tax <= 0) {
             tax = 0;
-            changeSatisfaction();
+            updateSatisfaction();
         }
     }
 
@@ -473,7 +448,7 @@ class City {
             if (refund != 0) {
                 budget += refund;
                 selectedField.select();
-                changeSatisfaction();
+                updateSatisfaction();
             }
         }
     }
@@ -521,71 +496,6 @@ class City {
         }
     }
 
-    /*
-     * private void setSafetyAround(Field ps , int safetyToBeAdded) {
-     * int x = -1, y = -1;
-     * for (int i = 0; i < fields.length; i++) {
-     * for (int j = 0; j < fields[0].length; j++) {
-     * if (fields[i][j] == ps){
-     * x = i;
-     * y = j;
-     * }
-     * }
-     * }
-     * if (y == -1 && x == -1)
-     * throw new IllegalArgumentException("Destroyed police station not found");
-     * for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1,
-     * x + RADIUS); i++) {
-     * for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1,
-     * y + RADIUS); j++) {
-     * if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone
-     * && getDistanceAlongRoad(ps,fields[i][j]) != -1) {
-     * zone.setSafety(
-     * Math.min(Math.max(-10, zone.getSafety() + safetyToBeAdded),10));
-     * }
-     * }
-     * }
-     * }
-     */
-    /*
-     * private void setSatisfactionBonusAround(Field st, int satToBeAdded) {
-     * int x = -1, y = -1;
-     * for (int i = 0; i < fields.length; i++) {
-     * for (int j = 0; j < fields[0].length; j++) {
-     * if (fields[i][j] == st){
-     * x = i;
-     * y = j;
-     * }
-     * }
-     * }
-     * if (y == -1 && x == -1)
-     * throw new IllegalArgumentException("Destroyed stadium not found");
-     * 
-     * // stadion 2x2 es, mind a 4 mezo (instanceof Stadium), itt elpozicionál a bal
-     * // felső sarkába
-     * if (x - 1 >= 0 && fields[x - 1][y].getBuilding() instanceof Stadium)
-     * x--;
-     * if (y - 1 >= 0 && fields[x][y - 1].getBuilding() instanceof Stadium)
-     * y--;
-     * 
-     * for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1,
-     * x + 1 + RADIUS); i++) {
-     * for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[i].length - 1,
-     * y + 1 + RADIUS); j++) {
-     * if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone
-     * zone) {
-     * for(int k = 0; k< 4 ; k++)
-     * if(getDistanceAlongRoad(((Stadium)st.getBuilding()).fields[k],fields[i][j])
-     * != -1){
-     * zone.setSatisfactionBonus(Math.min(Math.max(-10,
-     * zone.getSatisfactionBonus() + satToBeAdded),10));
-     * break;
-     * }
-     * }
-     * }
-     * }
-     * }
-     */
     public void yearElapsed() {
         for (Field[] row : fields) {
             for (Field field : row) {
@@ -623,8 +533,8 @@ class City {
                 moveInOneResident(false);
             }
         }
-        // setForestSatisfaction();
-        changeSatisfaction();
+        setForestSatisfaction();
+        updateSatisfaction();
     }
 
     public void monthElapsed(Date currentDate) {
@@ -741,7 +651,7 @@ class City {
                         new ImageIcon("data/graphics/field/selected/" + selectedField.getBuilding().type() + ".png")
                                 .getImage());
             }
-            changeSatisfaction();
+            updateSatisfaction();
         }
     }
 
@@ -758,7 +668,7 @@ class City {
             }
         if (x == -1 && y == -1)
             throw new IllegalArgumentException("First Field not Found in getDistance");
-        Queue Q = new LinkedList<Coordinate>();
+        Queue<Coordinate> Q = new LinkedList<Coordinate>();
         voltemar[x][y] = true;
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++)
@@ -930,7 +840,6 @@ class City {
                             if (getDistanceAlongRoad(r.getHomeField(), workplaceField, fields) > -1) {
                                 workplace = freeWorkplace;
                                 freeWorkplace.incrementPeopleNum();
-                                // System.out.printf("Workpace is (%d,%d)%n", j, k);
                             }
                         }
                     }
@@ -1053,7 +962,7 @@ class City {
      * @return error message (field is not free / do not have enough money)
      *         otherwise null
      */
-    public void build(Class playerBuildItClass) {
+    public void build(Class<?> playerBuildItClass) {
         if (selectedField == null || !selectedField.isFree())
             return;
         if (!PlayerBuildIt.class.isAssignableFrom(playerBuildItClass))
@@ -1133,7 +1042,7 @@ class City {
                             REFUND, CHANCEOFFIRE));
             calculateForestBonusResZone();
         }
-        changeSatisfaction();
+        updateSatisfaction();
 
         budget -= price;
     }
@@ -1223,7 +1132,7 @@ class City {
         while (s.hasNextLine()) {
             residents.add(residentByString(s.nextLine()));
         }
-        changeSatisfaction();
+        updateSatisfaction();
     }
 
     private Buildable unpack(int x, int y, String[] s, boolean onScreen) {
@@ -1313,7 +1222,7 @@ class City {
         return b;
     }
 
-    private Image whatImageFor(Class buildableClass, String[] s) {
+    private Image whatImageFor(Class<?> buildableClass, String[] s) {
         boolean burning = Boolean.parseBoolean(s[4]);
         StringBuilder pathName = new StringBuilder("data/graphics/field/unselected/");
         pathName.append(burning ? "burning/" : "notBurning/");
@@ -1343,6 +1252,8 @@ class City {
         r.setChanceOfDeath(Double.parseDouble(s[2]));
         r.setHome((ResidentialZone) fields[Integer.parseInt(s[3])][Integer.parseInt(s[4])].getBuilding());
         r.setWorkplace((Workplace) fields[Integer.parseInt(s[5])][Integer.parseInt(s[6])].getBuilding());
+        r.setHomeField(fields[Integer.parseInt(s[3])][Integer.parseInt(s[4])]);
+        r.setWorkplaceField(fields[Integer.parseInt(s[5])][Integer.parseInt(s[6])]);
         r.setSatisfaction(Integer.parseInt(s[7]));
         r.setWorkedYearsBeforeRetired(Integer.parseInt(s[8]));
         r.setPaidTaxesBeforeRetired(Integer.parseInt(s[9]));
@@ -1408,7 +1319,7 @@ class City {
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         }
-        changeSatisfaction();
+        updateSatisfaction();
         budget -= zonePrice;
     }
 
@@ -1507,8 +1418,6 @@ class City {
                     // forest cell middlePoint
                     double fX = forest.getX() + (forest.getWidth() / 2);
                     double fY = forest.getY() + (forest.getHeight() / 2);
-                    // System.out.printf("Checking Forest (%d,%d), Middle point: (%f,%f)%n", i, j,
-                    // fX, fY);
                     // checking a 7x7 are where the current Forest is in the middle
                     int k, l, m, n;
                     if (i - 3 < 0) {
@@ -1539,7 +1448,6 @@ class City {
                                 // house cell middlePoint
                                 double hX = house.getX() + (house.getWidth() / 2);
                                 double hY = house.getY() + (house.getHeight() / 2);
-                                // System.out.printf("Checking House (%d,%d), Middle point: (%f,%f)%n", a, b,
                                 // hX, hY);
                                 // calculate equation of the line between them, e(x)
                                 double eX, eY, eR;
@@ -1575,8 +1483,6 @@ class City {
                                     cm = a;
                                     cn = j;
                                 }
-                                // System.out.printf("Checking between corner: (%d,%d) (%d,%d)%n", ca, cb, cm,
-                                // cn);
                                 // iterate thru thre remaining cells in the 7x7 matrix and check if the line of
                                 // sight is blocked
                                 for (int o = ca; o <= cm; o++) {
@@ -1587,8 +1493,6 @@ class City {
                                             // middlepoint of iterated cell
                                             double fiX = f.getX() + (f.getWidth() / 2);
                                             double fiY = f.getY() + (f.getHeight() / 2);
-                                            // System.out.printf("Checking Blockade (%d,%d), Middle point: (%f,%f)%n",
-                                            // o,p, fiX, fiY);
                                             // calculate distance between point and the line
                                             // pass point into e(x)
                                             double pR = eX * fiX - eY * fiY - eR;
@@ -1596,17 +1500,9 @@ class City {
                                             double nL = Math.sqrt(Math.pow(eX, 2) + Math.pow(eY, 2));
                                             // distance result
                                             double distance = Math.abs(pR / nL);
-                                            // System.out.printf("Distance: %f; halfCellDiagonal: %f%n",
-                                            // distance,halfCellDiagonal);
                                             // if the distance is less or equal than the diagonal/2 then its blocking
                                             // the line of sight, so we mark the house as blocked
                                             if (distance <= halfCellDiagonal) {
-                                                /*
-                                                 * System.out.printf(
-                                                 * "Line of sight between Forest(%d,%d) and House(%d,%d) blocked by obstacle(%d,%d)%n"
-                                                 * ,
-                                                 * i, j, a, b, o, p);
-                                                 */
                                                 blockedSight = true;
                                                 break;
                                             }
@@ -1617,14 +1513,6 @@ class City {
                                     }
                                 }
                                 // if its not blocked then lets change the bonus to the biggest possible
-                                if (!blockedSight) {
-                                    /*
-                                     * System.out.printf(
-                                     * "There is a line of sight between Forest(%d,%d) and House(%d,%d)%n",
-                                     * i,
-                                     * j, a, b);
-                                     */
-                                }
                                 if (!blockedSight && (bonusPerHouse[a][b] < (defaultBonus
                                         * ((Forest) forest.getBuilding()).getBonusMultiplier()))) {
                                     bonusPerHouse[a][b] = defaultBonus
@@ -1792,7 +1680,7 @@ class City {
             throw new IllegalArgumentException("First Field not Found in getDistance");
         if (x2 == -1 && y2 == -1)
             throw new IllegalArgumentException("Second Field not Found in getDistance");
-        Queue Q = new LinkedList<Coordinate>();
+        Queue<Coordinate> Q = new LinkedList<>();
         Q.add(new Coordinate(x1, y1));
         while (!Q.isEmpty()) {
             Coordinate o = (Coordinate) Q.remove();
@@ -1909,7 +1797,7 @@ class City {
      * @return count of given field
      *         if given field is stadium: divide count by 4 (because stadium is 2x2)
      */
-    public int countField(Class buildableClass) {
+    public int countField(Class<?> buildableClass) {
         int count = 0;
         for (Field[] fields : this.fields) {
             for (Field field : fields) {
@@ -1956,7 +1844,7 @@ class City {
                     bestResidentialZone, nearestWorkplace));
             bestResidentialZone.incrementPeopleNum();
             nearestWorkplace.incrementPeopleNum();
-            changeSatisfaction();
+            updateSatisfaction();
         }
     }
 
@@ -2001,17 +1889,6 @@ class City {
 
         int[][] distanceMatrix = getMatrixDistanceAlongRoad(selectedField, fireStationField, fields);
 
-        /*
-         * for (int i = 0; i < distanceMatrix.length; i++) {
-         * for (int j = 0; j < distanceMatrix[i].length; j++) {
-         * System.out.print((0 <= distanceMatrix[i][j] && distanceMatrix[i][j] < 10 ?
-         * "+" : "") + distanceMatrix[i][j] + " ");
-         * }
-         * System.out.println("");
-         * }
-         * System.out.println("-------------------------------------------------");
-         */
-
         ArrayList<Road> route = new ArrayList<>();
         int x = -1;
         int y = -1;
@@ -2033,19 +1910,19 @@ class City {
             if (y + 1 < fields[0].length && distanceMatrix[x][y + 1] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[x][++y].getBuilding());
                 roadsLeft--;
-                // System.out.println("Jobbra");
+                // Jobbra
             } else if (x + 1 < fields.length && distanceMatrix[x + 1][y] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[++x][y].getBuilding());
                 roadsLeft--;
-                // System.out.println("Lefele");
+                // Lefele
             } else if (y - 1 >= 0 && distanceMatrix[x][y - 1] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[x][--y].getBuilding());
                 roadsLeft--;
-                // System.out.println("Balra");
+                //Balra
             } else if (x - 1 >= 0 && distanceMatrix[x - 1][y] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[--x][y].getBuilding());
                 roadsLeft--;
-                // System.out.println("Felfele");
+                //Felfele
             } else {
                 // -0 would be fire truck next position
                 for (int i = 0; i < distanceMatrix.length; i++) {
@@ -2062,11 +1939,7 @@ class City {
 
                 throw new IllegalArgumentException("Fire truck cannot move to destination!");
             }
-
-            // System.out.println("hátralevő: " + roadsLeft);
         }
-
-        // System.out.println(route.size());
 
         // set up route for fire engine
         ((FireStation) fireStationField.getBuilding()).getFireEngine().setRouteAndDestination(route,

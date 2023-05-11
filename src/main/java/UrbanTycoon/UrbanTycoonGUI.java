@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import javax.swing.JFrame;
@@ -11,10 +8,6 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.awt.*;
 
-/**
- *
- * @author Felhasználó
- */
 public class UrbanTycoonGUI {
     // properties to change for UX
     private int FIELDSIZE = 60;
@@ -535,7 +528,8 @@ public class UrbanTycoonGUI {
         }
     }
 
-    public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
+    
+	public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
         CustomLabel time = getLabelByType("time", infoLabels);
         CustomLabel residents = getLabelByType("residents", infoLabels);
         CustomLabel residentsSat = getLabelByType("residentsSat", infoLabels);

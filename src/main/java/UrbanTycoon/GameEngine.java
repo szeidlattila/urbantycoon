@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Dimension;
@@ -23,12 +20,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.JTextField;
-//tryagain commit
 
-/**
- *
- * @author Felhasználó
- */
+@SuppressWarnings("serial")
 class GameEngine extends JPanel {
 
     private final int FPS = 240;
@@ -66,7 +59,6 @@ class GameEngine extends JPanel {
     private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 ora, 2 nap, 30 nap
     private final Timer newFrameTimer;
     private final Timer gameTickTimer;
-    private final Dimension screenSize;
     public JComboBox<String> savesList;
 
     private int prevSelectedFieldX = -1;
@@ -75,14 +67,10 @@ class GameEngine extends JPanel {
     public GameEngine(Dimension screenSize, int fieldSize) {
         super();
         this.FIELDSIZE = fieldSize;
-        this.screenSize = screenSize;
-
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (!paused) {
-                    // System.out.println("Clicked! Position: x = " + e.getX() + " y = " +
-                    // e.getY());
                     fieldSelect(e.getX(), e.getY());
                 }
             }
@@ -96,7 +84,8 @@ class GameEngine extends JPanel {
         time = new Date(1980, 1, 1, 0, 0);
         speed = 1;
 
-        savesList = new JComboBox();
+
+        savesList = new JComboBox<>();
         JTextField saveNameTextField = new JTextField();
         JButton confirmSaveButton = new JButton("Save");
         confirmSaveButton.addActionListener((var ae) -> saveGame(saveNameTextField.getText() + ".sav"));
@@ -210,11 +199,6 @@ class GameEngine extends JPanel {
     private void loadGame(String fileName) {
         try (Scanner s = new Scanner(new File("data/persistence/saves/" + fileName + ".sav"))) {
             time = new Date(s.nextLine());
-            city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION,
-                    MOVEINATLEASTSATISFACTION, INITIALMONEY,
-                    ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
-                    ANNUALFEEPERCENTAGE,
-                    RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, screenSize);
             city.loadGame(s, true);
             loadGameFrame.setVisible(false);
             paused = false;

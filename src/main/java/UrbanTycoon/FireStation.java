@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Image;
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author Felhasználó
- */
 public class FireStation extends ServiceBuilding {
     private final FireEngine fireEngine;
 

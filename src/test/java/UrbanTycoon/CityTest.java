@@ -18,9 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class CityTest {
     
-    private final int WIDTH = 80;
-    private final int HEIGHT = 80;
-    private final int FIELDSIZE = 20;
+    private final int FIELDSIZE = 60;
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
@@ -66,9 +64,7 @@ public class CityTest {
     public void tearDown() {
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
+    
     @Test
     public void fieldSelectTest(){
         city.fieldSelect(0, 0);
