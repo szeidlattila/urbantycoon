@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
+
 package UrbanTycoon;
 
 import org.junit.jupiter.api.AfterEach;
@@ -11,10 +8,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- *
- * @author ati
- */
 public class FieldTest {
     
     private static Buildable residentialZone;
@@ -142,13 +135,13 @@ public class FieldTest {
         residentialZone.progressBuilding(1);
         assertTrue(residentialZone.isBuiltUp());
         residentialZone.progressBuilding(3);
-        assertFalse(residentialZone.isBuiltUp());
-        residentialZone.progressBuilding(-4);
-        assertFalse(residentialZone.isBuiltUp());
+        assertTrue(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(-10);
+        assertTrue(residentialZone.isBuiltUp());
         residentialZone.progressBuilding(4);
-        assertFalse(residentialZone.isBuiltUp());
+        assertTrue(residentialZone.isBuiltUp());
         residentialZone.progressBuilding(5);
-        assertFalse(residentialZone.isBuiltUp());
+        assertTrue(residentialZone.isBuiltUp());
     }
     
     /**

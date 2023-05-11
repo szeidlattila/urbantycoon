@@ -129,7 +129,6 @@ class GameEngine extends JPanel {
 
     void newGame() {
         city.restart(INITIALRESIDENT, FIELDROWSNUM, FIELDCOLSNUM, INITIALMONEY);
-        // date alaphelyzetbe
         time = new Date(1980, 1, 1, 0, 0);
         paused = false;
         speed = 1;

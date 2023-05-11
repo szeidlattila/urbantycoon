@@ -264,11 +264,12 @@ class City {
     }
 
     /**
-     * Calculate residents avarage satisfaction and this value will be the city
-     * satisfaction
+     * Refresh bonuses for fields, set resident satisfactions individually,
+     * remove residents if Sat is too low,
+     * then calculate city average.
      */
     private void updateSatisfaction() {
-        reevaluateAccessibility();
+        setFieldsDependentValues();
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
         ArrayList<Resident> removeResidents = new ArrayList<>();
@@ -277,18 +278,23 @@ class City {
             if (resident.getSatisfaction() <= criticalSatisfaction && !resident.isRetired()) {
                 resident.movesAwayFromCity();
                 removeResidents.add(resident);
+            } else {
+            	sumSatisfaction += resident.getSatisfaction();            	
             }
-            sumSatisfaction += resident.getSatisfaction();
         }
-        if (residents.size() == 0) {
-            this.satisfaction = criticalSatisfaction;
-        } else {
-            this.satisfaction = sumSatisfaction / residents.size();
-        }
-
+        
         for (Resident removeResident : removeResidents) {
             residents.remove(removeResident);
         }
+
+        if (residents.size() == 0) {
+        	this.satisfaction = criticalSatisfaction;
+        } else {
+        	this.satisfaction = sumSatisfaction / residents.size();
+        }
+        
+        updateImages();
+        
     }
 
     private void calculateUniversialSatisfaction() {
@@ -620,6 +626,10 @@ class City {
         }
     }
 
+    /**
+     * set attributes of the fields, then update view
+     * @param ticks
+     */
     public void performTicks(int ticks) {
         if (ticks > 0) {
             for (int i = 0; i < fields.length; i++)
@@ -630,27 +640,7 @@ class City {
                     if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
                         zone.setAnnualTax(tax);
                     }
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp()) {
-                        fields[i][j].getBuilding()
-                                .setImage(new ImageIcon(
-                                        "data/graphics/field/unselected/" + fields[i][j].getBuilding().type() + ".png")
-                                        .getImage());
-                    }
-                    if (fields[i][j].isFree() && fields[i][j].isBurntDown()) {
-                        fields[i][j].setImage(
-                                new ImageIcon("data/graphics/field/" + (selectedField == fields[i][j] ? "" : "un")
-                                        + "selected/notBurning/burntDownField.png").getImage());
-                    }
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road road) {
-                        road.setImage(new ImageIcon("data/graphics/field/" + (selectedField == fields[i][j] ? "" : "un")
-                                + "selected/" + road.type() + ".png").getImage());
-                    }
                 }
-            if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding().isBuiltUp()) {
-                selectedField.getBuilding().setImage(
-                        new ImageIcon("data/graphics/field/selected/" + selectedField.getBuilding().type() + ".png")
-                                .getImage());
-            }
             updateSatisfaction();
         }
     }
@@ -1259,17 +1249,34 @@ class City {
         r.setPaidTaxesBeforeRetired(Integer.parseInt(s[9]));
         return r;
     }
-
-    public void reevaluateAccessibility() {
-        for (var row : fields)
-            for (var field : row)
-                if (!field.isFree() && field.getBuilding() instanceof Zone zone) {
-                    boolean isAccessible = isAccessibleOnRoad(field);
-                    field.getBuilding().select(isAccessible);
-                    field.getBuilding().unselect(isAccessible);
-                    zone.setSafety(Math.min(Math.max(calculateSafety(field), -10), 10));
-                    zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field), -10), 10));
+    
+    /**
+     * update images of Zones and selectedField
+     */
+    private void updateImages() {
+        for (int i=0; i< fields.length; i++)
+            for (int j=0; j<fields[0].length;j++) {
+            	if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
+                    boolean isAccessible = isAccessibleOnRoad(fields[i][j]);
+                    fields[i][j].getBuilding().select(isAccessible);
+                    fields[i][j].getBuilding().unselect(isAccessible);
                 }
+            	if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp()) {
+                    fields[i][j].getBuilding()
+                            .setImage(new ImageIcon(
+                                    "data/graphics/field/unselected/" + fields[i][j].getBuilding().type() + ".png")
+                                    .getImage());
+                }
+                if (fields[i][j].isFree() && fields[i][j].isBurntDown()) {
+                    fields[i][j].setImage(
+                            new ImageIcon("data/graphics/field/" + (selectedField == fields[i][j] ? "" : "un")
+                                    + "selected/notBurning/burntDownField.png").getImage());
+                }
+                if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road road) {
+                    road.setImage(new ImageIcon("data/graphics/field/" + (selectedField == fields[i][j] ? "" : "un")
+                            + "selected/" + road.type() + ".png").getImage());
+                }
+            }
         if (selectedField != null && !selectedField.isFree())
             selectedField.getBuilding()
                     .setImage(
@@ -1282,13 +1289,24 @@ class City {
                                             + ".png")
                                     .getImage());
     }
+    
+    /**
+     * set the values of fields that are dependent on the surrounding fields.
+     */
+    private void setFieldsDependentValues() {
+    	for (var row : fields)
+            for (var field : row)
+                if (!field.isFree() && field.getBuilding() instanceof Zone zone) {
+                    zone.setSafety(Math.min(Math.max(calculateSafety(field), -10), 10));
+        			zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field), -10), 10));
+                }
+    }
 
     /**
      * player select free field (residential-, industrial-, service zone) and
      * residents can build on this automatically
      * budget decrease by the price of zone select
      * 
-     * @param selectedField
      * @param zoneClass
      */
     public void selectField(Class zoneClass) {

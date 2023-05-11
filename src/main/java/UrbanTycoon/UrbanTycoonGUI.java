@@ -248,6 +248,7 @@ public class UrbanTycoonGUI {
             infoLabels.add(infoLabel);
             infoPanel.add(infoLabel);
         }
+        layeredPane.add(infoPanel, (Integer)paneIndex);
     }
 
     private void createButtonPanel(String[] buttonNames, int BUTTONSIZE, int panelX, JPanel buttonPanel,
@@ -269,6 +270,7 @@ public class UrbanTycoonGUI {
                 buttonPanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
             }
         }
+        layeredPane.add(buttonPanel, (Integer)paneIndex);
     }
 
     private int panelSize(String[] arr, int buttonSize, int buttonPadding) {
