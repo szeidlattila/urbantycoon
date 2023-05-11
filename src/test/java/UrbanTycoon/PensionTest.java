@@ -3,6 +3,7 @@ package UrbanTycoon;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PensionTest {
@@ -27,8 +28,10 @@ public class PensionTest {
         r.increaseAge();
         assertTrue(r.isRetired());
         boolean l = false;
+        Random random = new Random();
         for(int i=0;i<10;i++){
-            l = l || r.increaseAge();
+        	r.increaseAge();
+            l = l || random.nextDouble() <= r.getChanceOfDeath(); 
         }
         assertTrue(l); // meghalt-e 10 év után. chanceOfDeath += 0.1 minden évben
     }

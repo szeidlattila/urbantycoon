@@ -57,16 +57,17 @@ class Field extends Sprite {
         }
         return null;
     }
-
-    public int destroyOrDenominate() {
-        if (!free) {
-            int d = building.destroy();
-            if (d != 0) {
-                setBuilding(null);
-            }
-            return d;
-        }
-        return 0;
+    
+    public int getDestroyMoney() {
+    	if(free) throw new IllegalArgumentException("Accessing destroy money, when field is free. call isFree() first.");
+    	return this.building.getRefundMoney();
+    }
+    
+    public void destroyOrDenominate() {
+    	
+    	if (free) throw new IllegalArgumentException("Trying to destroy, when field is free. call isFree() first.");
+    
+    	setBuilding(null);
     }
 
     /**

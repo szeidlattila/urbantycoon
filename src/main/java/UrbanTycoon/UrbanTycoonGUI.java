@@ -421,7 +421,7 @@ public class UrbanTycoonGUI {
         taxInc.setFunc(() -> gameArea.increaseTax());
         taxDec.setFunc(() -> gameArea.lowerTax());
         info.setFunc(() -> gameArea.zoneInfoPopup());
-        load.setFunc(() -> gameArea.initLoad(gameArea.savesList));
+        load.setFunc(() -> gameArea.initLoad());
         save.setFunc(() -> gameArea.initSave());
 
     }

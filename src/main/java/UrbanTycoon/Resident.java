@@ -2,7 +2,6 @@
 package UrbanTycoon;
 
 import java.util.Objects;
-import java.util.Random;
 
 class Resident {
     private int age;
@@ -100,26 +99,14 @@ class Resident {
         return workplace;
     }
 
-    /**
-     * returns true if resident died
-     * 
-     * @return
-     */
-    public boolean increaseAge() {
+    public void increaseAge() {
         ++age;
         if (retired) {
-            Random r = new Random();
-            if (r.nextDouble() <= chanceOfDeath) {
-                die();
-                return true;
-            } else
-                chanceOfDeath += 0.1;
+        	chanceOfDeath += 0.1;
         }
-
         if (age >= 65 && !retired) {
             retire();
         }
-        return false;
     }
     
     public int tax(){
@@ -179,6 +166,10 @@ class Resident {
     }
 
     public void die() {
+    	if(workplace != null){
+            workplace.setPeopleNum(workplace.getPeopleNum() - 1);
+            workplace = null;
+        }
         if(home != null){
             home.setPeopleNum(home.getPeopleNum() - 1);
             home = null;

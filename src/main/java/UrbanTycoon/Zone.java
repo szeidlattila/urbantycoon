@@ -197,7 +197,7 @@ abstract class Zone extends Buildable {
     }
 
     @Override
-    public int destroy() {
+    public int getRefundMoney() {
         return selectPrice;
     }
 

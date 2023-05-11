@@ -30,7 +30,7 @@ abstract class Buildable extends Sprite {
 
     public abstract void progressBuilding(int progressInDays);
 
-    protected abstract int destroy();
+    protected abstract int getRefundMoney();
 
     protected final void select(boolean accessible) {
         if (isBuiltUp())

@@ -59,7 +59,7 @@ class GameEngine extends JPanel {
     private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 ora, 2 nap, 30 nap
     private final Timer newFrameTimer;
     private final Timer gameTickTimer;
-    public JComboBox<String> savesList;
+    private final  JComboBox<String> savesList = new JComboBox<>();
 
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
@@ -84,8 +84,6 @@ class GameEngine extends JPanel {
         time = new Date(1980, 1, 1, 0, 0);
         speed = 1;
 
-
-        savesList = new JComboBox<>();
         JTextField saveNameTextField = new JTextField();
         JButton confirmSaveButton = new JButton("Save");
         confirmSaveButton.addActionListener((var ae) -> saveGame(saveNameTextField.getText() + ".sav"));
@@ -133,13 +131,18 @@ class GameEngine extends JPanel {
         paused = false;
         speed = 1;
     }
-
+    
     public void initSave() {
         paused = true;
         saveGameFrame.pack();
         saveGameFrame.setVisible(true);
     }
-
+    
+    /**
+     * called when trying to save a game under a certain name.
+     * checks the name, and handles conflicting names, then saves.
+     * @param saveName
+     */
     private void saveGame(String saveName) {
         File[] usedFiles = getFiles();
         for (File f : usedFiles)
@@ -174,30 +177,41 @@ class GameEngine extends JPanel {
         paused = false;
         saveGameFrame.setVisible(false);
     }
+    
+    private File[] getFiles() {
+        return new File("data/persistence/saves").listFiles();
+    }
 
     private void saveInto(File f) {
         try (PrintWriter pw = new PrintWriter(f)) {
             pw.println(time.toString());
-            pw.print(city.saveGame());
+            pw.print(city.gameStateAsString());
         } catch (Exception e) {
             System.exit(1);
         }
     }
-
-    public void initLoad(JComboBox<String> savesList) {
+    
+    /**
+     * fills up loadGameFrame with accessible saves, then displays it
+     */
+    public void initLoad() {
         paused = true;
         savesList.removeAllItems();
         File[] saves = getFiles();
         for (File f : saves) {
-            savesList.addItem(f.getName().substring(0, f.getName().length() - 4));
+            savesList.addItem(f.getName().substring(0, f.getName().length() - 4)); // gets rid of ".sav" extension
         }
         loadGameFrame.pack();
         loadGameFrame.setVisible(true);
     }
 
+    /**
+     * gets called when the intention to load a game has been confirmed
+     * @param fileName without extension
+     */
     private void loadGame(String fileName) {
         try (Scanner s = new Scanner(new File("data/persistence/saves/" + fileName + ".sav"))) {
-            time = new Date(s.nextLine());
+            time = Date.parseDate(s.nextLine());
             city.loadGame(s, true);
             loadGameFrame.setVisible(false);
             paused = false;
@@ -242,9 +256,6 @@ class GameEngine extends JPanel {
         return FORESTPRICE;
     }
 
-    private File[] getFiles() {
-        return new File("data/persistence/saves").listFiles();
-    }
 
     public boolean isPaused() {
         return paused;

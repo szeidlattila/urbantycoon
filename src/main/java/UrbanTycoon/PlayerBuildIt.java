@@ -36,7 +36,7 @@ public abstract class PlayerBuildIt extends Buildable {
     }
     
     @Override
-    public final int destroy(){
+    public final int getRefundMoney(){
         return buildingPrice;
     }
     @Override
