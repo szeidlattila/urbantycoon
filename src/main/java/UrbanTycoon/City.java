@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
@@ -652,6 +653,8 @@ class City {
             throw new IllegalArgumentException("First Field not Found in getDistance");
         Queue<Coordinate> Q = new LinkedList<Coordinate>();
         voltemar[x][y] = true;
+        
+        // adds the 4 fields next to it, to the queue, if they are a road.
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++)
                 if (Math.abs(i - x) + Math.abs(j - y) == 1 && i >= 0 && i < fields.length && j >= 0
@@ -1062,6 +1065,7 @@ class City {
 
     public void loadGame(Scanner s, boolean onScreen) {
         residents.clear();
+        selectedField = null;
         tax = Integer.parseInt(s.nextLine());
         budget = Integer.parseInt(s.nextLine());
         negativeBudgetNthYear = Integer.parseInt(s.nextLine());
@@ -1075,22 +1079,7 @@ class City {
                 String[] str = s.nextLine().split(";");
                 if (str.length > 2 && str[1].equals("st") && !alreadySet[i][j]) {
                 	
-                    int offsetY = (i + 1) * FIELDSIZE;
-                    int offsetX = (j + 1) * FIELDSIZE;
-                    if (onScreen) {
-                        offsetY = yOffset + i * FIELDSIZE;
-                        offsetX = xOffset + j * FIELDSIZE;
-                    }
-                    
-                    double refund = Double.parseDouble(str[2]);
-                    double chanceOfFire = Double.parseDouble(str[3]);
-                    int buildPrice = Integer.parseInt(str[6]);
-                    int annualFee = Integer.parseInt(str[7]);
-                    int radius = Integer.parseInt(str[8]);
-                    
-                    Stadium stad = new Stadium(buildPrice, annualFee, radius, offsetX,
-                            offsetY,
-                            FIELDSIZE * 2, FIELDSIZE * 2, whatImageFor(Stadium.class, str), refund, chanceOfFire);
+                    Stadium stad = (Stadium)loadBuildable(j,i,str,onScreen);
                     stad.fields[0] = fields[i + 1][j + 1];
                     stad.fields[0].setBuilding(stad);
                     stad.fields[1] = fields[i][j];
@@ -1667,8 +1656,67 @@ class City {
             }
         if (x == -1 && y == -1)
             throw new IllegalArgumentException("Field not Found in getMatrixDistance");
-        Queue<Coordinate> Q = new LinkedList<>();
-        Q.add(new Coordinate(x, y));
+        
+        Queue<Coordinate> Q = new LinkedList<Coordinate>();
+        
+        // adds the 4 fields next to it, to the queue, if they are a road.
+        for (int i = x - 1; i <= x + 1; i++) {
+            for (int j = y - 1; j <= y + 1; j++)
+                if (Math.abs(i - x) + Math.abs(j - y) == 1 && i >= 0 && i < fields.length && j >= 0
+                        && j < fields[0].length)
+                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road) {
+                        Q.add(new Coordinate(i, j));
+                        distances[i][j] = 1;
+                    }
+        }
+        
+        // ha stadion, akkor a stadion 4 mezőjének távolsága 0,
+        // és minden környező út távolsága 1.
+        if(field.getBuilding() instanceof Stadium s) {
+        	int hanyadikMezoje = -1;
+        	for(int k=0; k<4; k++) {
+        		if(field == s.fields[k])
+        			hanyadikMezoje = k;
+        	}
+        	ArrayList<Coordinate> fieldsToAddToQueue = new ArrayList<>();
+        	switch(hanyadikMezoje) {
+        		//jobb alsó
+        		case 0 -> {
+        			fieldsToAddToQueue.addAll(Arrays.asList(new Coordinate(x - 1,y + 1), new Coordinate(x - 2, y), new Coordinate(x - 2, y - 1), new Coordinate(x - 1, y - 2), new Coordinate(x, y - 2), new Coordinate(x + 1, y - 1)));
+        			distances[x - 1][y - 1] = 0;
+        			distances[x - 1][y] = 0;
+        			distances[x][y - 1] = 0;
+        		}
+        		// bal felső
+        		case 1 -> {
+        			fieldsToAddToQueue.addAll(Arrays.asList(new Coordinate(x - 1, y + 1), new Coordinate(x, y + 2), new Coordinate(x + 1, y + 2), new Coordinate(x + 2, y + 1), new Coordinate(x + 2, y), new Coordinate(x + 1, y - 1)));
+        			distances[x][y + 1] = 0;
+        			distances[x + 1][y] = 0;
+        			distances[x + 1][y + 1] = 0;
+        		}
+        		// jobb felső
+        		case 2 -> {
+        			fieldsToAddToQueue.addAll(Arrays.asList(new Coordinate(x + 1, y + 1), new Coordinate(x + 2, y), new Coordinate(x + 2, y - 1), new Coordinate(x + 1, y - 2), new Coordinate(x, y - 2), new Coordinate(x - 1, y - 1)));
+        			distances[x][y - 1] = 0;
+        			distances[x + 1][y - 1] = 0;
+        			distances[x + 1][y] = 0;
+        		}
+        		// jobb alsó
+        		case 3 -> {
+        			fieldsToAddToQueue.addAll(Arrays.asList(new Coordinate(x - 1, y - 1), new Coordinate(x - 2, y), new Coordinate(x - 2, y + 1), new Coordinate(x - 1,y + 2), new Coordinate(x, y + 2), new Coordinate(x + 1, y + 1)));
+        			distances[x - 1][y] = 0;
+        			distances[x - 1][y + 1] = 0;
+        			distances[x][y + 1] = 0;
+        		}
+        		default -> throw new IllegalArgumentException("MatrixDistance stadium: field not in stadium.fields");
+        	}
+        	for(Coordinate c : fieldsToAddToQueue)
+        		if(c.x >= 0 && c.y >= 0 && c.x < fields.length && c.y < fields[0].length && fields[c.x][c.y].getBuilding() instanceof Road) {
+        			Q.add(c);
+        			distances[c.x][c.y] = 1;
+        		}
+        }
+        
         while (!Q.isEmpty()) {
             Coordinate o = (Coordinate) Q.remove();
             if (o.x + 1 < distances.length && distances[o.x + 1][o.y] == -1 && !fields[o.x + 1][o.y].isFree()) {
@@ -1887,22 +1935,22 @@ class City {
                 }
             }
         }
-
+        
         int roadsLeft = distanceMatrix[x][y];
         while (roadsLeft > 1) {
-            if (y + 1 < fields[0].length && distanceMatrix[x][y + 1] == distanceMatrix[x][y] - 1) {
+            if (y + 1 < fields[0].length && fields[x][y + 1].getBuilding() instanceof Road && distanceMatrix[x][y + 1] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[x][++y].getBuilding());
                 roadsLeft--;
                 // Jobbra
-            } else if (x + 1 < fields.length && distanceMatrix[x + 1][y] == distanceMatrix[x][y] - 1) {
+            } else if (x + 1 < fields.length && fields[x + 1][y].getBuilding() instanceof Road && distanceMatrix[x + 1][y] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[++x][y].getBuilding());
                 roadsLeft--;
                 // Lefele
-            } else if (y - 1 >= 0 && distanceMatrix[x][y - 1] == distanceMatrix[x][y] - 1) {
+            } else if (y - 1 >= 0 && fields[x][y - 1].getBuilding() instanceof Road && distanceMatrix[x][y - 1] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[x][--y].getBuilding());
                 roadsLeft--;
                 //Balra
-            } else if (x - 1 >= 0 && distanceMatrix[x - 1][y] == distanceMatrix[x][y] - 1) {
+            } else if (x - 1 >= 0 && fields[x - 1][y].getBuilding() instanceof Road && distanceMatrix[x - 1][y] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[--x][y].getBuilding());
                 roadsLeft--;
                 //Felfele
