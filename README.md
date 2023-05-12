@@ -81,4 +81,4 @@ dolgoznak. A játékban lehetőség van a költségvetés (bevétel és kiadáso
 *majd ha végleges lesz*
 
 ## További információ
-- A dokumentáció, és a kiválasztott részfeladatok a wiki oldalon találhatók.
+- A dokumentáció, és a kiválasztott részfeladatok a [Wiki](../../../wikis/Home) oldalon találhatók.
