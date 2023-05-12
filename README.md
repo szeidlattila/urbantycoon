@@ -1,92 +1,84 @@
 # UrbanTycoon
+## Játék rövid leírása
+A játékban, a játékosnak fel kell építenie saját városát és menedzselnie azt egy széles jogkörökkel bíró polgármesterként. A város különböző típusú zónákból (amelyeken a lakók
+automatikusan építkeznek), a játékos által külön megépítendő kiszolgáló épületekből és az ezeket
+összekötő utakból áll. A játékos célja, hogy **virágzó város**t fejlesszen, ahol a **polgárok boldogok** és a
+**költségvetés kiegyensúlyozott**.
+A kezdeti városépítésére a játékos kap egy kezdőtőkét, azonban a további fejlesztésekhez a helyi
+adóbevételekre kell támaszkodnia. A játékosnak az építésen, romboláson kívül lehetősége van az alábbi funkciókra is:
+- Idő gyorsítása / lassítása / megállítása
+- Adó növelése / csökkentése
+- Zóna információ lekérése
+- Költségvetés áttekintése
 
+## Mezők
+A játéktér különböző típusú mezőkből épül fel. Ezek a mezők lehetnek **zónák**, **kiszolgáló épületek**, **utak** vagy **erdők**.
+### Zóna mezők
+- **Lakó zóna**: A városba költöző emberek ezen mezőkön építtethetnek házat maguknak. Minden
+polgár lakik valahol, az egyes lakóövezeti mezők befogadóképessége pedig véges.
+- **Szolgáltatás zóna**: A polgároknak lehetősége van ilyen típusú zónán dolgozni. Befogadóképessége véges.
+- **Ipari zóna**: A polgároknak lehetősége van ilyen típusú zónán is dolgozni. Az ipari zónán nagyobb valószínűséggel üthet ki tűz, valamint a közelben lakó polgárok is kevésbé elégedettek. Befogadóképessége szintén véges.
+### Kiszolgáló épület mezők
+- **Rendőrség**: Környezetében egy adott sugaron belüli mezők vonatkozásában garantálja a
+közbiztonságot.
+- **Tűzoltóság**: Környezetében egy adott sugaron belüli mezők vonatkozásában csökkenti a tűzesetek valószínűségét. A ténylegesen kialakuló tűzesetek eloltására lehetőség nyílik. A
+legközelebbi tűzoltóságról tűzoltókat lehet küldeni a helyszínre. Egy tűzoltóság egy tűzoltófecskendővel rendelkezik. Amennyiben egy tűz nem kerül időben eloltásra, egy idő után a szomszédos épületekere is átterjed, tovább várakozva az épület megsemmisül.
+- **Stadion**: Környezetében egy adott sugaron belüli bármilyen
+zóna mező vonatkozásában bónusszal növeli a polgárok elégedettségét, ha ott laknak vagy
+dolgoznak.
+### Egyéb mezők
+- **Út**: A polgárok csak olyan zóna mezőn fognak automatikusan építkezni, amely közútról elérhető, egyéb esetben a mező hiába lett kijelölve, érdemben nem használható. Továbbá a város polgárai csak olyan munkahelyen tudnak munkát vállalni, amely a lakóhelyükről közúton elérhető.
+- **Erdő**: Javítja azon közelben
+lakók elégedettségét, akik közvetlenül rálátnak, és növelik a beköltözési kedvet is ilyen zónákba. Csökkenti az ipari zónák által a lakózónákra kifejtett
+negatív hatást, ha két ilyen mező között helyezkedik el. Az erdők 10 éven át növekednek, míg elérik kifejlett állapotukat. Ennek megfelelően az ültetésük
+utáni első 10 évben folyamatosan növekedjen az erdő mezők utáni bónusz.
 
+## Népesség
+A játékos feladata minél nagyobb város fejlesztése, amelyhez nagyobb népesség is szükséges. A játék
+kezdeti időszakában egy adott, kisebb népesség garantáltan érkezik a városba, amennyiben van
+szabad lakózóna, ezzel segítve a település elindulását. Később a további polgárok érkezését a
+következő tényezők befolyásolják pozitívan:
+- a városban a **polgárok általános elégedettségi szintje**
+- a cél lakózónához **minél közelebbi** szabad kapacitással rendelkező **munkahely**
+- a cél lakózónához **nincsen közel ipari épület**
 
-## Getting started
+Minden polgárnak van életkora és **65 évesen nyugdíjba vonulnak**. Ezt követően a nyugdíjas polgár már **nem
+dolgozik**, de lakóhelyre továbbra is szüksége van. **Adót nem fizet**, helyette **nyugdíjat kap**, ami a
+nyugdíjba menetele előtti 20 évben fizetett éves adó átlagának fele legyen.
+A városba kívülről érkező új polgárok életkora 18 és 60 év közötti. A nyugdíjkorhatár felett
+minden évben (egyre növekvő) valószínűséggel **elhalálozik** a nyugdíjas polgár. Ekkor automatiikusan
+egy fiatal, 18 éves polgár lép a helyére, aki azonban
+nem feltétlenül ugyanott fog lakni.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Elégedettség
+A város minden polgára rendelkezik egy elégedettségi mutatóval, amelyet **pozitívan** befolyásolnak a
+következő tényezők:
+- **alacsony adók**
+- lakóhelyhez **közeli munkahely**
+- lakóhelyhez **nincsen közel ipari épület**
+- lakóhely és munkahely **közbiztonság**a
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+**Negatívan** befolyásolják az elégedettséget a következő tényezők:
+- a fenti **pozitív tényezők ellentétei**
+- ha a város **negatív büdzsé**vel rendelkezik (hitelből működik), ez a faktor arányos azzal,
+hogy mekkora hitelről van szó és hány éve negatív a büdzsé
+- ha **kiegyensúlyozatlan** a városban a **szolgáltatások és az ipari termelés aránya**
 
-## Add your files
+Az elégedettségi mutató polgáronként és a teljes városra is értelmezendő. A
+nagyon **elégedetlen polgárok** egy idő után **elköltözhetnek** a városból. Amennyiben a teljes **város
+elégedettsége kritikus**an alacsonnyá válik, leváltják a polgármestert és a **játékos vesztett**.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Bevétel és költségek
+A játékos, mint polgármester egyik legfontosabb feladata a stabil költségvetés fenntartása, hogy a
+város kiadásai (hosszú távon) ne haladják meg a bevételt. Amennyiben a büdzsé negatívba fordul,
+lehetőség van tovább költekezni. Ilyenkor **hitelből működik** a város, azonban ez a
+polgárok egyre súlyosabb elégedetlenségéhez vezet, ami végső soron a polgármester leváltását és a
+**játék elvesztését** eredményezheti. A játékos bevételt **adó**k formájában szerezhet, amelyhez egy éves fix adó összege vethető ki minden
+zóna mezőre. A beszedett adó mértéke függ attól, hogy az adott zóna mezőn hányan laknak vagy
+dolgoznak. A játékban lehetőség van a költségvetés (bevétel és kiadások) áttekintésére.
 
-```
-cd existing_repo
-git remote add origin https://szofttech.inf.elte.hu/szofttech-c-2023/group-04/urbantycoon.git
-git branch -M master
-git push -uf origin master
-```
+## Képernyőkép a játékról
+*majd ha végleges lesz*
 
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://szofttech.inf.elte.hu/szofttech-c-2023/group-04/urbantycoon/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## További információ
+- A dokumentáció, és a kiválasztott részfeladatok a wiki oldalon találhatók.
