@@ -170,6 +170,9 @@ public class UrbanTycoonGUI {
         frame.pack();
         frame.setVisible(true);
 
+        // changeCellsPositions(200, 200);
+        // changeCellsSize(30);
+
     }
 
     private void screenController(String screen) {
@@ -472,9 +475,31 @@ public class UrbanTycoonGUI {
     }
 
     private void setUpInfoPanel() {
+        // private final String[] infoIconNames = { "time", "residents", "residentsSat",
+        // "selectedSat", "tax", "money" };
         CustomButton tax = getButtonByName("tax", infoIcons);
         tax.setFunc(() -> new PopupInfo(new JFrame(), gameArea.budgetInfo(), "Budget"));
         tax.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton time = getButtonByName("time", infoIcons);
+        time.setFunc(() -> {
+            changeCellsSize(10);
+        });
+        time.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton residents = getButtonByName("residents", infoIcons);
+        residents.setFunc(() -> {
+            changeCellsSize(-10);
+        });
+        residents.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton residentsSat = getButtonByName("residentsSat", infoIcons);
+        residentsSat.setFunc(() -> {
+            changeCellsPositions(10, 0);
+        });
+        residentsSat.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton selectedSat = getButtonByName("selectedSat", infoIcons);
+        selectedSat.setFunc(() -> {
+            changeCellsPositions(-10, 0);
+        });
+        selectedSat.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
     }
 
