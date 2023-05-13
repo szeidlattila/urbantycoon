@@ -34,7 +34,7 @@ class City {
     private final int POLICESTATIONSAFETY = 1;
     private final int STADIUMSATBONUS = 1;
     final int FORESTSATBONUS = 1;
-    private final int FIELDSIZE;
+    private int FIELDSIZE;
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
     private final int criticalSatisfaction;
     private final int moveInSatisfaction;
@@ -1081,7 +1081,7 @@ class City {
             price = forestPrice;
         if (price < 0)
             throw new IllegalArgumentException("Invalid value! Price must be greater than 0!");
-
+        FIELDSIZE = fields[0][0].getWidth();
         // The field is free, have enough money -> build it:
         if (playerBuildItClass == Road.class) {
             selectedField.build(new Road(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(),
@@ -1391,6 +1391,7 @@ class City {
      * @param zoneClass
      */
     public void selectField(Class zoneClass) {
+        FIELDSIZE = fields[0][0].getWidth();
         if (selectedField == null || !selectedField.isFree())
             return;
         if (!Zone.class.isAssignableFrom(zoneClass))

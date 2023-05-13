@@ -32,7 +32,8 @@ import javax.swing.JTextField;
 class GameEngine extends JPanel {
 
     private final int FPS = 240;
-    private final int FIELDSIZE;
+    private int FIELDSIZE;
+
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
@@ -95,7 +96,6 @@ class GameEngine extends JPanel {
         time = new Date(1980, 1, 1, 0, 0);
         speed = 1;
 
-
         savesList = new JComboBox();
         JTextField saveNameTextField = new JTextField();
         JButton confirmSaveButton = new JButton("Save");
@@ -129,6 +129,7 @@ class GameEngine extends JPanel {
                 } else { // Buildable is null so cannot draw it -> have to call Field draw method
                     city.getFields()[i][j].draw(grphcs);
                 }
+                // would be better to call this methods outside of paintcomponent
                 UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(),
                         city.getTax() + "$", city.getBudget() + "$");
                 UrbanTycoonGUI.checkActionPrice(city.getBudget(), ZONEPRICE, ROADPRICE, STADIUMPRICE,
@@ -293,8 +294,10 @@ class GameEngine extends JPanel {
     private void fieldSelect(int mouseX, int mouseY) {
         int fieldIndexX, fieldIndexY;
 
-        fieldIndexX = (int) Math.floor((mouseX - city.getxOffset()) / (double) FIELDSIZE);
-        fieldIndexY = (int) Math.floor((mouseY - city.getyOffset()) / (double) FIELDSIZE);
+        fieldIndexX = (int) Math
+                .floor((mouseX - city.getFields()[0][0].getX()) / (double) city.getFields()[0][0].getWidth());
+        fieldIndexY = (int) Math
+                .floor((mouseY - city.getFields()[0][0].getY()) / (double) city.getFields()[0][0].getHeight());
 
         if (fieldIndexX >= 0 && fieldIndexX < FIELDCOLSNUM && fieldIndexY >= 0 && fieldIndexY < FIELDROWSNUM) {
             if (prevSelectedFieldX != -1 && prevSelectedFieldY != -1) { // ha már van selected Field
@@ -358,7 +361,8 @@ class GameEngine extends JPanel {
         Zone selectedZone = (Zone) city.getFields()[prevSelectedFieldY][prevSelectedFieldX].getBuilding();
         String title;
         title = selectedZone.getPeopleNum()
-                + (selectedZone instanceof ResidentialZone ? "Residential zone (" : "Workplace zone (") + "/" + selectedZone.getCapacity() + ")";
+                + (selectedZone instanceof ResidentialZone ? "Residential zone (" : "Workplace zone (") + "/"
+                + selectedZone.getCapacity() + ")";
         new PopupInfo(null, zoneInfo(), title);
     }
 
