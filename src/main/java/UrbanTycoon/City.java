@@ -176,7 +176,7 @@ class City {
         initResidents(residentsNum);
         changeSatisfaction();
     }
-    
+
     public void restart(int residentsNum, int fieldRowsNum, int fieldColsNum, int budget) {
         this.selectedField = null;
         this.satisfaction = 0;
@@ -184,7 +184,7 @@ class City {
         this.negativeBudgetNthYear = 0;
         this.tax = 100;
         this.budget = budget;
-    
+
         if (residentsNum > 0) {
             this.residents = new ArrayList<>(residentsNum);
         } else {
@@ -623,7 +623,7 @@ class City {
                 moveInOneResident(false);
             }
         }
-        setForestSatisfaction();
+        // setForestSatisfaction();
         changeSatisfaction();
     }
 
@@ -961,6 +961,10 @@ class City {
     public void reassignHomesOrWorkplaces() {
         ArrayList<Resident> removeResidents = new ArrayList<>();
         for (Resident r : residents) {
+            if (r.getWorkplace() == null || r.getHome() == null) {
+                // apply satisfaction penalty per capita if they are included in a conflicted
+                // building/road removal
+            }
             if (r.getHome() == null) {
                 initHome(r);
                 initWorkplace(r);
@@ -1500,19 +1504,6 @@ class City {
     public int[][] calculateForestBonusResZone() {
         int defaultBonus = FORESTSATBONUS;
         int[][] bonusPerHouse = new int[fields.length][fields[0].length];
-        ArrayList<Field> houseFields = new ArrayList<Field>();
-        ArrayList<Field> forestFields = new ArrayList<Field>();
-        // populate arrayLists
-        for (Field row[] : fields) {
-            for (Field f : row) {
-                if (f.getBuilding() instanceof ResidentialZone) {
-                    houseFields.add(f);
-                }
-                if (f.getBuilding() instanceof Forest) {
-                    forestFields.add(f);
-                }
-            }
-        }
         // calculate eyesight
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[0].length; j++) {
@@ -1657,22 +1648,61 @@ class City {
         return bonusPerHouse;
     }
 
+    // !!IMPORTANT!! only check cells for forests between the res and ind zones
+    // if you check the field even if its not between the zones the math will be
+    // still correct
+    public boolean decreaseIndustrialPenalty(Field residental, Field industrial, Field field) {
+        // cell diagonal divided by 2
+        double halfCellDiagonal = (Math
+                .sqrt(Math.pow(residental.getHeight(), 2) + Math.pow(residental.getWidth(), 2))) / 2;
+        // residental cell middlePoint
+        double resX = residental.getX() + (residental.getWidth() / 2);
+        double resY = residental.getY() + (residental.getHeight() / 2);
+
+        // industrial cell middlePoint
+        double indX = industrial.getX() + (industrial.getWidth() / 2);
+        double indY = industrial.getY() + (industrial.getHeight() / 2);
+
+        // field cell middlePoint
+        double fX = field.getX() + (field.getWidth() / 2);
+        double fY = field.getY() + (field.getHeight() / 2);
+
+        // calculate equation of the line between them, e(x)
+        double eX, eY, eR;
+        // normal vectors
+        eX = resY - indY;
+        eY = resX - indX;
+        // result
+        eR = (eX * indX) - (eY * indY);
+
+        // pass point into e(x)
+        double pR = eX * fX - eY * fY - eR;
+        // normal vector length
+        double nL = Math.sqrt(Math.pow(eX, 2) + Math.pow(eY, 2));
+        // distance result
+        double distance = Math.abs(pR / nL);
+        if (distance <= halfCellDiagonal && field.getBuilding() instanceof Forest) {
+            return true;
+        }
+
+        return false;
+    }
+
     public void setForestSatisfaction() {
         int[][] bonusPerHouse = calculateForestBonusResZone();
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[0].length; j++) {
                 if (fields[i][j].getBuilding() instanceof ResidentialZone) {
-                    ((Zone) fields[i][j].getBuilding()).setForestBonus(bonusPerHouse[i][j]);
+                    // applying bonus to the house
                 }
             }
-            System.out.println();
         }
-        System.out.println();
     }
 
     public boolean canDeleteRoad(Field field) {
-        if (field == null)  return false;
-        
+        if (field == null)
+            return false;
+
         // copy fields matrix to simulate road deleting
         Field[][] copyFields = new Field[fields.length][fields[0].length];
 
