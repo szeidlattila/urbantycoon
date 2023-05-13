@@ -15,7 +15,12 @@ import java.awt.*;
  * @author Felhasználó
  */
 public class UrbanTycoonGUI {
+    // properties to change for UX
     private int FIELDSIZE = 60;
+    private int addedX = 0;
+    private int addedY = 0;
+
+    // properties to change in UI
     private int UIPADDING = 20;
     private int ACTIONBSIZE = 60;
     private int CONTROLBSIZE = 50;
@@ -42,7 +47,8 @@ public class UrbanTycoonGUI {
     private static ArrayList<CustomButton> actionButtons = new ArrayList<CustomButton>();
 
     // control buttons
-    private final String[] controlButtonNames = { "play", "pause", "accTime", "deaccTime", "taxInc", "taxDec", "info", "load",
+    private final String[] controlButtonNames = { "play", "pause", "accTime", "deaccTime", "taxInc", "taxDec", "info",
+            "load",
             "save" };
     private final ArrayList<CustomButton> controlButtons = new ArrayList<>();
 
@@ -93,6 +99,9 @@ public class UrbanTycoonGUI {
         frame.add(layeredPane);
         frame.pack();
         frame.setVisible(true);
+
+        // changeCellsPositions(200, 200);
+        // changeCellsSize(30);
 
     }
 
@@ -256,9 +265,31 @@ public class UrbanTycoonGUI {
     }
 
     private void setUpInfoPanel() {
+        // private final String[] infoIconNames = { "time", "residents", "residentsSat",
+        // "selectedSat", "tax", "money" };
         CustomButton tax = getButtonByName("tax", infoIcons);
         tax.setFunc(() -> new PopupInfo(new JFrame(), gameArea.budgetInfo(), "Budget"));
         tax.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton time = getButtonByName("time", infoIcons);
+        time.setFunc(() -> {
+            changeCellsSize(10);
+        });
+        time.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton residents = getButtonByName("residents", infoIcons);
+        residents.setFunc(() -> {
+            changeCellsSize(-10);
+        });
+        residents.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton residentsSat = getButtonByName("residentsSat", infoIcons);
+        residentsSat.setFunc(() -> {
+            changeCellsPositions(10, 0);
+        });
+        residentsSat.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton selectedSat = getButtonByName("selectedSat", infoIcons);
+        selectedSat.setFunc(() -> {
+            changeCellsPositions(-10, 0);
+        });
+        selectedSat.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
     }
 
@@ -326,5 +357,54 @@ public class UrbanTycoonGUI {
         residentsSat.setText(rSatS + "");
         tax.setText(taxS);
         money.setText(moneyS);
+    }
+
+    public void changeCellsSize(int size) {
+        Field fields[][] = gameArea.getCity().getFields();
+        int CurrentOffsetX = fields[0][0].getX();
+        int CurrentOffsetY = fields[0][0].getY();
+        int CurrentCellsWidth = fields[0][0].getWidth() * fields[0].length;
+        int CurrentCellsHeight = fields[0][0].getHeight() * fields.length;
+        int NewCellsWidth = (fields[0][0].getWidth() + size) * fields[0].length;
+        int NewCellsHeight = (fields[0][0].getHeight() + size) * fields.length;
+        int NewOffsetX = CurrentOffsetX - ((NewCellsWidth - CurrentCellsWidth) / 2);
+        int NewOffsetY = CurrentOffsetY - ((NewCellsHeight - CurrentCellsHeight) / 2);
+
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[0].length; j++) {
+                Field field = fields[i][j];
+                int newX = NewOffsetX + (j * (field.getWidth() + size));
+                int newY = NewOffsetY + (i * (field.getHeight() + size));
+                if (!field.isFree()) {
+                    newX = NewOffsetX + (j * (field.getBuilding().getWidth() + size));
+                    newY = NewOffsetY + (i * (field.getBuilding().getHeight() + size));
+                    field.getBuilding().changeSize(size);
+                    field.getBuilding().setX(newX);
+                    field.getBuilding().setY(newY);
+                } else {
+                    field.changeSize(size);
+                    field.setX(newX);
+                    field.setY(newY);
+                }
+            }
+        }
+
+    }
+
+    public void changeCellsPositions(int x, int y) {
+        Field fields[][] = gameArea.getCity().getFields();
+        for (int i = 0; i < fields.length; i++) {
+            for (int j = 0; j < fields[0].length; j++) {
+                Field field = fields[i][j];
+                if (!fields[i][j].isFree()) {
+                    field.getBuilding().changeX(x);
+                    field.getBuilding().changeY(y);
+                } else {
+                    field.changeX(x);
+                    field.changeY(y);
+                }
+            }
+        }
+
     }
 }

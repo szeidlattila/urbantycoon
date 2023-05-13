@@ -32,6 +32,7 @@ class Field extends Sprite {
         this.burntDown = false;
     }
 
+
     public boolean isFree() {
         return free;
     }

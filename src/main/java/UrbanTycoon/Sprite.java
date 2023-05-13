@@ -23,7 +23,6 @@ public class Sprite {
     protected int height;
     protected Image image;
 
-
     public Sprite(int x, int y, int width, int height, Image image) {
         this.width = width;
         this.height = height;
@@ -37,7 +36,9 @@ public class Sprite {
     }
 
     public void draw(Graphics g) {
-        g.drawImage(image, x, y, width, height, null);
+        if (x > -width && y > -height) {
+            g.drawImage(image, x, y, width, height, null);
+        }
     }
 
     /**
@@ -60,12 +61,20 @@ public class Sprite {
         this.x = x;
     }
 
+    public void changeX(int x) {
+        this.x += x;
+    }
+
     public int getY() {
         return y;
     }
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public void changeY(int y) {
+        this.y += y;
     }
 
     public int getWidth() {
@@ -82,6 +91,11 @@ public class Sprite {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public void changeSize(int size) {
+        this.width += size;
+        this.height += size;
     }
 
     public Image getImage() {
