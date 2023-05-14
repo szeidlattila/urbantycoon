@@ -308,4 +308,9 @@ public class ConflictDemolition {
         assertNotEquals(previousWorkplace, r.getWorkplace());
         assertEquals(1, cityWorkplacePeopleNumAfterInitWorkplace - cityWorkplacePeopleNum);
     }
+    
+    @Test
+    public void wrong() {
+        assertTrue(false);
+    }
 }

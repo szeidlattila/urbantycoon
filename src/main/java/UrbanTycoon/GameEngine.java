@@ -51,7 +51,7 @@ class GameEngine extends JPanel {
     private final int RADIUS = 3;
     private final int CRITSATISFACTION = -5;
     private final int MOVEINATLEASTSATISFACTION = 5;
-    private final double CHANCEOFFIRE = 0.0;
+    private final double CHANCEOFFIRE = 0.05; // default 0.05 (change it 0.0 for tests)
     private final JFrame saveGameFrame = new JFrame("Save game");
     private final JFrame loadGameFrame = new JFrame("Load game");
     private final JPanel saveGamePanel = new JPanel();
