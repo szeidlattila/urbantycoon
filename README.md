@@ -78,7 +78,7 @@ zóna mezőre. A beszedett adó mértéke függ attól, hogy az adott zóna mez�
 dolgoznak. A játékban lehetőség van a költségvetés (bevétel és kiadások) áttekintésére.
 
 ## Képernyőkép a játékról
-*majd ha végleges lesz*
+![](./data/screenshots/screenshot.png)
 
 ## További információ
 - A dokumentáció, és a kiválasztott részfeladatok a [Wiki](../../../wikis/Home) oldalon találhatók.
