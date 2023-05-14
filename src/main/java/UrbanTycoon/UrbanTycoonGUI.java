@@ -28,6 +28,7 @@ public class UrbanTycoonGUI {
     private int BUTTONPADDING = 10;
     private int INFOPANELWIDTH = 784;
     private int INFOPANELHEIGHT = 50;
+    private int SIDEPANELWIDTH = 500;
     private int INFOPANELPADDING = (INFOPANELHEIGHT - INFOICONSIZE) / 2;
     private String buttonFilePath = "data/graphics/other/buttons/";
     private String uiFilePath = "data/graphics/other/UIelements/";
@@ -57,6 +58,18 @@ public class UrbanTycoonGUI {
     private final ArrayList<CustomButton> infoIcons = new ArrayList<>();
     private static final ArrayList<CustomLabel> infoLabels = new ArrayList<>();
 
+    // UX buttons
+    private final String[] uxButtonNames = { "plusSize", "minusSize", "leftPos", "rightPos", "upPos", "downPos" };
+    private final ArrayList<CustomButton> uxButtons = new ArrayList<>();
+
+    // side panel
+    private final String[] sidePanelLabelNames = { "Continue", "Restart Level", "Help", "Settings", "Exit & Save" };
+    private final ArrayList<CustomLabel> sidePanelLabels = new ArrayList<>();
+
+    // main menu
+    private final String[] mainMenuLabelNames = { "New game", "Load Saves", "Credits", "Settings", "Exit Game" };
+    private final ArrayList<CustomLabel> mainMenuLabels = new ArrayList<>();
+
     public UrbanTycoonGUI() {
         this.screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.screenWidth = screenSize.width;
@@ -74,7 +87,7 @@ public class UrbanTycoonGUI {
 
         // game area
         gameArea = new GameEngine(screenSize, FIELDSIZE);
-        gameArea.setBackground(Color.decode("#BBF38F"));
+        gameArea.setBackground(Color.decode("#C9E7C9"));
         gameArea.setBounds(0, 0, screenWidth, screenHeight);
         layeredPane.add(gameArea, Integer.valueOf(0));
 
@@ -92,17 +105,69 @@ public class UrbanTycoonGUI {
         CustomPanel infoPanel = new CustomPanel();
         createInfoPanel(infoPanel, 3, 16);
 
+        // UX buttons
+        JPanel uxPanel = new JPanel();
+        createUXPanel(uxPanel, 4);
+
+        // menu button
+        CustomButton menuButton = new CustomButton(buttonFilePath + "menu", CONTROLBSIZE, "menu",
+                "menu");
+        menuButton.setBounds(UIPADDING, UIPADDING, CONTROLBSIZE, CONTROLBSIZE);
+        layeredPane.add(menuButton, new Integer(5));
+
+        // darken background
+        CustomPanel darkenBackground = new CustomPanel();
+        darkenBackground.setBounds(0, 0, screenWidth, screenHeight);
+        darkenBackground.setOpaque(false);
+        darkenBackground.setImage(uiFilePath + "darkenBackground");
+        // layeredPane.add(darkenBackground, new Integer(6));
+        // side panel
+        JPanel sidePanel = new JPanel();
+        sidePanel.setBounds(0, 0, SIDEPANELWIDTH, screenHeight);
+        sidePanel.setBackground(Color.decode("#404040"));
+        sidePanel.setBorder(
+                BorderFactory.createEmptyBorder((screenHeight) - 75 - (sidePanelLabelNames.length * 50), 45, 75, 0));
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        for (int index = 0; index < sidePanelLabelNames.length; index++) {
+            CustomLabel sidePanelLabel = new CustomLabel(sidePanelLabelNames[index], 33, "Bold", "left",
+                    sidePanelLabelNames[index]);
+            sidePanelLabels.add(sidePanelLabel);
+            sidePanel.add(sidePanelLabel);
+            if (index != sidePanelLabelNames.length - 1) {
+                sidePanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
+            }
+
+        }
+        // layeredPane.add(sidePanel, new Integer(7));
+
         setUpControlButtons();
         setUpActionButtons();
         setUpInfoPanel();
+        setUpUxButtons();
+
         // add the layered pane to the frame and make it visible
         frame.add(layeredPane);
         frame.pack();
         frame.setVisible(true);
 
-        // changeCellsPositions(200, 200);
-        // changeCellsSize(30);
+    }
 
+    private void createUXPanel(JPanel uxPanel, int paneIndex) {
+        uxPanel.setLayout(new FlowLayout(FlowLayout.CENTER, BUTTONPADDING - 2, 0));
+        int panelLength = panelSize(uxButtonNames, CONTROLBSIZE, BUTTONPADDING);
+        int uxPanelX = centerPanelPosition(panelLength, screenWidth);
+        int uxPanelY = screenHeight - UIPADDING - CONTROLBSIZE;
+        uxPanel.setBounds(uxPanelX, uxPanelY, panelLength, CONTROLBSIZE);
+        uxPanel.setOpaque(false);
+        // uxPanel.setBackground(Color.RED);
+        uxPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        for (int i = 0; i < uxButtonNames.length; i++) {
+            String filePath = buttonFilePath + uxButtonNames[i];
+            CustomButton uxButton = new CustomButton(filePath, CONTROLBSIZE, "uxButton", uxButtonNames[i]);
+            uxPanel.add(uxButton);
+            uxButtons.add(uxButton);
+        }
+        layeredPane.add(uxPanel, new Integer(paneIndex));
     }
 
     private void createInfoPanel(CustomPanel infoPanel, int paneIndex, int textSize) {
@@ -173,6 +238,40 @@ public class UrbanTycoonGUI {
     }
 
     // starting position
+    private void setUpUxButtons() {
+        CustomButton plusSize = getButtonByName("plusSize", uxButtons);
+        plusSize.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton minusSize = getButtonByName("minusSize", uxButtons);
+        minusSize.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton rightPos = getButtonByName("rightPos", uxButtons);
+        rightPos.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton leftPos = getButtonByName("leftPos", uxButtons);
+        leftPos.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton upPos = getButtonByName("upPos", uxButtons);
+        upPos.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton downPos = getButtonByName("downPos", uxButtons);
+        downPos.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        plusSize.setFunc(() -> {
+            changeCellsSize(10);
+        });
+        minusSize.setFunc(() -> {
+            changeCellsSize(-10);
+        });
+        rightPos.setFunc(() -> {
+            changeCellsPositions(10, 0);
+        });
+        leftPos.setFunc(() -> {
+            changeCellsPositions(-10, 0);
+        });
+        upPos.setFunc(() -> {
+            changeCellsPositions(0, -10);
+        });
+        downPos.setFunc(() -> {
+            changeCellsPositions(0, 10);
+        });
+    }
+
     private void setUpControlButtons() {
         CustomButton play = getButtonByName("play", controlButtons);
         CustomButton pause = getButtonByName("pause", controlButtons);
@@ -265,31 +364,9 @@ public class UrbanTycoonGUI {
     }
 
     private void setUpInfoPanel() {
-        // private final String[] infoIconNames = { "time", "residents", "residentsSat",
-        // "selectedSat", "tax", "money" };
         CustomButton tax = getButtonByName("tax", infoIcons);
         tax.setFunc(() -> new PopupInfo(new JFrame(), gameArea.budgetInfo(), "Budget"));
         tax.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        CustomButton time = getButtonByName("time", infoIcons);
-        time.setFunc(() -> {
-            changeCellsSize(10);
-        });
-        time.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        CustomButton residents = getButtonByName("residents", infoIcons);
-        residents.setFunc(() -> {
-            changeCellsSize(-10);
-        });
-        residents.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        CustomButton residentsSat = getButtonByName("residentsSat", infoIcons);
-        residentsSat.setFunc(() -> {
-            changeCellsPositions(10, 0);
-        });
-        residentsSat.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        CustomButton selectedSat = getButtonByName("selectedSat", infoIcons);
-        selectedSat.setFunc(() -> {
-            changeCellsPositions(-10, 0);
-        });
-        selectedSat.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
     }
 
