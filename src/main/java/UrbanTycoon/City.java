@@ -758,7 +758,7 @@ class City {
         this.fields = new Field[fieldRowsNum][fieldColsNum];
 
         try {
-            try (Scanner reader = new Scanner(new File("data/persistence/initFields.txt"))) {
+            try (Scanner reader = new Scanner(new File("data/persistence/" + (test ? "testInitFields.txt" : "initFields.txt")))) {
                 while (reader.hasNextLine()) {
                     String line = reader.nextLine();
                     processLine(line, rows);
