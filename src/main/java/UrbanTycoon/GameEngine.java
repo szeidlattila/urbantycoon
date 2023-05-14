@@ -336,8 +336,7 @@ class GameEngine extends JPanel {
         city.tryDenominateOrDestroyZone();
     }
 
-    public String budgetInfo() { // city.getTax()*city.getResidentsNum()*2, mert munkahely + lakóhely, nyugdíj
-                                 // bezavarhat majd (aki már nem dolgozik)
+    public String budgetInfo() {
         return "<html><h2><font color=#00a605>Annual incomes</font><h2></html>\nResident tax: " + city.getTax()
                 + "$/residential  (" + city.getResidentsNum() +
                 " residents)\nEmployer tax: " + city.getTax() + "$/employer  (" + city.getResidentsNum()
