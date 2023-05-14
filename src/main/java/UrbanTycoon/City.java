@@ -172,7 +172,7 @@ class City {
             this.yOffset = (screenHeight - (fieldSize * fieldRowsNum)) / 2;
         }
 
-        initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
+        initFields(fieldRowsNum, fieldColsNum, screenSize == null); // in JUnit test there is no screenSize
         initResidents(residentsNum);
         changeSatisfaction();
     }
@@ -191,7 +191,7 @@ class City {
             throw new IllegalArgumentException("Invalid value! Residents number must be greater than 0!");
         }
 
-        initFields(residentsNum, residentCapacity, workplaceCapacity, fieldRowsNum, fieldColsNum);
+        initFields(fieldRowsNum, fieldColsNum, screenSize == null); // in JUnit test there is no screenSize
         initResidents(residentsNum);
         changeSatisfaction();
     }
@@ -809,32 +809,26 @@ class City {
 
     /**
      * initialize fields
-     * calculate how many Residential zone and Workplace (Service zone and
-     * Industrial zone) needed depends on residentNum and zone capacities
      * fill fields with the right zones
      * 
-     * @param residentsNum
-     * @param homeCapacity
-     * @param workplaceCapacity
      * @param fieldRowsNum
      * @param fieldColsNum
+     * @param test only for JUnit test
      */
-    private void initFields(int residentsNum, int residentCapacity, int workplaceCapacity, int fieldRowsNum,
-            int fieldColsNum) {
+    private void initFields(int fieldRowsNum, int fieldColsNum, boolean test) {
         int rows = 0;
         int cols = 0;
         this.fields = new Field[fieldRowsNum][fieldColsNum];
 
         try {
-            Scanner reader = new Scanner(new File("data/persistence/initFields.txt"));
-            while (reader.hasNextLine()) {
-                String line = reader.nextLine();
-                processLine(line, rows);
-                rows++;
-                cols = line.split("\\s+").length;
+            try (Scanner reader = new Scanner(new File("data/persistence/" + (test ? "testInitFields.txt" : "initFields.txt")))) {
+                while (reader.hasNextLine()) {
+                    String line = reader.nextLine();
+                    processLine(line, rows);
+                    rows++;
+                    cols = line.split("\\s+").length;
+                }
             }
-
-            reader.close();
 
             if (rows != fieldRowsNum) {
                 throw new IllegalArgumentException("Invalid value! File lines number (" + rows
@@ -854,15 +848,11 @@ class City {
                 if (!field.isFree() && field.getBuilding() instanceof Zone zone)
                     zone.setBuiltUp(true);
             }
-        }
-        /*
-         * for (Field[] row : fields) {
-         * for (Field field : row) {
-         * if (!field.isFree() && field.getBuilding() instanceof Zone)
-         * field.getBuilding().progressBuilding(4);
-         * }
-         * }
-         */
+        }  
+    }
+    
+    private void initFields(int fieldRowsNum, int fieldColsNum) {
+        initFields(fieldRowsNum, fieldColsNum, false);
     }
 
     /**
