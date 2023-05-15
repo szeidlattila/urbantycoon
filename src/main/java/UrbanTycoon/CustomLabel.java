@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.File;
 import java.io.IOException;
+
 import javax.swing.JLabel;
 
 public class CustomLabel extends JLabel {
@@ -20,7 +21,7 @@ public class CustomLabel extends JLabel {
             font = font.deriveFont(Font.PLAIN, size);
             setFont(font);
         } catch (IOException | FontFormatException e) {
-            
+
         }
 
         switch (alignment.toLowerCase()) {
@@ -29,13 +30,11 @@ public class CustomLabel extends JLabel {
             case "right" -> setHorizontalAlignment(JLabel.RIGHT);
             default -> throw new IllegalArgumentException("Invalid alignment: " + alignment);
         }
-        
         setVerticalAlignment(JLabel.CENTER);
         setForeground(Color.WHITE);
     }
-    
+
     public String getType() {
         return type;
     }
-
 }
