@@ -6,6 +6,7 @@ package UrbanTycoon;
 
 import javax.swing.JFrame;
 import javax.swing.text.ChangedCharSetException;
+import javax.security.auth.login.CredentialNotFoundException;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.awt.*;
@@ -36,6 +37,9 @@ public class UrbanTycoonGUI {
     private final JFrame frame;
     private final JLayeredPane layeredPane;
     private final GameEngine gameArea;
+    private final JPanel controlPanel, actionPanel, uxPanel, sidePanel, mainMenuSidePanel;
+    private final CustomPanel darkenBackground, mainMenuWallpaper, infoPanel;
+    private final CustomButton menuButton, gameLogo;
 
     // screen properties
     private final Dimension screenSize;
@@ -64,11 +68,11 @@ public class UrbanTycoonGUI {
 
     // side panel
     private final String[] sidePanelLabelNames = { "Continue", "Restart Level", "Help", "Settings", "Exit & Save" };
-    private final ArrayList<CustomLabel> sidePanelLabels = new ArrayList<>();
+    private final ArrayList<CustomLabelButton> sidePanelLabels = new ArrayList<>();
 
     // main menu
     private final String[] mainMenuLabelNames = { "New game", "Load Saves", "Credits", "Settings", "Exit Game" };
-    private final ArrayList<CustomLabel> mainMenuLabels = new ArrayList<>();
+    private final ArrayList<CustomLabelButton> mainMenuLabels = new ArrayList<>();
 
     public UrbanTycoonGUI() {
         this.screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -87,69 +91,135 @@ public class UrbanTycoonGUI {
 
         // game area
         gameArea = new GameEngine(screenSize, FIELDSIZE);
-        gameArea.setBackground(Color.decode("#C9E7C9"));
+        gameArea.setBackground(Color.decode("#4DC25F"));
         gameArea.setBounds(0, 0, screenWidth, screenHeight);
-        layeredPane.add(gameArea, Integer.valueOf(0));
 
         // control buttons
-        int panelX = UIPADDING;
-        JPanel controlPanel = new JPanel();
+        int panelX = UIPADDING; 
+        controlPanel = new JPanel();
         createButtonPanel(controlButtonNames, CONTROLBSIZE, panelX, controlPanel, 1, "controlButton", controlButtons);
 
         // action buttons
-        JPanel actionPanel = new JPanel();
+        actionPanel = new JPanel();
         panelX = screenWidth - ACTIONBSIZE - UIPADDING;
         createButtonPanel(actionButtonNames, ACTIONBSIZE, panelX, actionPanel, 2, "actionButton", actionButtons);
 
         // info panel
-        CustomPanel infoPanel = new CustomPanel();
+        infoPanel = new CustomPanel();
         createInfoPanel(infoPanel, 3, 16);
 
         // UX buttons
-        JPanel uxPanel = new JPanel();
+        uxPanel = new JPanel();
         createUXPanel(uxPanel, 4);
 
         // menu button
-        CustomButton menuButton = new CustomButton(buttonFilePath + "menu", CONTROLBSIZE, "menu",
+        menuButton = new CustomButton(buttonFilePath + "menu", CONTROLBSIZE, "menu",
                 "menu");
         menuButton.setBounds(UIPADDING, UIPADDING, CONTROLBSIZE, CONTROLBSIZE);
-        layeredPane.add(menuButton, new Integer(5));
-
+        
         // darken background
-        CustomPanel darkenBackground = new CustomPanel();
+        darkenBackground = new CustomPanel();
         darkenBackground.setBounds(0, 0, screenWidth, screenHeight);
         darkenBackground.setOpaque(false);
         darkenBackground.setImage(uiFilePath + "darkenBackground");
-        // layeredPane.add(darkenBackground, new Integer(6));
         // side panel
-        JPanel sidePanel = new JPanel();
+        sidePanel = new JPanel();
         sidePanel.setBounds(0, 0, SIDEPANELWIDTH, screenHeight);
         sidePanel.setBackground(Color.decode("#404040"));
         sidePanel.setBorder(
                 BorderFactory.createEmptyBorder((screenHeight) - 75 - (sidePanelLabelNames.length * 50), 45, 75, 0));
         sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
         for (int index = 0; index < sidePanelLabelNames.length; index++) {
-            CustomLabel sidePanelLabel = new CustomLabel(sidePanelLabelNames[index], 33, "Bold", "left",
+            CustomLabelButton sidePanelLabel = new CustomLabelButton(sidePanelLabelNames[index], 33, "Bold", "left",
                     sidePanelLabelNames[index]);
             sidePanelLabels.add(sidePanelLabel);
             sidePanel.add(sidePanelLabel);
             if (index != sidePanelLabelNames.length - 1) {
-                sidePanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
+                // sidePanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
             }
-
         }
-        // layeredPane.add(sidePanel, new Integer(7));
+
+        // main menu
+        mainMenuWallpaper = new CustomPanel();
+        mainMenuWallpaper.setBounds(0, 0, screenWidth, screenHeight);
+        mainMenuWallpaper.setBackground(new Color(0, 0, 0, 0));
+        mainMenuWallpaper.setImage(uiFilePath + "wallpaper");
+        // main menu sidepanel
+        mainMenuSidePanel = new JPanel();
+        mainMenuSidePanel.setBounds(0, 0, SIDEPANELWIDTH, screenHeight);
+        mainMenuSidePanel.setBackground(Color.decode("#404040"));
+        mainMenuSidePanel.setBorder(
+                BorderFactory.createEmptyBorder((screenHeight) - 75 - (mainMenuLabelNames.length * 50), 45, 75, 0));
+        mainMenuSidePanel.setLayout(new BoxLayout(mainMenuSidePanel, BoxLayout.Y_AXIS));
+        for (int index = 0; index < mainMenuLabelNames.length; index++) {
+            CustomLabelButton mainMenuLabel = new CustomLabelButton(mainMenuLabelNames[index], 33, "Bold", "left",
+                    mainMenuLabelNames[index]);
+            mainMenuLabels.add(mainMenuLabel);
+            mainMenuSidePanel.add(mainMenuLabel);
+            if (index != mainMenuLabelNames.length - 1) {
+                // mainMenuSidePanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
+            }
+        }
+        // main menu logo
+        gameLogo = new CustomButton(uiFilePath + "gameLogo", 300, "logo", "logo");
+        gameLogo.setBounds(45, 45, 300, 300);
+        gameLogo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
         setUpControlButtons();
         setUpActionButtons();
         setUpInfoPanel();
         setUpUxButtons();
+        setUpLabelButtons();
+        screenController("mainMenu");
 
         // add the layered pane to the frame and make it visible
         frame.add(layeredPane);
         frame.pack();
         frame.setVisible(true);
 
+    }
+
+    private void screenController(String screen) {
+        switch (screen) {
+            case "mainMenu":
+                layeredPane.removeAll();
+                layeredPane.add(mainMenuWallpaper, new Integer(0));
+                layeredPane.add(mainMenuSidePanel, new Integer(1));
+                layeredPane.add(gameLogo, new Integer(2));
+                break;
+            case "game":
+                layeredPane.removeAll();
+                layeredPane.add(gameArea, new Integer(0));
+                layeredPane.add(controlPanel, new Integer(1));
+                layeredPane.add(actionPanel, new Integer(2));
+                layeredPane.add(infoPanel, new Integer(3));
+                layeredPane.add(uxPanel, new Integer(4));
+                layeredPane.add(menuButton, new Integer(5));
+                menuButton.setFunc(() -> {
+                    screenController("sidePanel");
+                });
+                break;
+            case "sidePanel":
+                layeredPane.remove(menuButton);
+                layeredPane.add(darkenBackground, new Integer(5));
+                layeredPane.add(sidePanel, new Integer(6));
+                layeredPane.add(menuButton, new Integer(7));
+                menuButton.setFunc(() -> {
+                    screenController("removeSidePanel");
+                });
+                break;
+            case "removeSidePanel":
+                layeredPane.remove(darkenBackground);
+                layeredPane.remove(sidePanel);
+                layeredPane.remove(menuButton);
+                layeredPane.add(menuButton, new Integer(5));
+                menuButton.setFunc(() -> {
+                    screenController("sidePanel");
+                });
+                break;
+            default:
+                break;
+        }
     }
 
     private void createUXPanel(JPanel uxPanel, int paneIndex) {
@@ -167,7 +237,6 @@ public class UrbanTycoonGUI {
             uxPanel.add(uxButton);
             uxButtons.add(uxButton);
         }
-        layeredPane.add(uxPanel, new Integer(paneIndex));
     }
 
     private void createInfoPanel(CustomPanel infoPanel, int paneIndex, int textSize) {
@@ -186,7 +255,6 @@ public class UrbanTycoonGUI {
             infoLabels.add(infoLabel);
             infoPanel.add(infoLabel);
         }
-        layeredPane.add(infoPanel, new Integer(paneIndex));
     }
 
     private void createButtonPanel(String[] buttonNames, int BUTTONSIZE, int panelX, JPanel buttonPanel,
@@ -208,7 +276,6 @@ public class UrbanTycoonGUI {
                 buttonPanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
             }
         }
-        layeredPane.add(buttonPanel, new Integer(paneIndex));
     }
 
     private int panelSize(String[] arr, int buttonSize, int buttonPadding) {
@@ -237,7 +304,53 @@ public class UrbanTycoonGUI {
         return null;
     }
 
+    private static CustomLabelButton getLabelButtonByType(String type, ArrayList<CustomLabelButton> arr) {
+        for (CustomLabelButton customLabel : arr) {
+            if (customLabel.getType() == null ? type == null : customLabel.getType().equals(type)) {
+                return customLabel;
+            }
+        }
+        return null;
+    }
+
     // starting position
+
+    private void setUpLabelButtons() {
+        // side panel
+        // private final String[] sidePanelLabelNames = { "Continue", "Restart Level",
+        // "Help", "Settings", "Exit & Save" };
+        // main menu
+        // private final String[] mainMenuLabelNames = { "New game", "Load Saves",
+        // "Credits", "Settings", "Exit Game" };
+        CustomLabelButton newGameButton = getLabelButtonByType("New game", mainMenuLabels);
+        newGameButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        newGameButton.setFunc(() -> {
+            System.out.println("New game");
+            screenController("game");
+        });
+        CustomLabelButton loadSavesButton = getLabelButtonByType("Load Saves", mainMenuLabels);
+        CustomLabelButton creditsButton = getLabelButtonByType("Credits", mainMenuLabels);
+        CustomLabelButton settingsButtonSide = getLabelButtonByType("Settings", mainMenuLabels);
+        CustomLabelButton exitGameButton = getLabelButtonByType("Exit Game", mainMenuLabels);
+        exitGameButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        exitGameButton.setFunc(() -> {
+            System.exit(0);
+        });
+        CustomLabelButton continueButton = getLabelButtonByType("Continue", sidePanelLabels);
+        continueButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        continueButton.setFunc(() -> {
+            screenController("removeSidePanel");
+        });
+        CustomLabelButton restartLevelButton = getLabelButtonByType("Restart Level", sidePanelLabels);
+        CustomLabelButton helpButton = getLabelButtonByType("Help", sidePanelLabels);
+        CustomLabelButton settingsButtonMain = getLabelButtonByType("Settings", sidePanelLabels);
+        CustomLabelButton exitSaveButton = getLabelButtonByType("Exit & Save", sidePanelLabels);
+        exitSaveButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        exitSaveButton.setFunc(() -> {
+            screenController("mainMenu");
+        });
+    }
+
     private void setUpUxButtons() {
         CustomButton plusSize = getButtonByName("plusSize", uxButtons);
         plusSize.setCursor(new Cursor(Cursor.HAND_CURSOR));
