@@ -335,11 +335,8 @@ class City {
             throw new IllegalArgumentException("Home not Found!");
         sat += r.getHome().getSatisfactionBonus();
         sat += r.getHome().getSafety();
-        for (int i = Math.max(0, homeIndexX - 5); i < Math.min(fields.length, homeIndexX + 6); i++) {
-            for (int j = Math.max(0, homeIndexY - 5); j < Math.min(fields[0].length, homeIndexY + 6); j++)
-                if (fields[i][j].getBuilding() instanceof IndustrialZone)
-                    sat += Math.max(Math.abs(i - homeIndexX), Math.abs(j - homeIndexY)) - 6;
-        }
+        sat -= r.getHome().getIndustrialPenalty();
+        
         if (r.isRetired())
             return sat;
 
@@ -562,7 +559,6 @@ class City {
                 moveInOneResident(false);
             }
         }
-        setForestSatisfaction();
         updateSatisfaction();
     }
 
@@ -1356,14 +1352,46 @@ class City {
      * set the values of fields that are dependent on the surrounding fields.
      */
     private void setFieldsDependentValues() {
-    	for (var row : fields)
-            for (var field : row)
+    	for (int i=0;i<fields.length;i++)
+            for (int j=0; j<fields[0].length;j++) {
+            	Field field = fields[i][j];
+            	int[][] forestBonuses = calculateForestBonusResZone();
                 if (!field.isFree() && field.getBuilding() instanceof Zone zone) {
                     zone.setSafety(Math.min(Math.max(calculateSafety(field), -10), 10));
         			zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field), -10), 10));
+        			if (field.getBuilding() instanceof ResidentialZone rz) {
+                        rz.setIndustrialPenalty(calculateIndustrialPenalty(field));
+                        rz.setForestBonus(forestBonuses[i][j]);
+                    }
                 }
+            }
     }
-
+    
+    private int calculateIndustrialPenalty(Field field) {
+    	int x = -1, y = -1;
+        for (int i = 0; i < fields.length; i++)
+            for (int j = 0; j < fields[0].length; j++) {
+                if (fields[i][j] == field) {
+                    x = i;
+                    y = j;
+                }
+            }
+        int penalty = 0;
+        for(int i=Math.max(0, x - 5); i< Math.min(x + 6, fields.length); i++)
+        	for(int j=Math.max(0, y - 5); j<Math.min(y + 6, fields[0].length); j++)
+        		if(fields[i][j].getBuilding() instanceof IndustrialZone) {
+        			int penaltyForThis = 6 - Math.max(Math.abs(i - x), Math.abs(y - j));
+        			boolean applied = false;
+        			for(int k = Math.min(x, i); k <= Math.max(x, i) && !applied;k++)
+        				for(int l = Math.min(y, j); l <= Math.max(y, j) && !applied; l++)
+        					if(fields[k][l].getBuilding() instanceof Forest && this.decreaseIndustrialPenalty(fields[x][y], fields[i][j], fields[k][l])) {
+        						applied = true;
+        						penaltyForThis /= 2;
+        					}
+        			penalty += penaltyForThis;
+        		}
+        return penalty;
+    }
     /**
      * player select free field (residential-, industrial-, service zone) and
      * residents can build on this automatically
@@ -1371,7 +1399,7 @@ class City {
      * 
      * @param zoneClass
      */
-    public void selectField(Class zoneClass) {
+    public void selectField(Class<?> zoneClass) {
         FIELDSIZE = fields[0][0].getWidth();
         if (selectedField == null || !selectedField.isFree())
             return;
@@ -1659,17 +1687,6 @@ class City {
         // distance result
         double distance = Math.abs(pR / nL);
         return distance <= halfCellDiagonal && field.getBuilding() instanceof Forest;
-    }
-
-    public void setForestSatisfaction() {
-        //int[][] bonusPerHouse = calculateForestBonusResZone();
-        for (Field[] field : fields) {
-            for (int j = 0; j < fields[0].length; j++) {
-                if (field[j].getBuilding() instanceof ResidentialZone) {
-                    // applying bonus to the house
-                }
-            }
-        }
     }
 
     /**

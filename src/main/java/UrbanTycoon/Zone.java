@@ -12,7 +12,7 @@ abstract class Zone extends Buildable {
     protected int satisfactionBonus;
     protected int selectPrice;
     protected int annualTaxPerPerson;
-    protected int forestBonus;
+    protected int forestBonus=0;
     protected int buildProgress = 0;
     protected boolean builtUp;
 

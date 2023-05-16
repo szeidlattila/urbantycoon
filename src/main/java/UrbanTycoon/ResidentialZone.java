@@ -5,6 +5,7 @@ import java.awt.Image;
 
 class ResidentialZone extends Zone {
     double moveInChance;
+    int industrialPenalty = 0;
     public ResidentialZone(double moveInChance, int capacity, int selectPrice, int annualTax, int safety, int satisfactionBonus, double refund, double chanceOfFire, int x, int y, int width, int height, Image image) {
         super(capacity, selectPrice, annualTax, safety, satisfactionBonus, refund, chanceOfFire, x, y, width, height, image);
         
@@ -35,6 +36,13 @@ class ResidentialZone extends Zone {
         return (burning ? "burning" : "notBurning") + "/residentialZone";
     }
     
+    public void setIndustrialPenalty( int ip) {
+    	industrialPenalty = ip;
+    }
+    
+    public int getIndustrialPenalty() {
+    	return industrialPenalty;
+    }
     @Override
     public String asString(){
         return "rz;" + super.asString() + moveInChance;
