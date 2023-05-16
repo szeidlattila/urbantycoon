@@ -358,24 +358,6 @@ class GameEngine extends JPanel {
                 + city.getTax() * city.getResidentsNum() * 2 +
                 "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee(); 
     }
-    */
-    public String budgetInfo() {
-        return "Annual incomes\nResident tax: " + city.getTax()
-                + "$/residential  (" + city.getResidentsNum() +
-                " residents)\nEmployer tax: " + city.getTax() + "$/employer  (" + city.getResidentsNum()
-                + " employers)\n\n" +
-                "Annual outcomes\nRoad maintenance fee: "
-                + city.getAnnualFee(ROADPRICE) + "$/road  (" + city.countField(Road.class) +
-                " roads)\nStadium maintenance fee: " + city.getAnnualFee(STADIUMPRICE) + "$/stadium  ("
-                + city.countField(Stadium.class) + " stadiums)" +
-                "\nPolice station maintenance fee: " + city.getAnnualFee(POLICESTATIONPRICE) + "$/police station  ("
-                + city.countField(PoliceStation.class) + " police stations)" +
-                "\nFire station maintenance fee: " + city.getAnnualFee(FIRESTATIONPRICE) + "$/fire station  ("
-                + city.countField(FireStation.class) + " fire stations)\n\n" +
-                "Annual income:\n+ "
-                + city.getTax() * city.getResidentsNum() * 2 +
-                "$\nAnnual outcome:\n- " + city.calculateAnnualFee() + "$"; 
-    }
 
     public void zoneInfoPopup() {
         if (zoneInfo() == null || "".equals(zoneInfo()))

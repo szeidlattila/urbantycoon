@@ -218,49 +218,6 @@ public class UrbanTycoonGUI {
         }
     }
 
-    private void screenController(String screen) {
-        switch (screen) {
-            case "mainMenu":
-                layeredPane.removeAll();
-                layeredPane.add(mainMenuWallpaper, new Integer(0));
-                layeredPane.add(mainMenuSidePanel, new Integer(1));
-                layeredPane.add(gameLogo, new Integer(2));
-                break;
-            case "game":
-                layeredPane.removeAll();
-                layeredPane.add(gameArea, new Integer(0));
-                layeredPane.add(controlPanel, new Integer(1));
-                layeredPane.add(actionPanel, new Integer(2));
-                layeredPane.add(infoPanel, new Integer(3));
-                layeredPane.add(uxPanel, new Integer(4));
-                layeredPane.add(menuButton, new Integer(5));
-                menuButton.setFunc(() -> {
-                    screenController("sidePanel");
-                });
-                break;
-            case "sidePanel":
-                layeredPane.remove(menuButton);
-                layeredPane.add(darkenBackground, new Integer(5));
-                layeredPane.add(sidePanel, new Integer(6));
-                layeredPane.add(menuButton, new Integer(7));
-                menuButton.setFunc(() -> {
-                    screenController("removeSidePanel");
-                });
-                break;
-            case "removeSidePanel":
-                layeredPane.remove(darkenBackground);
-                layeredPane.remove(sidePanel);
-                layeredPane.remove(menuButton);
-                layeredPane.add(menuButton, new Integer(5));
-                menuButton.setFunc(() -> {
-                    screenController("sidePanel");
-                });
-                break;
-            default:
-                break;
-        }
-    }
-
     private void createUXPanel(JPanel uxPanel, int paneIndex) {
         uxPanel.setLayout(new FlowLayout(FlowLayout.CENTER, BUTTONPADDING - 2, 0));
         int panelLength = panelSize(uxButtonNames, CONTROLBSIZE, BUTTONPADDING);
