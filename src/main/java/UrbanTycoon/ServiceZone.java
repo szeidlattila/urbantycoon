@@ -8,6 +8,7 @@ public class ServiceZone extends Workplace{
         super(capacity, selectPrice, annualTax, safety, satisfactionBonus, refund, chanceOfFire, x, y, width, height, image);
     }
     
+    @Override
     protected String type(){
         if (peopleNum == 0)         return (burning ? "burning" : "notBurning") + "/serviceZoneEmpty";
         if (peopleNum == capacity)  return (burning ? "burning" : "notBurning") + "/serviceZoneFull";

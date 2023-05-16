@@ -50,6 +50,7 @@ class Date {
         if(s.equals("null")) return null;
         else return new Date(s);
     }
+    
     public Date(String str){
         year = Integer.parseInt(str.substring(0,4));
         month = Integer.parseInt(str.substring(6,8));

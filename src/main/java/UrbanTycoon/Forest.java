@@ -46,9 +46,12 @@ public class Forest extends PlayerBuildIt{
         
     }
 
+    @Override
     protected String type(){
         return (burning ? "burning" : "notBurning") + "/forest";
     }
+    
+    @Override
     public String asString(){
         return "for;" + super.asString() + age;
     }

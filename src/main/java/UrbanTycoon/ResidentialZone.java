@@ -22,15 +22,19 @@ class ResidentialZone extends Zone {
     public double getMoveInChance() {
         return moveInChance;
     }
+    
     @Override
     public int getAnnualTax(){
         return annualTaxPerPerson;
     }
+    
+    @Override
     protected String type(){
         if (peopleNum == 0)         return (burning ? "burning" : "notBurning") + "/residentialZoneEmpty";
         if (peopleNum == capacity)  return (burning ? "burning" : "notBurning") + "/residentialZoneFull";
         return (burning ? "burning" : "notBurning") + "/residentialZone";
     }
+    
     @Override
     public String asString(){
         return "rz;" + super.asString() + moveInChance;

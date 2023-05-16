@@ -11,6 +11,7 @@ public class Stadium extends ServiceBuilding{
         super(buildingPrice, annualFee, radius, x, y, width, height, image, refund, chanceOfFire); // divide by 4 because stadium size is 2x2
     }
 
+    @Override
     protected String type() {
         return (burning ? "burning" : "notBurning") + "/stadium";
     }

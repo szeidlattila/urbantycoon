@@ -32,6 +32,10 @@ abstract class Buildable extends Sprite {
 
     protected abstract int getRefundMoney();
 
+    /**
+     * update image for selected field
+     * @param accessible 
+     */
     protected final void select(boolean accessible) {
         if (isBuiltUp())
             image = new ImageIcon("data/graphics/field/selected/" + type() + ".png").getImage();
@@ -41,6 +45,10 @@ abstract class Buildable extends Sprite {
                     .getImage();
     }
 
+    /**
+     * update image for unselected field
+     * @param accessible 
+     */
     protected final void unselect(boolean accessible) {
         if (isBuiltUp())
             image = new ImageIcon("data/graphics/field/unselected/" + type() + ".png").getImage();
@@ -118,6 +126,10 @@ abstract class Buildable extends Sprite {
 
     protected abstract String type();
 
+    /**
+     * for save game (persistence)
+     * @return 
+     */
     public String asString() {
         StringBuilder b = new StringBuilder();
         b.append(refund);

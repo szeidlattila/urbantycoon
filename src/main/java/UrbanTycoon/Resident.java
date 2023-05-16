@@ -99,6 +99,10 @@ class Resident {
         return workplace;
     }
 
+    /**
+     * increase age by one if it would be more than 64 then resident retires
+     * if retired increase chance of death by 0.1
+     */
     public void increaseAge() {
         ++age;
         if (retired) {
@@ -109,10 +113,14 @@ class Resident {
         }
     }
     
-    public int tax(){
-        if(retired) throw new IllegalArgumentException("Retired, but paying taxes");
+    /**
+     * increase paid taxees before retired if age is more than 44
+     * @return resident tax
+     */
+    public int tax() {
+        if (retired) throw new IllegalArgumentException("Retired, but paying taxes");
         int tax = home.getAnnualTax() + workplace.getAnnualTax();
-        if(age >= 45){
+        if (age >= 45) {
             paidTaxesBeforeRetired += tax;
             workedYearsBeforeRetired++;
         }
@@ -146,6 +154,9 @@ class Resident {
         this.workplace = workplace;
     }
 
+    /**
+     * set home and workplace to null
+     */
     public void movesAwayFromCity() {
         if (home != null) {
             home.setPeopleNum(home.getPeopleNum() - 1);
@@ -157,14 +168,20 @@ class Resident {
         }
     }
 
+    /**
+     * set workplace to null
+     */
     public void retire() {
         retired = true;
-        if(workplace != null){
+        if (workplace != null){
             workplace.setPeopleNum(workplace.getPeopleNum() - 1);
             workplace = null;
         }
     }
 
+    /**
+     * set home and workplace to null
+     */
     public void die() {
     	if(workplace != null){
             workplace.setPeopleNum(workplace.getPeopleNum() - 1);

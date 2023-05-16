@@ -8,6 +8,7 @@ public class PoliceStation extends ServiceBuilding {
         super(buildingPrice, annualFee, radius, x, y, width, height, image, refund, chanceOfFire);
     }
 
+    @Override
     protected String type() {
         return (burning ? "burning" : "notBurning") + "/policeStation";
     }

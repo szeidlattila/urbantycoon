@@ -19,6 +19,7 @@ public class Road extends PlayerBuildIt {
         this.fireTrackOnTheRoad = fireTrackOnTheRoad;
     }
 
+    @Override
     protected String type() {
         return "notBurning/" + (fireTrackOnTheRoad ? "fireTruck" : "road");
     }

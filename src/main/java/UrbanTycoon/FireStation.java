@@ -21,6 +21,7 @@ public class FireStation extends ServiceBuilding {
         return "notBurning/fireStation";
     }
     
+    @Override
     public String asString(){
         return "fs;" + super.asString();
     }

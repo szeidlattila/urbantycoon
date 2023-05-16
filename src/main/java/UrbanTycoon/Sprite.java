@@ -34,10 +34,9 @@ public class Sprite {
     }
 
     /**
-     * Returns true if this sprite collides with the other sprite
      * 
      * @param other
-     * @return
+     * @return true if this sprite collides with the other sprite
      */
     public boolean collides(Sprite other) {
         Rectangle rect = new Rectangle(x, y, width, height);

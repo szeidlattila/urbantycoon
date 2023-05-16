@@ -238,13 +238,13 @@ public class UrbanTycoonGUI {
         infoPanel.setBounds(infoPanelX, UIPADDING, INFOPANELWIDTH, INFOPANELHEIGHT);
         infoPanel.setBackground(new Color(0, 0, 0, 0));
         infoPanel.setImage(uiFilePath + "infoBackground");
-        for (int i = 0; i < infoIconNames.length; i++) {
-            String filePath = buttonFilePath + infoIconNames[i];
-            CustomButton iconButton = new CustomButton(filePath, INFOICONSIZE, "infoIcon", infoIconNames[i]);
+        for (String infoIconName : infoIconNames) {
+            String filePath = buttonFilePath + infoIconName;
+            CustomButton iconButton = new CustomButton(filePath, INFOICONSIZE, "infoIcon", infoIconName);
             iconButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             infoIcons.add(iconButton);
             infoPanel.add(iconButton);
-            CustomLabel infoLabel = new CustomLabel("No info", textSize, "Bold", "left", infoIconNames[i]);
+            CustomLabel infoLabel = new CustomLabel("No info", textSize, "Bold", "left", infoIconName);
             infoLabels.add(infoLabel);
             infoPanel.add(infoLabel);
         }
@@ -535,7 +535,7 @@ public class UrbanTycoonGUI {
         CustomLabel time = getLabelByType("time", infoLabels);
         CustomLabel residents = getLabelByType("residents", infoLabels);
         CustomLabel residentsSat = getLabelByType("residentsSat", infoLabels);
-        CustomLabel selectedSat = getLabelByType("selectedSat", infoLabels); // TODO
+        CustomLabel selectedSat = getLabelByType("selectedSat", infoLabels);
         CustomLabel tax = getLabelByType("tax", infoLabels);
         CustomLabel money = getLabelByType("money", infoLabels);
         time.setText(timeS);

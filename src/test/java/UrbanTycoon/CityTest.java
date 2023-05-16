@@ -33,16 +33,6 @@ public class CityTest {
     
     static City city;
     
-    public CityTest() {
-    }
-    
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
     
     @BeforeEach
     public void newCity() {

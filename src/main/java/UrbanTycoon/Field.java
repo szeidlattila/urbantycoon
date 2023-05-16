@@ -43,6 +43,10 @@ class Field extends Sprite {
         this.free = building == null;
     }
 
+    /** 
+     * 
+     * @return zone info if zone is empty return null
+     */
     public String getInfo() {
         String out;
         if (building instanceof Zone zone) {
@@ -66,7 +70,6 @@ class Field extends Sprite {
     public void destroyOrDenominate() {
     	
     	if (free) throw new IllegalArgumentException("Trying to destroy, when field is free. call isFree() first.");
-    
     	setBuilding(null);
     }
 

@@ -56,7 +56,7 @@ class GameEngine extends JPanel {
     private boolean paused = false;
 
     private int speed;
-    private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 ora, 2 nap, 30 nap
+    private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 hours, 2 days, 30 days
     private final Timer newFrameTimer;
     private final Timer gameTickTimer;
     private final  JComboBox<String> savesList = new JComboBox<>();
@@ -125,6 +125,9 @@ class GameEngine extends JPanel {
         }
     }
 
+    /**
+     * set up city and date for new game (set attributes to initial)
+     */
     void newGame() {
         city.restart(INITIALRESIDENT, FIELDROWSNUM, FIELDCOLSNUM, INITIALMONEY);
         time = new Date(1980, 1, 1, 0, 0);
@@ -147,12 +150,12 @@ class GameEngine extends JPanel {
         File[] usedFiles = getFiles();
         for (File f : usedFiles)
             if (f.getName().equals(saveName)) {
-                JFrame frame = new JFrame("Létező mentés!");
+                JFrame frame = new JFrame("Save with given name already exists!");
                 JPanel panel = new JPanel();
                 frame.add(panel);
-                panel.add(new JLabel("Felülírod?"));
-                JButton confirmButton = new JButton("Igen");
-                JButton rejectButton = new JButton("Nem");
+                panel.add(new JLabel("Override?"));
+                JButton confirmButton = new JButton("Yes");
+                JButton rejectButton = new JButton("No");
                 confirmButton.addActionListener((var ae) -> {
                     frame.dispose();
                     saveInto(f);
@@ -285,6 +288,11 @@ class GameEngine extends JPanel {
         city.lowerTax();
     }
 
+    /**
+     * select field at (x;y) coordinate
+     * @param mouseX x
+     * @param mouseY y
+     */
     private void fieldSelect(int mouseX, int mouseY) {
         int fieldIndexX, fieldIndexY;
 
@@ -317,19 +325,22 @@ class GameEngine extends JPanel {
             }
 
             city.fieldSelect(fieldIndexY, fieldIndexX);
-            // elmenteni x, y indexeket, hogy legközelebbi kiválasztáskor visszarakja
+            // save x, y indexes, hogy legközelebbi kiválasztáskor visszarakja
             // unselected-re
             prevSelectedFieldX = fieldIndexX;
             prevSelectedFieldY = fieldIndexY;
         }
     }
 
-    // itt minden a ( city.selectedField : Field )-del dolgozik
-
+    // here everything works with ( city.selectedField : Field )
     public void tryDenominateOrDestroyZone() {
         city.tryDenominateOrDestroyZone();
     }
 
+    /**
+     * 
+     * @return colored budget info
+     */
     public String budgetInfo() {
         return "<html><h2><font color=#00a605>Annual incomes</font><h2></html>\nResident tax: " + city.getTax()
                 + "$/residential  (" + city.getResidentsNum() +
@@ -364,6 +375,10 @@ class GameEngine extends JPanel {
         return result == JOptionPane.YES_OPTION;
     }
 
+    /**
+     * 
+     * @return resindents info at selected zone
+     */
     private String zoneInfo() {
         if (prevSelectedFieldX != -1 && prevSelectedFieldY != -1
                 && !city.getFields()[prevSelectedFieldY][prevSelectedFieldX].isFree()
@@ -395,6 +410,9 @@ class GameEngine extends JPanel {
         return "";
     }
 
+    /**
+     * popup then start new game
+     */
     private void gameOver() {
         new PopupInfo(new JFrame(), "You lost!\nCity satisfaction is critical.", "Game over");
         newGame();
