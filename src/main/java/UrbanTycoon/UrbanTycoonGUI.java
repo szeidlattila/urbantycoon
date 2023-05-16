@@ -2,30 +2,28 @@
 package UrbanTycoon;
 
 import javax.swing.JFrame;
-import javax.swing.text.ChangedCharSetException;
-import javax.security.auth.login.CredentialNotFoundException;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.awt.*;
 
 public class UrbanTycoonGUI {
     // properties to change for UX
-    private int FIELDSIZE = 60;
-    private int addedX = 0;
-    private int addedY = 0;
+    private final int FIELDSIZE = 60;
+    private final int addedX = 0;
+    private final int addedY = 0;
 
     // properties to change in UI
-    private int UIPADDING = 20;
-    private int ACTIONBSIZE = 60;
-    private int CONTROLBSIZE = 50;
-    private int INFOICONSIZE = 36;
-    private int BUTTONPADDING = 10;
-    private int INFOPANELWIDTH = 784;
-    private int INFOPANELHEIGHT = 50;
-    private int SIDEPANELWIDTH = 500;
-    private int INFOPANELPADDING = (INFOPANELHEIGHT - INFOICONSIZE) / 2;
-    private String buttonFilePath = "data/graphics/other/buttons/";
-    private String uiFilePath = "data/graphics/other/UIelements/";
+    private final int UIPADDING = 20;
+    private final int ACTIONBSIZE = 60;
+    private final int CONTROLBSIZE = 50;
+    private final int INFOICONSIZE = 36;
+    private final int BUTTONPADDING = 10;
+    private final int INFOPANELWIDTH = 784;
+    private final int INFOPANELHEIGHT = 50;
+    private final int SIDEPANELWIDTH = 500;
+    private final int INFOPANELPADDING = (INFOPANELHEIGHT - INFOICONSIZE) / 2;
+    private final String buttonFilePath = "data/graphics/other/buttons/";
+    private final String uiFilePath = "data/graphics/other/UIelements/";
 
     private final JFrame frame;
     private final JLayeredPane layeredPane;
@@ -177,44 +175,44 @@ public class UrbanTycoonGUI {
 
     private void screenController(String screen) {
         switch (screen) {
-            case "mainMenu":
+            case "mainMenu" -> {
                 layeredPane.removeAll();
-                layeredPane.add(mainMenuWallpaper, new Integer(0));
-                layeredPane.add(mainMenuSidePanel, new Integer(1));
-                layeredPane.add(gameLogo, new Integer(2));
-                break;
-            case "game":
+                layeredPane.add(mainMenuWallpaper, Integer.valueOf(0));
+                layeredPane.add(mainMenuSidePanel, Integer.valueOf(1));
+                layeredPane.add(gameLogo, Integer.valueOf(2));
+            }
+            case "game" -> {
                 layeredPane.removeAll();
-                layeredPane.add(gameArea, new Integer(0));
-                layeredPane.add(controlPanel, new Integer(1));
-                layeredPane.add(actionPanel, new Integer(2));
-                layeredPane.add(infoPanel, new Integer(3));
-                layeredPane.add(uxPanel, new Integer(4));
-                layeredPane.add(menuButton, new Integer(5));
+                layeredPane.add(gameArea, Integer.valueOf(0));
+                layeredPane.add(controlPanel, Integer.valueOf(1));
+                layeredPane.add(actionPanel, Integer.valueOf(2));
+                layeredPane.add(infoPanel, Integer.valueOf(3));
+                layeredPane.add(uxPanel, Integer.valueOf(4));
+                layeredPane.add(menuButton, Integer.valueOf(5));
                 menuButton.setFunc(() -> {
                     screenController("sidePanel");
                 });
-                break;
-            case "sidePanel":
+            }
+            case "sidePanel" -> {
                 layeredPane.remove(menuButton);
-                layeredPane.add(darkenBackground, new Integer(5));
-                layeredPane.add(sidePanel, new Integer(6));
-                layeredPane.add(menuButton, new Integer(7));
+                layeredPane.add(darkenBackground, Integer.valueOf(5));
+                layeredPane.add(sidePanel, Integer.valueOf(6));
+                layeredPane.add(menuButton, Integer.valueOf(7));
                 menuButton.setFunc(() -> {
                     screenController("removeSidePanel");
                 });
-                break;
-            case "removeSidePanel":
+            }
+            case "removeSidePanel" -> {
                 layeredPane.remove(darkenBackground);
                 layeredPane.remove(sidePanel);
                 layeredPane.remove(menuButton);
-                layeredPane.add(menuButton, new Integer(5));
+                layeredPane.add(menuButton, Integer.valueOf(5));
                 menuButton.setFunc(() -> {
                     screenController("sidePanel");
                 });
-                break;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
     }
 
@@ -227,9 +225,9 @@ public class UrbanTycoonGUI {
         uxPanel.setOpaque(false);
         // uxPanel.setBackground(Color.RED);
         uxPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        for (int i = 0; i < uxButtonNames.length; i++) {
-            String filePath = buttonFilePath + uxButtonNames[i];
-            CustomButton uxButton = new CustomButton(filePath, CONTROLBSIZE, "uxButton", uxButtonNames[i]);
+        for (String uxButtonName : uxButtonNames) {
+            String filePath = buttonFilePath + uxButtonName;
+            CustomButton uxButton = new CustomButton(filePath, CONTROLBSIZE, "uxButton", uxButtonName);
             uxPanel.add(uxButton);
             uxButtons.add(uxButton);
         }
@@ -602,10 +600,10 @@ public class UrbanTycoonGUI {
 
     public void changeCellsPositions(int x, int y) {
         Field fields[][] = gameArea.getCity().getFields();
-        for (int i = 0; i < fields.length; i++) {
+        for (Field[] field1 : fields) {
             for (int j = 0; j < fields[0].length; j++) {
-                Field field = fields[i][j];
-                if (!fields[i][j].isFree()) {
+                Field field = field1[j];
+                if (!field1[j].isFree()) {
                     field.getBuilding().changeX(x);
                     field.getBuilding().changeY(y);
                 } else {

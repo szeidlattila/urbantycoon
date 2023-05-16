@@ -44,7 +44,7 @@ public class ForestTest {
 		city.build(Forest.class);
 								// FOREST  0   0
 								//    0  HOME 0
-		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
@@ -53,7 +53,7 @@ public class ForestTest {
 		city.build(Forest.class);
 								// 0 FOREST 0
 								// 0  HOME  0
-		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
@@ -63,7 +63,7 @@ public class ForestTest {
 								// FOREST 0  0
 								//    0   0  0
 								//    0   0 HOME
-		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
@@ -87,7 +87,7 @@ public class ForestTest {
 		city.build(Forest.class);
 								// FOREST  FOREST FOREST
 								//    0     HOME     0
-		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]); // 10 marad, mert nem többszöröződik
+		assertEquals(city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]); // 10 marad, mert nem többszöröződik
 	}
 	
 	@Test
@@ -98,7 +98,7 @@ public class ForestTest {
 		city.yearElapsed();
 								// FOREST  0   0  (forest 2 éves)
 								//    0  HOME 0
-		assertEquals(2 * city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(2 * city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test

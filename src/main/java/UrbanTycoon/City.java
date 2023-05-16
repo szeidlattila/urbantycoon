@@ -24,7 +24,7 @@ class City {
     private final int RADIUS;
     private final int POLICESTATIONSAFETY = 1;
     private final int STADIUMSATBONUS = 1;
-    final int FORESTSATBONUS = 1;
+    private final int FORESTSATBONUS = 1;
     private int FIELDSIZE;
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
     private final int criticalSatisfaction;
@@ -257,6 +257,10 @@ class City {
     public boolean isSatisfactionCritical() {
         return satisfaction <= criticalSatisfaction;
     }
+    
+    public int getForestSatBonus() {
+        return FORESTSATBONUS;
+    }
 
     /**
      * Refresh bonuses for fields, set resident satisfactions individually,
@@ -431,8 +435,7 @@ class City {
             if (selectedField.getBuilding() instanceof PoliceStation) {
                 refund = (int) (selectedField.getDestroyMoney() * REFUND);
                 selectedField.destroyOrDenominate();
-            } else if (selectedField.getBuilding() instanceof Stadium) {
-                Stadium s = (Stadium) selectedField.getBuilding();
+            } else if (selectedField.getBuilding() instanceof Stadium s) {
                 for (int i = 0; i < 4; i++) {
                     refund = (int) (s.fields[i].getDestroyMoney() * REFUND);
                     s.fields[i].destroyOrDenominate();
@@ -521,8 +524,7 @@ class City {
                 }
             }
         }
-        budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and
-                                                                              // decrease budget 4 times more
+        budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
         Random random = new Random();
         ArrayList<Resident> removeResidents = new ArrayList<>();
         for (Resident r : residents) {
@@ -593,7 +595,7 @@ class City {
 
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[i].length; j++) {
-                // leég a mező
+                // field burns down
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp()
                         && fields[i][j].getBuilding().isBurntDown(currentDate)) {
                     if (fields[i][j].getBuilding() instanceof Zone zone)
@@ -601,7 +603,7 @@ class City {
                     fields[i][j].burnsDown();
                 }
 
-                // átterjedhet a tűz szomszédos mezőkre
+                // fire spreading
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp()
                         && fields[i][j].getBuilding().isBurning()) {
                     if (j + 1 < fields[i].length && !fields[i][j + 1].isFree()
@@ -788,9 +790,6 @@ class City {
         }  
     }
     
-    private void initFields(int fieldRowsNum, int fieldColsNum) {
-        initFields(fieldRowsNum, fieldColsNum, false);
-    }
 
     /**
      * initialize residents
@@ -1659,18 +1658,14 @@ class City {
         double nL = Math.sqrt(Math.pow(eX, 2) + Math.pow(eY, 2));
         // distance result
         double distance = Math.abs(pR / nL);
-        if (distance <= halfCellDiagonal && field.getBuilding() instanceof Forest) {
-            return true;
-        }
-
-        return false;
+        return distance <= halfCellDiagonal && field.getBuilding() instanceof Forest;
     }
 
     public void setForestSatisfaction() {
-        int[][] bonusPerHouse = calculateForestBonusResZone();
-        for (int i = 0; i < fields.length; i++) {
+        //int[][] bonusPerHouse = calculateForestBonusResZone();
+        for (Field[] field : fields) {
             for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j].getBuilding() instanceof ResidentialZone) {
+                if (field[j].getBuilding() instanceof ResidentialZone) {
                     // applying bonus to the house
                 }
             }
