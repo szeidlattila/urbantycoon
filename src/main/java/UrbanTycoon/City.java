@@ -570,11 +570,10 @@ class City {
      */
     public void monthElapsed(Date currentDate) {
         Random r = new Random();
-        double random = 0.0;
         for (Field[] row : fields) {
             for (Field field : row) {
                 if (!field.isFree() && field.getBuilding().isBuiltUp() && !field.getBuilding().isBurning()) {
-                    random = 1.0 * r.nextDouble(); // random double between 0.0 and 1.0
+                    double random = 1.0 * r.nextDouble(); // random double between 0.0 and 1.0
                     if (calculateChanceOfFire(field) > random || calculateChanceOfFire(field) == 1.0) {
                         field.getBuilding().startBurning(currentDate);
                     }
@@ -591,7 +590,6 @@ class City {
      */
     public void dayElapsed(Date currentDate) {
         Random r = new Random();
-        double random = 0.0;
 
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[i].length; j++) {
@@ -609,7 +607,7 @@ class City {
                     if (j + 1 < fields[i].length && !fields[i][j + 1].isFree()
                             && fields[i][j + 1].getBuilding().isBuiltUp()
                             && !fields[i][j + 1].getBuilding().isBurning()) {
-                        random = 1.0 * r.nextDouble();
+                        double random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i][j + 1]) > random) {
                             fields[i][j + 1].getBuilding().startBurning(currentDate);
                         }
@@ -618,7 +616,7 @@ class City {
                     if (i + 1 < fields.length && !fields[i + 1][j].isFree()
                             && fields[i + 1][j].getBuilding().isBuiltUp()
                             && !fields[i + 1][j].getBuilding().isBurning()) {
-                        random = 1.0 * r.nextDouble();
+                        double random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i + 1][j]) > random) {
                             fields[i + 1][j].getBuilding().startBurning(currentDate);
                         }
@@ -626,7 +624,7 @@ class City {
 
                     if (j - 1 >= 0 && !fields[i][j - 1].isFree() && fields[i][j - 1].getBuilding().isBuiltUp()
                             && !fields[i][j - 1].getBuilding().isBurning()) {
-                        random = 1.0 * r.nextDouble();
+                        double random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i][j - 1]) > random) {
                             fields[i][j - 1].getBuilding().startBurning(currentDate);
                         }
@@ -634,7 +632,7 @@ class City {
 
                     if (i - 1 >= 0 && !fields[i - 1][j].isFree() && fields[i - 1][j].getBuilding().isBuiltUp()
                             && !fields[i - 1][j].getBuilding().isBurning()) {
-                        random = 1.0 * r.nextDouble();
+                        double random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i - 1][j]) > random) {
                             fields[i - 1][j].getBuilding().startBurning(currentDate);
                         }
@@ -663,15 +661,16 @@ class City {
      */
     public void performTicks(int ticks) {
         if (ticks > 0) {
-            for (int i = 0; i < fields.length; i++)
+            for (Field[] field : fields) {
                 for (int j = 0; j < fields[0].length; j++) {
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone
-                            && isAccessibleOnRoad(fields[i][j]))
-                        fields[i][j].getBuilding().progressBuilding(ticks);
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
+                    if (!field[j].isFree() && field[j].getBuilding() instanceof Zone && isAccessibleOnRoad(field[j])) {
+                        field[j].getBuilding().progressBuilding(ticks);
+                    }
+                    if (!field[j].isFree() && field[j].getBuilding() instanceof Zone zone) {
                         zone.setAnnualTax(tax);
                     }
                 }
+            }
             updateSatisfaction();
         }
     }
@@ -813,8 +812,8 @@ class City {
             if (res.getWorkplace() == null || res.getHome() == null) {
                 throw new IllegalArgumentException("Home or Workplace cannot be null at initialization.");
             }
-            for (Field[] fields : this.fields) {
-                for (Field field : fields) {
+            for (Field[] allFields : this.fields) {
+                for (Field field : allFields) {
                     if (!field.isFree() && field.getBuilding().isBuiltUp()
                             && field.getBuilding() instanceof ResidentialZone residentialZone) {
                         residentialZone.setImage(
