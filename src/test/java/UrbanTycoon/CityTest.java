@@ -2,7 +2,6 @@
 package UrbanTycoon;
 
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,11 +39,6 @@ public class CityTest {
                 ANNUALFEEPERCENTAGE,
                 RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, null);
     }
-    
-    @AfterEach
-    public void tearDown() {
-    }
-
     
     @Test
     public void fieldSelectTest(){

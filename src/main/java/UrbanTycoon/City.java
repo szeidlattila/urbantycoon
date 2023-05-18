@@ -295,20 +295,23 @@ class City {
         updateImages();
     }
 
+    /**
+     * calculate city's (iniversial) satisfaction depends on residentials satisfaction
+     */
     private void calculateUniversialSatisfaction() {
         universialSatisfaction = (int) ((1000 - tax) / 100);
         universialSatisfaction -= negativeBudgetNthYear * Math.abs(Math.ceil(budget / 1000.0));
-        int szolgaltatasbanDolgozok = 0, iparbanDolgozok = 0;
+        int serviceWorkersNum = 0, industrialWorkersNum = 0;
         for (Resident res : residents) {
             if (res.getWorkplace() instanceof IndustrialZone)
-                iparbanDolgozok++;
+                industrialWorkersNum++;
             else if (res.getWorkplace() instanceof ServiceZone)
-                szolgaltatasbanDolgozok++;
+                serviceWorkersNum++;
         }
         if (residents.isEmpty()) {
             universialSatisfaction = criticalSatisfaction;
         } else {
-            universialSatisfaction -= (int) ((Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size())
+            universialSatisfaction -= (int) ((Math.abs(serviceWorkersNum - industrialWorkersNum) / residents.size())
                     * 10);
         }
     }
@@ -1586,9 +1589,8 @@ class City {
         return bonusPerHouse;
     }
 
-    // !!IMPORTANT!! only check cells for forests between the res and ind zones
-    // if you check the field even if its not between the zones the math will be
-    // still correct
+    // only check cells for forests between the res and ind zones
+    // if you check the field even if its not between the zones the math will be still correct
     public boolean decreaseIndustrialPenalty(Field residental, Field industrial, Field field) {
         // cell diagonal divided by 2
         double halfCellDiagonal = (Math
@@ -1825,8 +1827,7 @@ class City {
      * if the zone is empty (home or workplace without any resident) return null
      * 
      * @param zone
-     * @return if there is at least 1 resident return zone satisfaction otherwise
-     *         null
+     * @return if there is at least 1 resident return zone satisfaction otherwise null
      */
     public Integer getZoneSatisfaction(Zone zone) {
         for (Resident resident : residents) {
@@ -1880,8 +1881,7 @@ class City {
     /**
      * 
      * @param buildableClass
-     * @return count of given field
-     *         if given field is stadium: divide count by 4 (because stadium is 2x2)
+     * @return count of given field if given field is stadium: divide count by 4 (because stadium is 2x2)
      */
     public int countField(Class<?> buildableClass) {
         int count = 0;

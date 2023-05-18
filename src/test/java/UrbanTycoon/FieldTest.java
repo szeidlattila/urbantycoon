@@ -1,10 +1,7 @@
 
 package UrbanTycoon;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,14 +18,6 @@ public class FieldTest {
     private static Field fieldRoad;
     
     
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
-    
     @BeforeEach
     public void setUp() {
         // Zone:
@@ -44,10 +33,6 @@ public class FieldTest {
         
         fieldNull = new Field(null, 0, 0, 1, 1, null);
         fieldRoad = new Field(road, 0, 0, 1, 1, null);
-    }
-    
-    @AfterEach
-    public void tearDown() {
     }
 
     /**

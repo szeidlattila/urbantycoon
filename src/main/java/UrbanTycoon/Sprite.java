@@ -27,6 +27,10 @@ public class Sprite {
         this.image = image;
     }
 
+    /**
+     * draw image
+     * @param g 
+     */
     public void draw(Graphics g) {
         if (x > -width && y > -height) {
             g.drawImage(image, x, y, width, height, null);
@@ -84,6 +88,10 @@ public class Sprite {
         this.height = height;
     }
 
+    /**
+     * increase widht and height by size
+     * @param size 
+     */
     public void changeSize(int size) {
         this.width += size;
         this.height += size;

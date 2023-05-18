@@ -127,9 +127,13 @@ class Resident {
         return tax;
     }
     
+    /**
+     * 
+     * @return yearly retirement if retired
+     */
     public int getYearlyRetirement() {
         if (!retired)
-            throw new IllegalArgumentException("Nem nyugdíjas!");
+            throw new IllegalArgumentException("Have not retired yet");
         return (int) (paidTaxesBeforeRetired / workedYearsBeforeRetired / 2);
     }
 
@@ -159,11 +163,11 @@ class Resident {
      */
     public void movesAwayFromCity() {
         if (home != null) {
-            home.decreasePeopleNum();;
+            home.decreasePeopleNum();
             home = null;
         }
         if (workplace != null) {
-            workplace.decreasePeopleNum();;
+            workplace.decreasePeopleNum();
             workplace = null;
         }
     }

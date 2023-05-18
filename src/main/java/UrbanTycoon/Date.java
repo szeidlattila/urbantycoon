@@ -181,6 +181,11 @@ class Date {
         return maxDaysInMonth;
     }
     
+    /**
+     * 
+     * @param other
+     * @return how many days passed between this and other
+     */
     public int howManyDaysPassed(Date other){
         if(year == other.getYear() && month == other.getMonth())
             return day-other.getDay();
@@ -206,16 +211,31 @@ class Date {
         }
     }
     
+    /**
+     * 
+     * @param endDate
+     * @return how many hours elapsed between this and endDate 
+     */
     public long hoursElapsed(Date endDate) {
         long startDateInHours = yearsInHour(this.year) + monthsInHour(this.month) + daysInHour(this.day) + this.hour;
         long endDateInHours = yearsInHour(endDate.year) + monthsInHour(endDate.month) + daysInHour(endDate.day) + endDate.hour;
         return Math.abs(endDateInHours - startDateInHours);
     }
     
+    /**
+     * 
+     * @param years
+     * @return years in hour
+     */
     private long yearsInHour(int years) {
         return (long)years*365*24;
     }
     
+    /**
+     * 
+     * @param months
+     * @return months in hour
+     */
     private int monthsInHour(int months) {
         int sum = 0;
         for (int i = 1; i < months; i++) {
@@ -224,6 +244,11 @@ class Date {
         return daysInHour(sum);
     }
     
+    /**
+     * 
+     * @param days
+     * @return days in hour
+     */
     private int daysInHour(int days)  {
         return days*24;
     } 

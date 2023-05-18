@@ -12,8 +12,9 @@ public class PoliceStation extends ServiceBuilding {
     protected String type() {
         return (burning ? "burning" : "notBurning") + "/policeStation";
     }
+    
     @Override
-    public String asString(){
+    public String asString() {
         return "ps;" + super.asString();
     }
 }

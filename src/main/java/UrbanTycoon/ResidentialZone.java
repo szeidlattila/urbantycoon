@@ -24,6 +24,14 @@ class ResidentialZone extends Zone {
         return moveInChance;
     }
     
+    public void setIndustrialPenalty(int industrialPenalty) {
+    	this.industrialPenalty = industrialPenalty;
+    }
+    
+    public int getIndustrialPenalty() {
+    	return industrialPenalty;
+    }
+    
     @Override
     public int getAnnualTax(){
         return annualTaxPerPerson;
@@ -36,13 +44,6 @@ class ResidentialZone extends Zone {
         return (burning ? "burning" : "notBurning") + "/residentialZone";
     }
     
-    public void setIndustrialPenalty( int ip) {
-    	industrialPenalty = ip;
-    }
-    
-    public int getIndustrialPenalty() {
-    	return industrialPenalty;
-    }
     @Override
     public String asString(){
         return "rz;" + super.asString() + moveInChance;
