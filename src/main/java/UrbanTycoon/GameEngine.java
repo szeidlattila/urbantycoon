@@ -26,6 +26,7 @@ class GameEngine extends JPanel {
 
     private final int FPS = 240;
     private final int FIELDSIZE;
+    private final Dimension SCREENSIZE;
 
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
@@ -67,6 +68,7 @@ class GameEngine extends JPanel {
     public GameEngine(Dimension screenSize, int fieldSize) {
         super();
         this.FIELDSIZE = fieldSize;
+        this.SCREENSIZE = screenSize;
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -133,14 +135,14 @@ class GameEngine extends JPanel {
          */
         for (Field field : city.getFieldsToDraw()) {
             if (field != city.getSelectedField()) {
-                field.getBuilding().draw(grphcs);
+                field.getBuilding().draw(grphcs, SCREENSIZE);
             }
         }
         if (city.getSelectedField() != null) {
             if (!city.getSelectedField().isFree()) {
-                city.getSelectedField().getBuilding().draw(grphcs);
+                city.getSelectedField().getBuilding().draw(grphcs, SCREENSIZE);
             } else {
-                city.getSelectedField().draw(grphcs);
+                city.getSelectedField().draw(grphcs, SCREENSIZE);
             }
         }
         UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(),
