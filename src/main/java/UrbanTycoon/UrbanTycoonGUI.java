@@ -1,4 +1,3 @@
-
 package UrbanTycoon;
 
 import javax.swing.JFrame;
@@ -13,17 +12,17 @@ public class UrbanTycoonGUI {
     private final int addedY = 0;
 
     // properties to change in UI
-    private final int UIPADDING = 20;
-    private final int ACTIONBSIZE = 60;
-    private final int CONTROLBSIZE = 50;
-    private final int INFOICONSIZE = 36;
-    private final int BUTTONPADDING = 10;
-    private final int INFOPANELWIDTH = 784;
-    private final int INFOPANELHEIGHT = 50;
-    private final int SIDEPANELWIDTH = 500;
-    private final int INFOPANELPADDING = (INFOPANELHEIGHT - INFOICONSIZE) / 2;
-    private final String buttonFilePath = "data/graphics/other/buttons/";
-    private final String uiFilePath = "data/graphics/other/UIelements/";
+    private int UIPADDING = 20;
+    private int ACTIONBSIZE = 60;
+    private int CONTROLBSIZE = 60;
+    private int INFOICONSIZE = 36;
+    private int BUTTONPADDING = 10;
+    private int INFOPANELWIDTH = 784;
+    private int INFOPANELHEIGHT = 50;
+    private int SIDEPANELWIDTH = 500;
+    private int INFOPANELPADDING = (INFOPANELHEIGHT - INFOICONSIZE) / 2;
+    private String buttonFilePath = "data/graphics/other/buttons/";
+    private String uiFilePath = "data/graphics/other/UIelements/";
 
     private final JFrame frame;
     private final JLayeredPane layeredPane;
@@ -84,9 +83,10 @@ public class UrbanTycoonGUI {
         gameArea = new GameEngine(screenSize, FIELDSIZE);
         gameArea.setBackground(Color.decode("#4DC25F"));
         gameArea.setBounds(0, 0, screenWidth, screenHeight);
+        gameArea.togglePause();
 
         // control buttons
-        int panelX = UIPADDING; 
+        int panelX = UIPADDING;
         controlPanel = new JPanel();
         createButtonPanel(controlButtonNames, CONTROLBSIZE, panelX, controlPanel, 1, "controlButton", controlButtons);
 
@@ -107,7 +107,7 @@ public class UrbanTycoonGUI {
         menuButton = new CustomButton(buttonFilePath + "menu", CONTROLBSIZE, "menu",
                 "menu");
         menuButton.setBounds(UIPADDING, UIPADDING, CONTROLBSIZE, CONTROLBSIZE);
-        
+
         // darken background
         darkenBackground = new CustomPanel();
         darkenBackground.setBounds(0, 0, screenWidth, screenHeight);
@@ -153,7 +153,7 @@ public class UrbanTycoonGUI {
         }
         // main menu logo
         gameLogo = new CustomButton(uiFilePath + "gameLogo", 300, "logo", "logo");
-        gameLogo.setBounds(45, 45, 300, 300);
+        gameLogo.setBounds(45, 75, 300, 300);
         gameLogo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
         setUpControlButtons();
@@ -192,27 +192,17 @@ public class UrbanTycoonGUI {
                 menuButton.setFunc(() -> {
                     screenController("sidePanel");
                 });
+                gameArea.togglePause();
             }
             case "sidePanel" -> {
-                layeredPane.remove(menuButton);
-                layeredPane.add(darkenBackground, Integer.valueOf(5));
-                layeredPane.add(sidePanel, Integer.valueOf(6));
-                layeredPane.add(menuButton, Integer.valueOf(7));
-                menuButton.setFunc(() -> {
-                    screenController("removeSidePanel");
-                });
+                layeredPane.add(darkenBackground, new Integer(6));
+                layeredPane.add(sidePanel, new Integer(7));
             }
             case "removeSidePanel" -> {
                 layeredPane.remove(darkenBackground);
                 layeredPane.remove(sidePanel);
-                layeredPane.remove(menuButton);
-                layeredPane.add(menuButton, Integer.valueOf(5));
-                menuButton.setFunc(() -> {
-                    screenController("sidePanel");
-                });
             }
-            default -> {
-            }
+            default -> {}
         }
     }
 
@@ -587,6 +577,9 @@ public class UrbanTycoonGUI {
                     field.getBuilding().changeSize(size);
                     field.getBuilding().setX(newX);
                     field.getBuilding().setY(newY);
+                    field.changeSize(size);
+                    field.setX(newX);
+                    field.setY(newY);
                 } else {
                     field.changeSize(size);
                     field.setX(newX);
@@ -605,6 +598,8 @@ public class UrbanTycoonGUI {
                 if (!field1[j].isFree()) {
                     field.getBuilding().changeX(x);
                     field.getBuilding().changeY(y);
+                    field.changeX(x);
+                    field.changeY(y);
                 } else {
                     field.changeX(x);
                     field.changeY(y);
