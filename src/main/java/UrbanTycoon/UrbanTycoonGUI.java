@@ -1,4 +1,3 @@
-
 package UrbanTycoon;
 
 import javax.swing.JFrame;
@@ -194,17 +193,16 @@ public class UrbanTycoonGUI {
                     screenController("sidePanel");
                 });
                 gameArea.togglePause();
-                break;
-            case "sidePanel":
+            }
+            case "sidePanel" -> {
                 layeredPane.add(darkenBackground, new Integer(6));
                 layeredPane.add(sidePanel, new Integer(7));
-                break;
-            case "removeSidePanel":
+            }
+            case "removeSidePanel" -> {
                 layeredPane.remove(darkenBackground);
                 layeredPane.remove(sidePanel);
-                break;
-            default:
-                break;
+            }
+            default -> {}
         }
     }
 
