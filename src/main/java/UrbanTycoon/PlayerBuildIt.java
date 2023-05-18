@@ -1,15 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Image;
 
-/**
- *
- * @author Felhasználó
- */
 public abstract class PlayerBuildIt extends Buildable {
     protected int buildingPrice;
     protected int annualFee;
@@ -31,9 +24,7 @@ public abstract class PlayerBuildIt extends Buildable {
     }
     
     @Override
-    public boolean progressBuilding(int progressInDays){
-        return false;
-    }
+    public void progressBuilding(int progressInDays){}
     
     public int getBuildingPrice() {
         return buildingPrice;
@@ -45,7 +36,7 @@ public abstract class PlayerBuildIt extends Buildable {
     }
     
     @Override
-    public final int destroy(){
+    public final int getRefundMoney(){
         return buildingPrice;
     }
     @Override

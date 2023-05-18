@@ -1,20 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
+
 package UrbanTycoon;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- *
- * @author ati
- */
 public class FieldTest {
     
     private static Buildable residentialZone;
@@ -25,22 +15,8 @@ public class FieldTest {
     private static Buildable forest;
     private static Buildable fireStation;
     private static Field fieldNull;
-    private static Field fieldResidentialZone;
-    private static Field fieldWorkplaceZone;
     private static Field fieldRoad;
-    private static Field fieldPoliceStation;
-    private static Field fieldStadium;
-    private static Field fieldForest;
-    private static Field fieldFireStation;
     
-    
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
     
     @BeforeEach
     public void setUp() {
@@ -56,17 +32,7 @@ public class FieldTest {
         fireStation = new FireStation(1, 1, 1, 1, 1, 1, 1, null, 0.0);
         
         fieldNull = new Field(null, 0, 0, 1, 1, null);
-        fieldResidentialZone = new Field(residentialZone, 0, 0, 1, 1, null);
-        fieldWorkplaceZone = new Field(workplaceZone, 0, 0, 1, 1, null);
         fieldRoad = new Field(road, 0, 0, 1, 1, null);
-        fieldPoliceStation = new Field(policeStation, 0, 0, 1, 1, null);
-        fieldStadium = new Field(stadium, 0, 0, 1, 1, null);
-        fieldForest = new Field(forest, 0, 0, 1, 1, null);
-        fieldFireStation = new Field(fireStation, 0, 0, 1, 1, null);
-    }
-    
-    @AfterEach
-    public void tearDown() {
     }
 
     /**
@@ -94,7 +60,8 @@ public class FieldTest {
      */
     @Test
     public void progressBuildingTest1() {
-        assertFalse(residentialZone.progressBuilding(-1));
+    	residentialZone.progressBuilding(-1);
+        assertFalse(residentialZone.isBuiltUp());
     }
     
     /**
@@ -102,7 +69,8 @@ public class FieldTest {
      */
     @Test
     public void progressBuildingTest2() {
-        assertFalse(residentialZone.progressBuilding(3));
+    	residentialZone.progressBuilding(3);
+        assertFalse(residentialZone.isBuiltUp());
     }
     
     /**
@@ -110,7 +78,8 @@ public class FieldTest {
      */
     @Test
     public void progressBuildingTest3() {
-        assertTrue(residentialZone.progressBuilding(4));
+    	residentialZone.progressBuilding(4);
+        assertTrue(residentialZone.isBuiltUp());
     }
     
     /**
@@ -118,7 +87,8 @@ public class FieldTest {
      */
     @Test
     public void progressBuildingTest4() {
-        assertTrue(residentialZone.progressBuilding(10000));
+    	residentialZone.progressBuilding(10000);
+        assertTrue(residentialZone.isBuiltUp());
     }
     
     /**
@@ -126,8 +96,10 @@ public class FieldTest {
      */
     @Test
     public void progressBuildingTest5() {
-        assertTrue(residentialZone.progressBuilding(4));
-        assertFalse(residentialZone.progressBuilding(4));
+        residentialZone.progressBuilding(4);
+        assertTrue(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(4);
+        assertTrue(residentialZone.isBuiltUp());
     }
     
     /**
@@ -135,16 +107,26 @@ public class FieldTest {
      */
     @Test
     public void progressBuildingTest6() {
-        assertFalse(residentialZone.progressBuilding(-1));
-        assertFalse(residentialZone.progressBuilding(0));
-        assertFalse(residentialZone.progressBuilding(1));
-        assertFalse(residentialZone.progressBuilding(2));
-        assertFalse(residentialZone.progressBuilding(1));
-        assertTrue(residentialZone.progressBuilding(1));
-        assertFalse(residentialZone.progressBuilding(3));
-        assertFalse(residentialZone.progressBuilding(-4));
-        assertFalse(residentialZone.progressBuilding(4));
-        assertFalse(residentialZone.progressBuilding(5));
+    	residentialZone.progressBuilding(-1);
+    	assertFalse(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(0);
+        assertFalse(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(1);
+        assertFalse(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(2);
+        assertFalse(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(1);
+        assertFalse(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(1);
+        assertTrue(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(3);
+        assertTrue(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(-10);
+        assertTrue(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(4);
+        assertTrue(residentialZone.isBuiltUp());
+        residentialZone.progressBuilding(5);
+        assertTrue(residentialZone.isBuiltUp());
     }
     
     /**
@@ -152,16 +134,28 @@ public class FieldTest {
      */
     @Test
     public void progressBuildingTest7() {
-        assertFalse(policeStation.progressBuilding(5));
-        assertFalse(policeStation.progressBuilding(10));
-        assertFalse(stadium.progressBuilding(5));
-        assertFalse(stadium.progressBuilding(10));
-        assertFalse(policeStation.progressBuilding(5));
-        assertFalse(policeStation.progressBuilding(10));
-        assertFalse(fireStation.progressBuilding(5));
-        assertFalse(fireStation.progressBuilding(10));
-        assertFalse(forest.progressBuilding(5));
-        assertFalse(forest.progressBuilding(10));
+        
+    	assertTrue(policeStation.isBuiltUp());
+        assertTrue(stadium.isBuiltUp());
+        assertTrue(fireStation.isBuiltUp());
+        assertTrue(forest.isBuiltUp());
+        
+        policeStation.progressBuilding(5);
+        policeStation.progressBuilding(-10);
+        stadium.progressBuilding(5);
+        stadium.progressBuilding(-10);
+        policeStation.progressBuilding(5);
+        policeStation.progressBuilding(-10);
+        fireStation.progressBuilding(5);
+        fireStation.progressBuilding(-10);
+        forest.progressBuilding(5);
+        forest.progressBuilding(-10);
+        
+        assertTrue(policeStation.isBuiltUp());
+        assertTrue(stadium.isBuiltUp());
+        assertTrue(fireStation.isBuiltUp());
+        assertTrue(forest.isBuiltUp());
+    
     }
     
     /**

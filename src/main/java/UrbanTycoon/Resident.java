@@ -1,16 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.util.Objects;
-import java.util.Random;
 
-/**
- *
- * @author Felhasználó
- */
 class Resident {
     private int age;
     private boolean retired = false;
@@ -108,40 +100,40 @@ class Resident {
     }
 
     /**
-     * returns true if resident died
-     * 
-     * @return
+     * increase age by one if it would be more than 64 then resident retires
+     * if retired increase chance of death by 0.1
      */
-    public boolean increaseAge() {
+    public void increaseAge() {
         ++age;
         if (retired) {
-            Random r = new Random();
-            if (r.nextDouble() <= chanceOfDeath) {
-                die();
-                return true;
-            } else
-                chanceOfDeath += 0.1;
+        	chanceOfDeath += 0.1;
         }
-
         if (age >= 65 && !retired) {
             retire();
         }
-        return false;
     }
     
-    public int tax(){
-        if(retired) throw new IllegalArgumentException("Retired, but paying taxes");
+    /**
+     * increase paid taxees before retired if age is more than 44
+     * @return resident tax
+     */
+    public int tax() {
+        if (retired) throw new IllegalArgumentException("Retired, but paying taxes");
         int tax = home.getAnnualTax() + workplace.getAnnualTax();
-        if(age >= 45){
+        if (age >= 45) {
             paidTaxesBeforeRetired += tax;
             workedYearsBeforeRetired++;
         }
         return tax;
     }
     
+    /**
+     * 
+     * @return yearly retirement if retired
+     */
     public int getYearlyRetirement() {
         if (!retired)
-            throw new IllegalArgumentException("Nem nyugdíjas!");
+            throw new IllegalArgumentException("Have not retired yet");
         return (int) (paidTaxesBeforeRetired / workedYearsBeforeRetired / 2);
     }
 
@@ -166,26 +158,39 @@ class Resident {
         this.workplace = workplace;
     }
 
+    /**
+     * set home and workplace to null
+     */
     public void movesAwayFromCity() {
         if (home != null) {
-            home.setPeopleNum(home.getPeopleNum() - 1);
+            home.decreasePeopleNum();
             home = null;
         }
         if (workplace != null) {
-            workplace.setPeopleNum(workplace.getPeopleNum() - 1);
+            workplace.decreasePeopleNum();
             workplace = null;
         }
     }
 
+    /**
+     * set workplace to null
+     */
     public void retire() {
         retired = true;
-        if(workplace != null){
+        if (workplace != null){
             workplace.setPeopleNum(workplace.getPeopleNum() - 1);
             workplace = null;
         }
     }
 
+    /**
+     * set home and workplace to null
+     */
     public void die() {
+    	if(workplace != null){
+            workplace.setPeopleNum(workplace.getPeopleNum() - 1);
+            workplace = null;
+        }
         if(home != null){
             home.setPeopleNum(home.getPeopleNum() - 1);
             home = null;

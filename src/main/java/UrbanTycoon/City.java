@@ -1,28 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Image;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Scanner;
 import javax.swing.ImageIcon;
-import java.util.*;
-import java.awt.*;
-import java.util.ArrayList;
+import java.awt.Dimension;
 import javax.swing.JFrame;
-//tryagain commit
 
-/**
- *
- * @author Felhasználó
- */
 class City {
 
     private ArrayList<Resident> residents;
@@ -33,7 +24,7 @@ class City {
     private final int RADIUS;
     private final int POLICESTATIONSAFETY = 1;
     private final int STADIUMSATBONUS = 1;
-    final int FORESTSATBONUS = 1;
+    private final int FORESTSATBONUS = 1;
     private int FIELDSIZE;
     private final int HOWMANYRESIDENTSTOLOWERSAFETY = 30;
     private final int criticalSatisfaction;
@@ -174,9 +165,16 @@ class City {
 
         initFields(fieldRowsNum, fieldColsNum, screenSize == null); // in JUnit test there is no screenSize
         initResidents(residentsNum);
-        changeSatisfaction();
+        updateSatisfaction();
     }
-
+    
+    /**
+     * set City's attributes to initial
+     * @param residentsNum
+     * @param fieldRowsNum
+     * @param fieldColsNum
+     * @param budget 
+     */
     public void restart(int residentsNum, int fieldRowsNum, int fieldColsNum, int budget) {
         this.selectedField = null;
         this.satisfaction = 0;
@@ -193,20 +191,7 @@ class City {
 
         initFields(fieldRowsNum, fieldColsNum, screenSize == null); // in JUnit test there is no screenSize
         initResidents(residentsNum);
-        changeSatisfaction();
-    }
-
-    public void printFields() {
-        for (Field[] field : fields) {
-            for (int j = 0; j < fields[0].length; j++) {
-                if (field[j].getBuilding() == null) {
-                    System.out.print("E ");
-                } else {
-                    System.out.print(field[j].getBuilding().getClass().getSimpleName() + " ");
-                }
-            }
-            System.out.println();
-        }
+        updateSatisfaction();
     }
 
     public int getyOffset() {
@@ -261,39 +246,29 @@ class City {
         negativeBudgetNthYear = n;
     }
 
-    /**
-     * add the given resident to residents
-     * 
-     * @param resident
-     */
     public void addResident(Resident resident) {
         residents.add(resident);
     }
 
-    /**
-     * remove the given resident from residents
-     * if the given resident is not in the city won't happen anything
-     * 
-     * @param resident
-     */
     public void removeResident(Resident resident) {
         residents.remove(resident);
     }
 
-    /**
-     * 
-     * @return true if the city satisfaction is critical otherwise false
-     */
     public boolean isSatisfactionCritical() {
         return satisfaction <= criticalSatisfaction;
     }
+    
+    public int getForestSatBonus() {
+        return FORESTSATBONUS;
+    }
 
     /**
-     * Calculate residents avarage satisfaction and this value will be the city
-     * satisfaction
+     * Refresh bonuses for fields, set resident satisfactions individually,
+     * remove residents if Sat is too low,
+     * then calculate city average.
      */
-    private void changeSatisfaction() {
-        reevaluateAccessibility();
+    private void updateSatisfaction() {
+        setFieldsDependentValues();
         calculateUniversialSatisfaction();
         int sumSatisfaction = 0;
         ArrayList<Resident> removeResidents = new ArrayList<>();
@@ -302,67 +277,90 @@ class City {
             if (resident.getSatisfaction() <= criticalSatisfaction && !resident.isRetired()) {
                 resident.movesAwayFromCity();
                 removeResidents.add(resident);
+            } else {
+            	sumSatisfaction += resident.getSatisfaction();            	
             }
-            sumSatisfaction += resident.getSatisfaction();
         }
-        if (residents.size() == 0) {
-            this.satisfaction = criticalSatisfaction;
-        } else {
-            this.satisfaction = sumSatisfaction / residents.size();
-        }
-
+        
         for (Resident removeResident : removeResidents) {
             residents.remove(removeResident);
         }
+
+        if (residents.isEmpty()) {
+        	this.satisfaction = criticalSatisfaction;
+        } else {
+        	this.satisfaction = sumSatisfaction / residents.size();
+        }
+        
+        updateImages();
     }
 
+    /**
+     * calculate city's (iniversial) satisfaction depends on residentials satisfaction
+     */
     private void calculateUniversialSatisfaction() {
         universialSatisfaction = (int) ((1000 - tax) / 100);
         universialSatisfaction -= negativeBudgetNthYear * Math.abs(Math.ceil(budget / 1000.0));
-        int szolgaltatasbanDolgozok = 0, iparbanDolgozok = 0;
+        int serviceWorkersNum = 0, industrialWorkersNum = 0;
         for (Resident res : residents) {
             if (res.getWorkplace() instanceof IndustrialZone)
-                iparbanDolgozok++;
+                industrialWorkersNum++;
             else if (res.getWorkplace() instanceof ServiceZone)
-                szolgaltatasbanDolgozok++;
+                serviceWorkersNum++;
         }
-        if (residents.size() == 0) {
+        if (residents.isEmpty()) {
             universialSatisfaction = criticalSatisfaction;
         } else {
-            universialSatisfaction -= (int) ((Math.abs(szolgaltatasbanDolgozok - iparbanDolgozok) / residents.size())
+            universialSatisfaction -= (int) ((Math.abs(serviceWorkersNum - industrialWorkersNum) / residents.size())
                     * 10);
         }
     }
 
+    /**
+     * calculate r resident satisfection
+     * @param r
+     * @return r satisfaction
+     */
+    private Coordinate indicesFor(Field field, Field[][] fields) {
+    	for(int i=0;i<fields.length;i++)
+    		for(int j=0;j<fields[0].length;j++)
+    			if(fields[i][j]==field)
+    				return new Coordinate(i,j);
+    	return null;
+    }
+    
+    private Coordinate indicesFor(Buildable b, Field[][] fields) {
+    	if(b == null) throw new IllegalArgumentException("Searching for null buildable!");
+    	for(int i=0;i<fields.length;i++)
+    		for(int j=0;j<fields[0].length;j++)
+    			if(fields[i][j].getBuilding() == b)
+    				return new Coordinate(i,j);
+    	return null;
+    }
+    
     private int whatSatisfactionFor(Resident r) {
-        int workIndexX = -1, workIndexY = -1, homeIndexX = -1, homeIndexY = -1;
+        
+    	Coordinate c = indicesFor(r.getHome(), fields);
+        
+        if(c == null) 
+        	throw new IllegalArgumentException("Home not Found!");
+        
+        int homeIndexX = c.x, homeIndexY = c.y;
+
         int sat = 0;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (!fields[i][j].isFree() && r.getWorkplace() == fields[i][j].getBuilding()) {
-                    workIndexX = i;
-                    workIndexY = j;
-                } else if (!fields[i][j].isFree() && r.getHome() == fields[i][j].getBuilding()) {
-                    homeIndexX = i;
-                    homeIndexY = j;
-                }
-            }
-        if (homeIndexX == -1)
-            throw new IllegalArgumentException("Home not Found!");
         sat += r.getHome().getSatisfactionBonus();
         sat += r.getHome().getSafety();
-        for (int i = Math.max(0, homeIndexX - 5); i < Math.min(fields.length, homeIndexX + 6); i++) {
-            for (int j = Math.max(0, homeIndexY - 5); j < Math.min(fields[0].length, homeIndexY + 6); j++)
-                if (fields[i][j].getBuilding() instanceof IndustrialZone)
-                    sat += Math.max(Math.abs(i - homeIndexX), Math.abs(j - homeIndexY)) - 6;
-        }
+        sat -= r.getHome().getIndustrialPenalty();
+        
         if (r.isRetired())
             return sat;
-
-        // Ha nem nyugdíjas
-
-        if (workIndexX == -1)
+        
+        c = indicesFor(r.getWorkplace(), fields);
+        // if have not retired yet
+        if (c == null)
             throw new IllegalArgumentException("Workplace not Found!");
+        
+        int workIndexX = c.x, workIndexY = c.y;
         int d = getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
         if (d == -1)
             throw new IllegalArgumentException("Work and home not connected! work: " + workIndexX + " " + workIndexY
@@ -378,16 +376,22 @@ class City {
         return tax;
     }
 
+    /**
+     * incresase tax by 50 and decrease satisfaction
+     */
     public void increaseTax() {
         tax += 50;
-        changeSatisfaction();
+        updateSatisfaction();
     }
 
+    /**
+     * decrease tax by 50 and increase satisfaction
+     */
     public void lowerTax() {
         tax -= 50;
         if (tax <= 0) {
             tax = 0;
-            changeSatisfaction();
+            updateSatisfaction();
         }
     }
 
@@ -403,7 +407,14 @@ class City {
     public int getRefund(int price) {
         return (int) Math.ceil(price * REFUND);
     }
-
+    
+    /**
+     * called on-click
+     * if player clicked on the selected field again, then it gets unselected,
+     * otherwise the new field becomes selected
+     * @param x
+     * @param y
+     */
     public void fieldSelect(int x, int y) {
         if (selectedField != null && (selectedField == fields[x][y]
                 || (!selectedField.isFree() && selectedField.getBuilding() == fields[x][y].getBuilding()))) {
@@ -419,8 +430,7 @@ class City {
         }
     }
 
-    // Itt minden a selectedField-del dolgozik.
-
+    // here everything work with selectedField
     public String getFieldInfo() {
         if (selectedField == null) {
             throw new IllegalArgumentException("Trying to get info when selected Field is null");
@@ -438,11 +448,12 @@ class City {
         if (!selectedField.isFree()) {
             int refund = 0;
             if (selectedField.getBuilding() instanceof PoliceStation) {
-                refund = (int) (selectedField.destroyOrDenominate() * REFUND);
-            } else if (selectedField.getBuilding() instanceof Stadium) {
-                Stadium s = (Stadium) selectedField.getBuilding();
+                refund = (int) (selectedField.getDestroyMoney() * REFUND);
+                selectedField.destroyOrDenominate();
+            } else if (selectedField.getBuilding() instanceof Stadium s) {
                 for (int i = 0; i < 4; i++) {
-                    refund = (int) (s.fields[i].destroyOrDenominate() * REFUND);
+                    refund = (int) (s.fields[i].getDestroyMoney() * REFUND);
+                    s.fields[i].destroyOrDenominate();
                 }
             } else if (selectedField.getBuilding() instanceof Road && !canDeleteRoad(selectedField)) {
                 agreeToDelete = false;
@@ -462,7 +473,8 @@ class City {
                 }
             }
             if (agreeToDelete && refund == 0) {
-                refund = (int) (selectedField.destroyOrDenominate() * REFUND);
+                refund = (int) (selectedField.getDestroyMoney() * REFUND);
+                selectedField.destroyOrDenominate();
                 if (disconnectedRoad) {
                     refreshWorkplaces();
                 }
@@ -473,28 +485,14 @@ class City {
             if (refund != 0) {
                 budget += refund;
                 selectedField.select();
-                changeSatisfaction();
+                updateSatisfaction();
             }
         }
     }
 
-    public void checkResidentData() {
-        for (int i = 0; i < residents.size(); i++) {
-            Resident r = residents.get(i);
-            System.out.printf("#%d Reidents's home is: ", i);
-            if (r.getHome() == null) {
-                System.out.print("null; ");
-            } else {
-                System.out.print("not null; ");
-            }
-            if (r.getWorkplace() == null) {
-                System.out.println("workplace is null; ");
-            } else {
-                System.out.println("workplace is not null; ");
-            }
-        }
-    }
-
+    /**
+     * refresh workplace whene resident cannot reach it and decrease budget by 500
+     */
     public void refreshWorkplaces() {
         for (Resident r : residents) {
             if (getDistanceAlongRoad(r.getHomeField(), r.getWorkplaceField(), fields) == -1) {
@@ -506,6 +504,9 @@ class City {
         reassignHomesOrWorkplaces();
     }
 
+    /**
+     * refresh residents home and workplace and decrease budget if residents workplaced or home changed by 500-500
+     */
     public void refreshResidentData() {
         for (int i = 0; i < residents.size(); i++) {
             Resident r = residents.get(i);
@@ -521,70 +522,11 @@ class City {
         }
     }
 
-    /*
-     * private void setSafetyAround(Field ps , int safetyToBeAdded) {
-     * int x = -1, y = -1;
-     * for (int i = 0; i < fields.length; i++) {
-     * for (int j = 0; j < fields[0].length; j++) {
-     * if (fields[i][j] == ps){
-     * x = i;
-     * y = j;
-     * }
-     * }
-     * }
-     * if (y == -1 && x == -1)
-     * throw new IllegalArgumentException("Destroyed police station not found");
-     * for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1,
-     * x + RADIUS); i++) {
-     * for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1,
-     * y + RADIUS); j++) {
-     * if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone
-     * && getDistanceAlongRoad(ps,fields[i][j]) != -1) {
-     * zone.setSafety(
-     * Math.min(Math.max(-10, zone.getSafety() + safetyToBeAdded),10));
-     * }
-     * }
-     * }
-     * }
-     */
-    /*
-     * private void setSatisfactionBonusAround(Field st, int satToBeAdded) {
-     * int x = -1, y = -1;
-     * for (int i = 0; i < fields.length; i++) {
-     * for (int j = 0; j < fields[0].length; j++) {
-     * if (fields[i][j] == st){
-     * x = i;
-     * y = j;
-     * }
-     * }
-     * }
-     * if (y == -1 && x == -1)
-     * throw new IllegalArgumentException("Destroyed stadium not found");
-     * 
-     * // stadion 2x2 es, mind a 4 mezo (instanceof Stadium), itt elpozicionál a bal
-     * // felső sarkába
-     * if (x - 1 >= 0 && fields[x - 1][y].getBuilding() instanceof Stadium)
-     * x--;
-     * if (y - 1 >= 0 && fields[x][y - 1].getBuilding() instanceof Stadium)
-     * y--;
-     * 
-     * for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1,
-     * x + 1 + RADIUS); i++) {
-     * for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[i].length - 1,
-     * y + 1 + RADIUS); j++) {
-     * if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone
-     * zone) {
-     * for(int k = 0; k< 4 ; k++)
-     * if(getDistanceAlongRoad(((Stadium)st.getBuilding()).fields[k],fields[i][j])
-     * != -1){
-     * zone.setSatisfactionBonus(Math.min(Math.max(-10,
-     * zone.getSatisfactionBonus() + satToBeAdded),10));
-     * break;
-     * }
-     * }
-     * }
-     * }
-     * }
+    /**
+     * increase residents and forest ages
+     * collect tax from residents
+     * pay annual taxes
+     * residents can move up if city's satisfaction is more than 
      */
     public void yearElapsed() {
         for (Field[] row : fields) {
@@ -597,20 +539,32 @@ class City {
                 }
             }
         }
-        budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and
-                                                                              // decrease budget 4 times more
-        for (int i = 0; i < residents.size(); i++) {
-            Resident r = residents.get(i);
+        budget += countField(Stadium.class) * 3 * getAnnualFee(stadiumPrice); // because stadium size is 2x2 and decrease budget 4 times more
+        Random random = new Random();
+        ArrayList<Resident> removeResidents = new ArrayList<>();
+        for (Resident r : residents) {
+        	
             if (!r.isRetired()) {
                 budget += r.tax();
             } else
                 budget -= r.getYearlyRetirement();
-            if (r.increaseAge()) {
-                residents.remove(r);
-                i--;
-                moveInOneResident(true);
+            
+            r.increaseAge();
+            
+            if (random.nextDouble() <= r.getChanceOfDeath()) {
+            	r.die();
+            	removeResidents.add(r);
             }
         }
+        
+        for(Resident removeResident : removeResidents) {
+        	residents.remove(removeResident);
+        }
+        
+        for(int i = 0 ; i < removeResidents.size(); i++) {
+        	moveInOneResident(true);
+        }
+        
         if (budget < 0)
             negativeBudgetNthYear++;
         else
@@ -623,17 +577,19 @@ class City {
                 moveInOneResident(false);
             }
         }
-        // setForestSatisfaction();
-        changeSatisfaction();
+        updateSatisfaction();
     }
 
+    /**
+     * calculate chance of fire and fields can lights up
+     * @param currentDate 
+     */
     public void monthElapsed(Date currentDate) {
         Random r = new Random();
-        double random = 0.0;
         for (Field[] row : fields) {
             for (Field field : row) {
                 if (!field.isFree() && field.getBuilding().isBuiltUp() && !field.getBuilding().isBurning()) {
-                    random = 1.0 * r.nextDouble(); // random double between 0.0 and 1.0
+                    double random = 1.0 * r.nextDouble(); // random double between 0.0 and 1.0
                     if (calculateChanceOfFire(field) > random || calculateChanceOfFire(field) == 1.0) {
                         field.getBuilding().startBurning(currentDate);
                     }
@@ -642,13 +598,18 @@ class City {
         }
     }
 
+    /**
+     * calculate chance of fire and fire can spread to adjacent fields
+     * burning fields can burn down
+     * move fire track if it is moving
+     * @param currentDate 
+     */
     public void dayElapsed(Date currentDate) {
         Random r = new Random();
-        double random = 0.0;
 
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[i].length; j++) {
-                // leég a mező
+                // field burns down
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp()
                         && fields[i][j].getBuilding().isBurntDown(currentDate)) {
                     if (fields[i][j].getBuilding() instanceof Zone zone)
@@ -656,13 +617,13 @@ class City {
                     fields[i][j].burnsDown();
                 }
 
-                // átterjedhet a tűz szomszédos mezőkre
+                // fire spreading
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp()
                         && fields[i][j].getBuilding().isBurning()) {
                     if (j + 1 < fields[i].length && !fields[i][j + 1].isFree()
                             && fields[i][j + 1].getBuilding().isBuiltUp()
                             && !fields[i][j + 1].getBuilding().isBurning()) {
-                        random = 1.0 * r.nextDouble();
+                        double random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i][j + 1]) > random) {
                             fields[i][j + 1].getBuilding().startBurning(currentDate);
                         }
@@ -671,7 +632,7 @@ class City {
                     if (i + 1 < fields.length && !fields[i + 1][j].isFree()
                             && fields[i + 1][j].getBuilding().isBuiltUp()
                             && !fields[i + 1][j].getBuilding().isBurning()) {
-                        random = 1.0 * r.nextDouble();
+                        double random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i + 1][j]) > random) {
                             fields[i + 1][j].getBuilding().startBurning(currentDate);
                         }
@@ -679,7 +640,7 @@ class City {
 
                     if (j - 1 >= 0 && !fields[i][j - 1].isFree() && fields[i][j - 1].getBuilding().isBuiltUp()
                             && !fields[i][j - 1].getBuilding().isBurning()) {
-                        random = 1.0 * r.nextDouble();
+                        double random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i][j - 1]) > random) {
                             fields[i][j - 1].getBuilding().startBurning(currentDate);
                         }
@@ -687,17 +648,17 @@ class City {
 
                     if (i - 1 >= 0 && !fields[i - 1][j].isFree() && fields[i - 1][j].getBuilding().isBuiltUp()
                             && !fields[i - 1][j].getBuilding().isBurning()) {
-                        random = 1.0 * r.nextDouble();
+                        double random = 1.0 * r.nextDouble();
                         if (calculateChanceOfFire(fields[i - 1][j]) > random) {
                             fields[i - 1][j].getBuilding().startBurning(currentDate);
                         }
                     }
                 }
 
-                // tűzoltóautó mozgatása
+                // move fire track
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof FireStation fireStation) {
                     if (!fireStation.getFireEngine().isAvailable()) {
-                        // visszamegy
+                        // moving back
                         if (fireStation.getFireEngine().isMovingBack()) {
                             fireStation.getFireEngine().moveBackNextRoad();
                         } else if (fireStation.getFireEngine().moveNextRoad()) { // odamegy
@@ -710,100 +671,37 @@ class City {
         }
     }
 
+    /**
+     * set attributes of the fields, then update view
+     * @param ticks
+     */
     public void performTicks(int ticks) {
         if (ticks > 0) {
-            for (int i = 0; i < fields.length; i++)
+            for (Field[] field : fields) {
                 for (int j = 0; j < fields[0].length; j++) {
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone
-                            && isAccessibleOnRoad(fields[i][j]))
-                        fields[i][j].getBuilding().progressBuilding(ticks);
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Zone zone) {
+                    if (!field[j].isFree() && field[j].getBuilding() instanceof Zone && isAccessibleOnRoad(field[j])) {
+                        field[j].getBuilding().progressBuilding(ticks);
+                    }
+                    if (!field[j].isFree() && field[j].getBuilding() instanceof Zone zone) {
                         zone.setAnnualTax(tax);
                     }
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding().isBuiltUp()) {
-                        fields[i][j].getBuilding()
-                                .setImage(new ImageIcon(
-                                        "data/graphics/field/unselected/" + fields[i][j].getBuilding().type() + ".png")
-                                        .getImage());
-                    }
-                    if (fields[i][j].isFree() && fields[i][j].isBurntDown()) {
-                        fields[i][j].setImage(
-                                new ImageIcon("data/graphics/field/" + (selectedField == fields[i][j] ? "" : "un")
-                                        + "selected/notBurning/burntDownField.png").getImage());
-                    }
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road road) {
-                        road.setImage(new ImageIcon("data/graphics/field/" + (selectedField == fields[i][j] ? "" : "un")
-                                + "selected/" + road.type() + ".png").getImage());
-                    }
                 }
-            if (selectedField != null && !selectedField.isFree() && selectedField.getBuilding().isBuiltUp()) {
-                selectedField.getBuilding().setImage(
-                        new ImageIcon("data/graphics/field/selected/" + selectedField.getBuilding().type() + ".png")
-                                .getImage());
             }
-            changeSatisfaction();
+            updateSatisfaction();
         }
     }
 
+    /**
+     * 
+     * @param field
+     * @return true if field is accessible on road
+     */
     public boolean isAccessibleOnRoad(Field field) {
-        int x = -1, y = -1;
-        boolean voltemar[][] = new boolean[fields.length][fields[0].length];
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                voltemar[i][j] = false;
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
-        if (x == -1 && y == -1)
-            throw new IllegalArgumentException("First Field not Found in getDistance");
-        Queue Q = new LinkedList<Coordinate>();
-        voltemar[x][y] = true;
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++)
-                if (Math.abs(i - x) + Math.abs(j - y) == 1 && i >= 0 && i < fields.length && j >= 0
-                        && j < fields[0].length)
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road) {
-                        Q.add(new Coordinate(i, j));
-                        voltemar[i][j] = true;
-                    }
-        }
-        while (!Q.isEmpty()) {
-            Coordinate o = (Coordinate) Q.remove();
-            if (o.x + 1 < fields.length && ((!voltemar[o.x + 1][o.y] && !fields[o.x + 1][o.y].isFree()
-                    && fields[o.x + 1][o.y].getBuilding() instanceof Road)
-                    || (!fields[o.x + 1][o.y].isFree() && fields[o.x + 1][o.y].getBuilding() instanceof Zone))) {
-                if (fields[o.x + 1][o.y].getBuilding() instanceof Zone zone && zone.isBuiltUp())
-                    return true;
-                Q.add(new Coordinate(o.x + 1, o.y));
-                voltemar[o.x + 1][o.y] = true;
-            }
-            if (o.x - 1 >= 0 && ((!voltemar[o.x - 1][o.y] && !fields[o.x - 1][o.y].isFree()
-                    && fields[o.x - 1][o.y].getBuilding() instanceof Road)
-                    || (!fields[o.x - 1][o.y].isFree() && fields[o.x - 1][o.y].getBuilding() instanceof Zone))) {
-                if (fields[o.x - 1][o.y].getBuilding() instanceof Zone zone && zone.isBuiltUp())
-                    return true;
-                Q.add(new Coordinate(o.x - 1, o.y));
-                voltemar[o.x - 1][o.y] = true;
-            }
-            if (o.y + 1 < fields[0].length && ((!voltemar[o.x][o.y + 1] && !fields[o.x][o.y + 1].isFree()
-                    && fields[o.x][o.y + 1].getBuilding() instanceof Road)
-                    || (!fields[o.x][o.y + 1].isFree() && fields[o.x][o.y + 1].getBuilding() instanceof Zone))) {
-                if (fields[o.x][o.y + 1].getBuilding() instanceof Zone zone && zone.isBuiltUp())
-                    return true;
-                Q.add(new Coordinate(o.x, o.y + 1));
-                voltemar[o.x][o.y + 1] = true;
-            }
-            if (o.y - 1 >= 0 && ((!voltemar[o.x][o.y - 1] && !fields[o.x][o.y - 1].isFree()
-                    && fields[o.x][o.y - 1].getBuilding() instanceof Road)
-                    || (!fields[o.x][o.y - 1].isFree() && fields[o.x][o.y - 1].getBuilding() instanceof Zone))) {
-                if (fields[o.x][o.y - 1].getBuilding() instanceof Zone zone && zone.isBuiltUp())
-                    return true;
-                Q.add(new Coordinate(o.x, o.y - 1));
-                voltemar[o.x][o.y - 1] = true;
-            }
-        }
+    	int[][] distancesAround = getMatrixDistanceAlongRoad(field, fields);
+        for(int i=0;i<fields.length;i++)
+        	for(int j=0;j<fields[0].length;j++)
+        		if(fields[i][j].getBuilding() instanceof Zone z && z.isBuiltUp() && distancesAround[i][j] > 0)
+        			return true;
         return false;
     }
 
@@ -851,9 +749,6 @@ class City {
         }  
     }
     
-    private void initFields(int fieldRowsNum, int fieldColsNum) {
-        initFields(fieldRowsNum, fieldColsNum, false);
-    }
 
     /**
      * initialize residents
@@ -875,8 +770,8 @@ class City {
             if (res.getWorkplace() == null || res.getHome() == null) {
                 throw new IllegalArgumentException("Home or Workplace cannot be null at initialization.");
             }
-            for (Field[] fields : this.fields) {
-                for (Field field : fields) {
+            for (Field[] allFields : this.fields) {
+                for (Field field : allFields) {
                     if (!field.isFree() && field.getBuilding().isBuiltUp()
                             && field.getBuilding() instanceof ResidentialZone residentialZone) {
                         residentialZone.setImage(
@@ -889,12 +784,17 @@ class City {
         }
     }
 
+    /**
+     * r move in a residential zone
+     * @param r
+     * @return chosen residential zone
+     */
     public Field initHome(Resident r) {
         ResidentialZone home = null;
         Field homeField = null;
-        for (int j = 0; j < fields.length; j++) {
+        for (Field[] allFields : fields) {
             for (int k = 0; k < fields[0].length; k++) {
-                Field field = fields[j][k];
+                Field field = allFields[k];
                 if (!field.isFree()) {
                     if (field.getBuilding() instanceof ResidentialZone freeResidentialZone
                             && !freeResidentialZone.isFull()) {
@@ -906,7 +806,6 @@ class City {
                 if (home != null) {
                     break;
                 }
-
             }
             if (home != null) {
                 break;
@@ -917,20 +816,23 @@ class City {
         return homeField;
     }
 
+    /**
+     * r move in a workplace zone
+     * @param r 
+     */
     public void initWorkplace(Resident r) {
         Workplace workplace = null;
         Field workplaceField = null;
         if (r.getHome() != null) {
-            for (int j = 0; j < fields.length; j++) {
+            for (Field[] allFields : fields) {
                 for (int k = 0; k < fields[0].length; k++) {
-                    Field field = fields[j][k];
+                    Field field = allFields[k];
                     if (!field.isFree()) {
                         if (field.getBuilding() instanceof Workplace freeWorkplace && !freeWorkplace.isFull()) {
                             workplaceField = field;
                             if (getDistanceAlongRoad(r.getHomeField(), workplaceField, fields) > -1) {
                                 workplace = freeWorkplace;
                                 freeWorkplace.incrementPeopleNum();
-                                // System.out.printf("Workpace is (%d,%d)%n", j, k);
                             }
                         }
                     }
@@ -948,6 +850,9 @@ class City {
 
     }
 
+    /**
+     * remove resinents if they have no home or workplace and cannot find new available home or workplace
+     */
     public void reassignHomesOrWorkplaces() {
         ArrayList<Resident> removeResidents = new ArrayList<>();
         for (Resident r : residents) {
@@ -973,9 +878,14 @@ class City {
         }
     }
 
+    /**
+     * process line from txt
+     * @param line
+     * @param rowIndex 
+     */
     private void processLine(String line, int rowIndex) {
-        String[] fieldStrings = line.split("\\s+"); // It will split the string by single or multiple whitespace
-                                                    // characters
+        String[] fieldStrings = line.split("\\s+"); // It will split the string by single or multiple whitespace characteres
+                                                    
         for (int i = 0; i < fieldStrings.length; i++) {
             int offsetX = (i + 1) * FIELDSIZE;
             int offsetY = (rowIndex + 1) * FIELDSIZE;
@@ -1053,7 +963,7 @@ class City {
      * @return error message (field is not free / do not have enough money)
      *         otherwise null
      */
-    public void build(Class playerBuildItClass) {
+    public void build(Class<?> playerBuildItClass) {
         if (selectedField == null || !selectedField.isFree())
             return;
         if (!PlayerBuildIt.class.isAssignableFrom(playerBuildItClass))
@@ -1078,19 +988,10 @@ class City {
                     FIELDSIZE,
                     FIELDSIZE, new ImageIcon("data/graphics/field/selected/notBurning/road.png").getImage(), REFUND));
         } else if (playerBuildItClass == Stadium.class) {
-            int iIndex = 0, jIndex = 0;
-            for (int i = 0; i < fields.length; i++) {
-                for (int j = 0; j < fields[0].length; j++) {
-                    if (selectedField == fields[i][j]) {
-                        iIndex = i;
-                        jIndex = j;
-                        break;
-                    }
-                }
-                if (jIndex != 0) {
-                    break;
-                }
-            }
+
+        	Coordinate c = indicesFor(selectedField, fields);
+            int iIndex = c.x, jIndex = c.y;
+            
             if (iIndex > 0 && jIndex > 0) {
                 if (fields[iIndex - 1][jIndex - 1].isFree() && fields[iIndex - 1][jIndex].isFree()
                         && fields[iIndex][jIndex - 1].isFree()) {
@@ -1111,8 +1012,6 @@ class City {
                     return;
 
                 }
-            } else {
-                return;
             }
         } else if (playerBuildItClass == PoliceStation.class) {
             selectedField.build(
@@ -1131,14 +1030,17 @@ class City {
                     new Forest(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(),
                             FIELDSIZE, FIELDSIZE, new ImageIcon("data/graphics/field/selected/forest.png").getImage(),
                             REFUND, CHANCEOFFIRE));
-            calculateForestBonusResZone();
         }
-        changeSatisfaction();
+        updateSatisfaction();
 
         budget -= price;
     }
 
-    public String saveGame() {
+    /**
+     * preparation for save (persistence)
+     * @return 
+     */
+    public String gameStateAsString() {
         StringBuilder b = new StringBuilder();
         b.append(tax);
         b.append("\n");
@@ -1158,47 +1060,43 @@ class City {
         }
         int homeX = -1, homeY = -1, workX = -1, workY = -1;
         for (Resident r : residents) {
-            for (int i = 0; i < fields.length; i++)
-                for (int j = 0; j < fields[0].length; j++)
-                    if (fields[i][j].getBuilding() == r.getHome()) {
-                        homeX = i;
-                        homeY = j;
-                    } else if (fields[i][j].getBuilding() == r.getWorkplace()) {
-                        workX = i;
-                        workY = j;
-                    }
+            Coordinate c = indicesFor(r.getHome(), fields);
+            if(c == null) throw new IllegalArgumentException("There is a resident in residents with no home");
+            homeX = c.x;
+            homeY = c.y;
+            c = indicesFor(r.getWorkplace(), fields);
+            if(c != null) {
+            	workX = c.x;
+            	workY = c.y;
+            }
             b.append(r.asString(homeX, homeY, workX, workY));
             b.append('\n');
         }
         return b.toString();
     }
 
+    /**
+     * load one of the saved game (persistence)
+     * @param s
+     * @param onScreen 
+     */
     public void loadGame(Scanner s, boolean onScreen) {
         residents.clear();
+        selectedField = null;
         tax = Integer.parseInt(s.nextLine());
         budget = Integer.parseInt(s.nextLine());
         negativeBudgetNthYear = Integer.parseInt(s.nextLine());
         satisfaction = Integer.parseInt(s.nextLine());
         universialSatisfaction = Integer.parseInt(s.nextLine());
-        boolean[][] gud = new boolean[fields.length][fields[0].length];
+        
+        boolean[][] alreadySet = new boolean[fields.length][fields[0].length];
+        
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[0].length; j++) {
                 String[] str = s.nextLine().split(";");
-                if (str.length > 3 && str[1].equals("st") && !gud[i][j]) {
-                    int offsetY = (i + 1) * FIELDSIZE;
-                    int offsetX = (j + 1) * FIELDSIZE;
-                    if (onScreen) {
-                        offsetY = yOffset + i * FIELDSIZE;
-                        offsetX = xOffset + j * FIELDSIZE;
-                    }
-                    double refund = Double.parseDouble(str[2]);
-                    double chanceOfFire = Double.parseDouble(str[3]);
-                    int buildPrice = Integer.parseInt(str[6]);
-                    int annualFee = Integer.parseInt(str[7]);
-                    int radius = Integer.parseInt(str[8]);
-                    Stadium stad = new Stadium(buildPrice, annualFee, radius, offsetX,
-                            offsetY,
-                            FIELDSIZE * 2, FIELDSIZE * 2, whatImageFor(Stadium.class, str), refund, chanceOfFire);
+                if (str.length > 2 && str[1].equals("st") && !alreadySet[i][j]) {
+                	
+                    Stadium stad = (Stadium)loadBuildable(j,i,str,onScreen);
                     stad.fields[0] = fields[i + 1][j + 1];
                     stad.fields[0].setBuilding(stad);
                     stad.fields[1] = fields[i][j];
@@ -1207,14 +1105,14 @@ class City {
                     stad.fields[2].setBuilding(stad);
                     stad.fields[3] = fields[i + 1][j];
                     stad.fields[3].setBuilding(stad);
-                    gud[i][j] = true;
-                    gud[i + 1][j + 1] = true;
-                    gud[i + 1][j] = true;
-                    gud[i][j + 1] = true;
+                    alreadySet[i][j] = true;
+                    alreadySet[i + 1][j + 1] = true;
+                    alreadySet[i + 1][j] = true;
+                    alreadySet[i][j + 1] = true;
                 } else if (str.length > 2 && str[1].equals("st")) {
 
                 } else {
-                    fields[i][j].setBuilding(unpack(j, i, str, onScreen));
+                    fields[i][j].setBuilding(loadBuildable(j, i, str, onScreen));
                 }
                 if (fields[i][j].isFree())
                     fields[i][j].setBurntDown(Boolean.parseBoolean(str[0]));
@@ -1223,10 +1121,18 @@ class City {
         while (s.hasNextLine()) {
             residents.add(residentByString(s.nextLine()));
         }
-        changeSatisfaction();
+        updateSatisfaction();
     }
 
-    private Buildable unpack(int x, int y, String[] s, boolean onScreen) {
+    /**
+     * load buildings for persistence
+     * @param x
+     * @param y
+     * @param s
+     * @param onScreen
+     * @return 
+     */
+    private Buildable loadBuildable(int x, int y, String[] s, boolean onScreen) {
         Buildable b;
         if (s[1].equals("empty"))
             return null;
@@ -1313,7 +1219,13 @@ class City {
         return b;
     }
 
-    private Image whatImageFor(Class buildableClass, String[] s) {
+    /**
+     * search image when loading saved game (persistence)
+     * @param buildableClass
+     * @param s
+     * @return 
+     */
+    private Image whatImageFor(Class<?> buildableClass, String[] s) {
         boolean burning = Boolean.parseBoolean(s[4]);
         StringBuilder pathName = new StringBuilder("data/graphics/field/unselected/");
         pathName.append(burning ? "burning/" : "notBurning/");
@@ -1335,6 +1247,11 @@ class City {
         return new ImageIcon(pathName.toString()).getImage();
     }
 
+    /**
+     * prepare residents when loading saved game (persistence)
+     * @param tmp
+     * @return 
+     */
     private Resident residentByString(String tmp) {
         String[] s = tmp.split(";");
         Resident r = new Resident(42, null, null);
@@ -1343,22 +1260,36 @@ class City {
         r.setChanceOfDeath(Double.parseDouble(s[2]));
         r.setHome((ResidentialZone) fields[Integer.parseInt(s[3])][Integer.parseInt(s[4])].getBuilding());
         r.setWorkplace((Workplace) fields[Integer.parseInt(s[5])][Integer.parseInt(s[6])].getBuilding());
+        r.setHomeField(fields[Integer.parseInt(s[3])][Integer.parseInt(s[4])]);
+        r.setWorkplaceField(fields[Integer.parseInt(s[5])][Integer.parseInt(s[6])]);
         r.setSatisfaction(Integer.parseInt(s[7]));
         r.setWorkedYearsBeforeRetired(Integer.parseInt(s[8]));
         r.setPaidTaxesBeforeRetired(Integer.parseInt(s[9]));
         return r;
     }
-
-    public void reevaluateAccessibility() {
-        for (var row : fields)
-            for (var field : row)
-                if (!field.isFree() && field.getBuilding() instanceof Zone zone) {
-                    boolean isAccessible = isAccessibleOnRoad(field);
-                    field.getBuilding().select(isAccessible);
-                    field.getBuilding().unselect(isAccessible);
-                    zone.setSafety(Math.min(Math.max(calculateSafety(field), -10), 10));
-                    zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field), -10), 10));
+    
+    /**
+     * update images of Zones and selectedField
+     */
+    private void updateImages() {
+        for (Field[] field : fields) {
+            for (int j = 0; j<fields[0].length; j++) {
+                if (!field[j].isFree() && field[j].getBuilding() instanceof Zone) {
+                    boolean isAccessible = isAccessibleOnRoad(field[j]);
+                    field[j].getBuilding().select(isAccessible);
+                    field[j].getBuilding().unselect(isAccessible);
                 }
+                if (!field[j].isFree() && field[j].getBuilding().isBuiltUp()) {
+                    field[j].getBuilding().setImage(new ImageIcon("data/graphics/field/unselected/" + field[j].getBuilding().type() + ".png").getImage());
+                }
+                if (field[j].isFree() && field[j].isBurntDown()) {
+                    field[j].setImage(new ImageIcon("data/graphics/field/" + (selectedField == field[j] ? "" : "un") + "selected/notBurning/burntDownField.png").getImage());
+                }
+                if (!field[j].isFree() && field[j].getBuilding() instanceof Road road) {
+                    road.setImage(new ImageIcon("data/graphics/field/" + (selectedField == field[j] ? "" : "un") + "selected/" + road.type() + ".png").getImage());
+                }
+            }
+        }
         if (selectedField != null && !selectedField.isFree())
             selectedField.getBuilding()
                     .setImage(
@@ -1371,16 +1302,54 @@ class City {
                                             + ".png")
                                     .getImage());
     }
-
+    
+    /**
+     * set the values of fields that are dependent on the surrounding fields.
+     */
+    private void setFieldsDependentValues() {
+    	int[][] forestBonuses = calculateForestBonusResZone();
+    	for (int i=0;i<fields.length;i++)
+            for (int j=0; j<fields[0].length;j++) {
+            	Field field = fields[i][j];
+                if (!field.isFree() && field.getBuilding() instanceof Zone zone) {
+                    zone.setSafety(Math.min(Math.max(calculateSafety(field), -10), 10));
+        			zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field), -10), 10));
+        			if (field.getBuilding() instanceof ResidentialZone rz) {
+                        rz.setIndustrialPenalty(calculateIndustrialPenalty(field));
+                        rz.setForestBonus(forestBonuses[i][j]);
+                    }
+                }
+            }
+    }
+    
+    private int calculateIndustrialPenalty(Field field) {
+    	Coordinate c = indicesFor(field, fields);
+    	int x = c.x, y = c.y;
+    	
+        int penalty = 0;
+        for(int i=Math.max(0, x - 5); i< Math.min(x + 6, fields.length); i++)
+        	for(int j=Math.max(0, y - 5); j<Math.min(y + 6, fields[0].length); j++)
+        		if(fields[i][j].getBuilding() instanceof IndustrialZone) {
+        			int penaltyForThis = 6 - Math.max(Math.abs(i - x), Math.abs(y - j));
+        			boolean applied = false;
+        			for(int k = Math.min(x, i); k <= Math.max(x, i) && !applied;k++)
+        				for(int l = Math.min(y, j); l <= Math.max(y, j) && !applied; l++)
+        					if(fields[k][l].getBuilding() instanceof Forest && this.decreaseIndustrialPenalty(fields[x][y], fields[i][j], fields[k][l])) {
+        						applied = true;
+        						penaltyForThis /= 2;
+        					}
+        			penalty += penaltyForThis;
+        		}
+        return penalty;
+    }
     /**
      * player select free field (residential-, industrial-, service zone) and
      * residents can build on this automatically
      * budget decrease by the price of zone select
      * 
-     * @param selectedField
      * @param zoneClass
      */
-    public void selectField(Class zoneClass) {
+    public void selectField(Class<?> zoneClass) {
         FIELDSIZE = fields[0][0].getWidth();
         if (selectedField == null || !selectedField.isFree())
             return;
@@ -1408,60 +1377,52 @@ class City {
                     new ImageIcon("data/graphics/field/selected/notBurning/" + (acc ? "build" : "unableBuild") + ".png")
                             .getImage()));
         }
-        changeSatisfaction();
+        updateSatisfaction();
         budget -= zonePrice;
     }
 
     /**
-     * A selectedField-re dolgozik
-     * 
-     * @return
+     * calculate field's safety
+     * @param field
+     * @return 
      */
     private int calculateSafety(Field field) {
-        int bonus = 0;
-        int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
+    	Coordinate c = indicesFor(field, fields);
+    	int x = c.x, y = c.y;
+    	
+    	int safety = 0;
+        // if there are PoliceStation close by, and accessible on road,
+        // then increase the bonus for each
         for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
             for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof PoliceStation
                         && getDistanceAlongRoad(field, fields[i][j], fields) != -1) {
-                    bonus += POLICESTATIONSAFETY;
+                    safety += POLICESTATIONSAFETY;
                 }
-        bonus -= (int) (residents.size() / HOWMANYRESIDENTSTOLOWERSAFETY);
-        return bonus;
+        safety -= (int) (residents.size() / HOWMANYRESIDENTSTOLOWERSAFETY);
+        return safety;
     }
 
     /**
-     * A selectedField-re dolgozik
-     * 
-     * @return
+     * calculate field's satisfaction bonus
+     * @param field
+     * @return 
      */
     private int calculateSatBonus(Field field) {
-        int bonus = 0;
-        int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
+        
+        Coordinate c = indicesFor(field, fields);
+    	int x = c.x, y = c.y;
+    	
+    	int bonus = 0;
         ArrayList<Stadium> usedStadiums = new ArrayList<>();
         for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
             for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Stadium stadium
                         && !usedStadiums.contains(stadium)) {
                     for (int k = 0; k < 4; k++) {
-                        if (getDistanceAlongRoad(stadium.fields[k], field, fields) != -1) {
+                        if (!usedStadiums.contains(stadium) && getDistanceAlongRoad(stadium.fields[k], field, fields) != -1) {
                             bonus += STADIUMSATBONUS;
                             usedStadiums.add(stadium);
-                            break;
                         }
                     }
                 }
@@ -1469,21 +1430,16 @@ class City {
     }
 
     /**
-     * A selectedField-re dolgozik
-     * 
-     * @return
+     * calculate field's chance of fire
+     * @param field
+     * @return 
      */
     private double calculateChanceOfFire(Field field) {
-        int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
 
-        for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
+    	Coordinate c = indicesFor(field, fields);
+    	int x = c.x, y = c.y;
+
+    	for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
             for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof FireStation
                         && getDistanceAlongRoad(field, fields[i][j], fields) != -1) {
@@ -1492,9 +1448,26 @@ class City {
         return fields[x][y].getBuilding().getChanceOfFire();
     }
 
+    /**
+     * calculate forest bonuses for residential zones
+     * @return 
+     */
     public int[][] calculateForestBonusResZone() {
         int defaultBonus = FORESTSATBONUS;
         int[][] bonusPerHouse = new int[fields.length][fields[0].length];
+        ArrayList<Field> houseFields = new ArrayList<>();
+        ArrayList<Field> forestFields = new ArrayList<>();
+        // populate arrayLists
+        for (Field row[] : fields) {
+            for (Field f : row) {
+                if (f.getBuilding() instanceof ResidentialZone) {
+                    houseFields.add(f);
+                }
+                if (f.getBuilding() instanceof Forest) {
+                    forestFields.add(f);
+                }
+            }
+        }
         // calculate eyesight
         for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[0].length; j++) {
@@ -1507,8 +1480,6 @@ class City {
                     // forest cell middlePoint
                     double fX = forest.getX() + (forest.getWidth() / 2);
                     double fY = forest.getY() + (forest.getHeight() / 2);
-                    // System.out.printf("Checking Forest (%d,%d), Middle point: (%f,%f)%n", i, j,
-                    // fX, fY);
                     // checking a 7x7 are where the current Forest is in the middle
                     int k, l, m, n;
                     if (i - 3 < 0) {
@@ -1539,7 +1510,6 @@ class City {
                                 // house cell middlePoint
                                 double hX = house.getX() + (house.getWidth() / 2);
                                 double hY = house.getY() + (house.getHeight() / 2);
-                                // System.out.printf("Checking House (%d,%d), Middle point: (%f,%f)%n", a, b,
                                 // hX, hY);
                                 // calculate equation of the line between them, e(x)
                                 double eX, eY, eR;
@@ -1575,8 +1545,6 @@ class City {
                                     cm = a;
                                     cn = j;
                                 }
-                                // System.out.printf("Checking between corner: (%d,%d) (%d,%d)%n", ca, cb, cm,
-                                // cn);
                                 // iterate thru thre remaining cells in the 7x7 matrix and check if the line of
                                 // sight is blocked
                                 for (int o = ca; o <= cm; o++) {
@@ -1587,8 +1555,6 @@ class City {
                                             // middlepoint of iterated cell
                                             double fiX = f.getX() + (f.getWidth() / 2);
                                             double fiY = f.getY() + (f.getHeight() / 2);
-                                            // System.out.printf("Checking Blockade (%d,%d), Middle point: (%f,%f)%n",
-                                            // o,p, fiX, fiY);
                                             // calculate distance between point and the line
                                             // pass point into e(x)
                                             double pR = eX * fiX - eY * fiY - eR;
@@ -1596,17 +1562,9 @@ class City {
                                             double nL = Math.sqrt(Math.pow(eX, 2) + Math.pow(eY, 2));
                                             // distance result
                                             double distance = Math.abs(pR / nL);
-                                            // System.out.printf("Distance: %f; halfCellDiagonal: %f%n",
-                                            // distance,halfCellDiagonal);
                                             // if the distance is less or equal than the diagonal/2 then its blocking
                                             // the line of sight, so we mark the house as blocked
                                             if (distance <= halfCellDiagonal) {
-                                                /*
-                                                 * System.out.printf(
-                                                 * "Line of sight between Forest(%d,%d) and House(%d,%d) blocked by obstacle(%d,%d)%n"
-                                                 * ,
-                                                 * i, j, a, b, o, p);
-                                                 */
                                                 blockedSight = true;
                                                 break;
                                             }
@@ -1617,14 +1575,6 @@ class City {
                                     }
                                 }
                                 // if its not blocked then lets change the bonus to the biggest possible
-                                if (!blockedSight) {
-                                    /*
-                                     * System.out.printf(
-                                     * "There is a line of sight between Forest(%d,%d) and House(%d,%d)%n",
-                                     * i,
-                                     * j, a, b);
-                                     */
-                                }
                                 if (!blockedSight && (bonusPerHouse[a][b] < (defaultBonus
                                         * ((Forest) forest.getBuilding()).getBonusMultiplier()))) {
                                     bonusPerHouse[a][b] = defaultBonus
@@ -1639,9 +1589,8 @@ class City {
         return bonusPerHouse;
     }
 
-    // !!IMPORTANT!! only check cells for forests between the res and ind zones
-    // if you check the field even if its not between the zones the math will be
-    // still correct
+    // only check cells for forests between the res and ind zones
+    // if you check the field even if its not between the zones the math will be still correct
     public boolean decreaseIndustrialPenalty(Field residental, Field industrial, Field field) {
         // cell diagonal divided by 2
         double halfCellDiagonal = (Math
@@ -1672,24 +1621,14 @@ class City {
         double nL = Math.sqrt(Math.pow(eX, 2) + Math.pow(eY, 2));
         // distance result
         double distance = Math.abs(pR / nL);
-        if (distance <= halfCellDiagonal && field.getBuilding() instanceof Forest) {
-            return true;
-        }
-
-        return false;
+        return distance <= halfCellDiagonal && field.getBuilding() instanceof Forest;
     }
 
-    public void setForestSatisfaction() {
-        int[][] bonusPerHouse = calculateForestBonusResZone();
-        for (int i = 0; i < fields.length; i++) {
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j].getBuilding() instanceof ResidentialZone) {
-                    // applying bonus to the house
-                }
-            }
-        }
-    }
-
+    /**
+     * 
+     * @param field
+     * @return if deleting road will not destroy home-workplace connection true, otherwise false
+     */
     public boolean canDeleteRoad(Field field) {
         if (field == null)
             return false;
@@ -1754,13 +1693,7 @@ class City {
 
     }
 
-    /**
-     * BFS
-     * 
-     * @param one
-     * @param other
-     * @return distance between fields or -1
-     */
+    
     private class Coordinate {
         public int x, y;
 
@@ -1769,79 +1702,122 @@ class City {
             this.y = y;
         }
     }
-
-    private int[][] getMatrixDistanceAlongRoad(Field one, Field other, Field[][] fields) {
-        if (one == other)
-            return null;
-        int x1 = -1, x2 = -1, y1 = -1, y2 = -1;
-        int[][] distances = new int[fields.length][fields[0].length];
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                distances[i][j] = -1;
-                if (fields[i][j] == one) {
-                    x1 = i;
-                    y1 = j;
-                    distances[i][j] = 0;
-                }
-                if (fields[i][j] == other) {
-                    x2 = i;
-                    y2 = j;
-                }
-            }
-        if (x1 == -1 && y1 == -1)
-            throw new IllegalArgumentException("First Field not Found in getDistance");
-        if (x2 == -1 && y2 == -1)
-            throw new IllegalArgumentException("Second Field not Found in getDistance");
-        Queue Q = new LinkedList<Coordinate>();
-        Q.add(new Coordinate(x1, y1));
+    /**
+     * @param field
+     * @param fields
+     * @return shortest distances from field along road, or -1 if unaccessible
+     */
+    private int[][] getMatrixDistanceAlongRoad(Field field, Field[][] fields) {
+    	int[][] distances = new int[fields.length][];
+    	int x,y;
+    	{
+	    	Coordinate c = indicesFor(field, fields);
+	    	if(c == null)
+	    		throw new IllegalArgumentException("Field not Found in getMatrixDistance");
+	    	x = c.x;
+	    	y = c.y;
+    	}
+    	for(int i=0;i<fields.length; i++) {
+    		int[] row = new int[fields[0].length];
+    		Arrays.fill(row, -1);
+    		distances[i] = row;
+    	}
+    	
+    	distances[x][y] = 0;
+        Queue<Coordinate> Q = new LinkedList<>();
+        
+        // if stadium then stadium 4 fields distance is 0 and every adjacent road distance is 1
+        if(field.getBuilding() instanceof Stadium s) {
+        	int fieldNumber = -1;
+        	for (int k=0; k<4; k++) {
+        		if (field == s.fields[k])   fieldNumber = k;
+        	}
+        	// position to the upper left corner of stadium
+        	switch(fieldNumber) {
+	    		// lower right
+	    		case 0 -> {
+	    			x = x-1;
+	    			y = y-1;
+	    		}
+	    		// upper left
+	    		case 1 -> {}
+	    		// upper right
+	    		case 2 -> {
+	    			y = y-1;
+	    		}
+	    		// lower left
+	    		case 3 -> {
+	    			x = x-1;
+	    		}
+	    		default -> throw new IllegalArgumentException("MatrixDistance stadium: field not in stadium.fields");
+        	}
+        	Arrays.asList(new Coordinate(x - 1, y + 1), new Coordinate(x, y + 2), new Coordinate(x + 1, y + 2), new Coordinate(x + 2, y + 1), new Coordinate(x + 2, y), new Coordinate(x + 1, y - 1))
+        		.stream()
+        		.forEach(c -> {
+        				if(c.x>=0 && c.x < fields.length && c.y >= 0 && c.y < fields[0].length && fields[c.x][c.y].getBuilding() instanceof Road){
+        					Q.add(c);
+        					distances[c.x][c.y] = 1;
+        				}
+       					}
+        				);
+        	distances[x][y] = 0;
+        	distances[x][y+1] = 0;
+        	distances[x+1][y+1] = 0;
+        	distances[x+1][y] = 0;
+        }
+        // adds the 4 fields next to it, to the queue, if they are a road.
+        for (int i = x - 1; i <= x + 1; i++) {
+            for (int j = y - 1; j <= y + 1; j++)
+                if (Math.abs(i - x) + Math.abs(j - y) == 1 && i >= 0 && i < fields.length && j >= 0
+                        && j < fields[0].length)
+                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road) {
+                        Q.add(new Coordinate(i, j));
+                        distances[i][j] = 1;
+                    }
+        }	
+        
         while (!Q.isEmpty()) {
             Coordinate o = (Coordinate) Q.remove();
-            if ((o.x + 1 < distances.length && distances[o.x + 1][o.y] == -1 && !fields[o.x + 1][o.y].isFree()
-                    && fields[o.x + 1][o.y].getBuilding() instanceof Road) || (o.x + 1 == x2 && o.y == y2)) {
+            if (o.x + 1 < distances.length && distances[o.x + 1][o.y] == -1 && !fields[o.x + 1][o.y].isFree()) {
                 distances[o.x + 1][o.y] = distances[o.x][o.y] + 1;
-                if (o.x + 1 == x2 && o.y == y2)
-                    break;
-                Q.add(new Coordinate(o.x + 1, o.y));
+                if(fields[o.x + 1][o.y].getBuilding() instanceof Road)
+                	Q.add(new Coordinate(o.x + 1, o.y));
             }
-            if ((o.x - 1 >= 0 && distances[o.x - 1][o.y] == -1 && !fields[o.x - 1][o.y].isFree()
-                    && fields[o.x - 1][o.y].getBuilding() instanceof Road) || (o.x - 1 == x2 && o.y == y2)) {
+            if (o.x - 1 >= 0 && distances[o.x - 1][o.y] == -1 && !fields[o.x - 1][o.y].isFree()) {
                 distances[o.x - 1][o.y] = distances[o.x][o.y] + 1;
-                if (o.x - 1 == x2 && o.y == y2)
-                    break;
-                Q.add(new Coordinate(o.x - 1, o.y));
+                if(fields[o.x - 1][o.y].getBuilding() instanceof Road)
+                	Q.add(new Coordinate(o.x - 1, o.y));
             }
-            if ((o.y + 1 < distances[0].length && distances[o.x][o.y + 1] == -1 && !fields[o.x][o.y + 1].isFree()
-                    && fields[o.x][o.y + 1].getBuilding() instanceof Road) || (o.x == x2 && o.y + 1 == y2)) {
+            if (o.y + 1 < distances[0].length && distances[o.x][o.y + 1] == -1 && !fields[o.x][o.y + 1].isFree()) {
                 distances[o.x][o.y + 1] = distances[o.x][o.y] + 1;
-                if (o.x == x2 && o.y + 1 == y2)
-                    break;
-                Q.add(new Coordinate(o.x, o.y + 1));
+                if(fields[o.x][o.y + 1].getBuilding() instanceof Road)
+                	Q.add(new Coordinate(o.x, o.y + 1));
             }
-            if ((o.y - 1 >= 0 && distances[o.x][o.y - 1] == -1 && !fields[o.x][o.y - 1].isFree()
-                    && fields[o.x][o.y - 1].getBuilding() instanceof Road) || (o.x == x2 && o.y - 1 == y2)) {
+            if (o.y - 1 >= 0 && distances[o.x][o.y - 1] == -1 && !fields[o.x][o.y - 1].isFree()) {
                 distances[o.x][o.y - 1] = distances[o.x][o.y] + 1;
-                if (o.x == x2 && o.y - 1 == y2)
-                    break;
-                Q.add(new Coordinate(o.x, o.y - 1));
+                if(fields[o.x][o.y - 1].getBuilding() instanceof Road)
+                	Q.add(new Coordinate(o.x, o.y - 1));
             }
         }
         return distances;
     }
-
+    
+    /**
+     * BFS
+     * 
+     * @param one
+     * @param other
+     * @return distance between the fields or -1 if they are not connected
+     */
+    
     private int getDistanceAlongRoad(Field one, Field other, Field[][] fields) {
         if (one == other)
             return 0;
-        int x2 = -1;
-        int y2 = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == other) {
-                    x2 = i;
-                    y2 = j;
-                }
-            }
 
-        return getMatrixDistanceAlongRoad(one, other, fields)[x2][y2];
+        Coordinate c = indicesFor(other, fields);
+        int x2 = c.x, y2 = c.y;
+
+        return getMatrixDistanceAlongRoad(one, fields)[x2][y2];
     }
 
     /**
@@ -1851,8 +1827,7 @@ class City {
      * if the zone is empty (home or workplace without any resident) return null
      * 
      * @param zone
-     * @return if there is at least 1 resident return zone satisfaction otherwise
-     *         null
+     * @return if there is at least 1 resident return zone satisfaction otherwise null
      */
     public Integer getZoneSatisfaction(Zone zone) {
         for (Resident resident : residents) {
@@ -1887,8 +1862,8 @@ class City {
      */
     public long calculateAnnualFee() {
         long sum = 0;
-        for (Field[] fields : this.fields) {
-            for (Field field : fields) {
+        for (Field[] allFields : this.fields) {
+            for (Field field : allFields) {
                 if (field.getBuilding() instanceof Road)
                     sum += getAnnualFee(roadPrice);
                 else if (field.getBuilding() instanceof Stadium)
@@ -1906,13 +1881,12 @@ class City {
     /**
      * 
      * @param buildableClass
-     * @return count of given field
-     *         if given field is stadium: divide count by 4 (because stadium is 2x2)
+     * @return count of given field if given field is stadium: divide count by 4 (because stadium is 2x2)
      */
-    public int countField(Class buildableClass) {
+    public int countField(Class<?> buildableClass) {
         int count = 0;
-        for (Field[] fields : this.fields) {
-            for (Field field : fields) {
+        for (Field[] allFields : this.fields) {
+            for (Field field : allFields) {
                 if (!field.isFree() && field.getBuilding().getClass() == buildableClass)
                     count++;
             }
@@ -1931,8 +1905,8 @@ class City {
         Workplace nearestWorkplace = null;
         double highestMoveInChance = Double.NEGATIVE_INFINITY;
 
-        for (Field[] fields : this.fields) {
-            for (Field field : fields) {
+        for (Field[] allfFields : this.fields) {
+            for (Field field : allfFields) {
                 if (!field.isFree() && (field.getBuilding() instanceof ResidentialZone)
                         && field.getBuilding().isBuiltUp()) {
                     if (((ResidentialZone) field.getBuilding()).getCapacity()
@@ -1956,7 +1930,7 @@ class City {
                     bestResidentialZone, nearestWorkplace));
             bestResidentialZone.incrementPeopleNum();
             nearestWorkplace.incrementPeopleNum();
-            changeSatisfaction();
+            updateSatisfaction();
         }
     }
 
@@ -1971,8 +1945,8 @@ class City {
         Workplace nearestWorkplace = null;
         int minDistance = Integer.MAX_VALUE;
 
-        for (Field[] fields : this.fields) {
-            for (Field field : fields) {
+        for (Field[] allFields : this.fields) {
+            for (Field field : allFields) {
                 if (!field.isFree() && field.getBuilding().isBuiltUp() && (field.getBuilding() instanceof Workplace)) {
                     if (((Workplace) field.getBuilding()).getCapacity()
                             - ((Workplace) field.getBuilding()).getPeopleNum() > 0) {
@@ -1988,6 +1962,9 @@ class City {
         return nearestWorkplace;
     }
 
+    /**
+     * if there is available fire station then set up route for fire truck
+     */
     public void fireFighting() {
         if (selectedField == null || selectedField.isFree() || !selectedField.getBuilding().isBurning()) {
             return;
@@ -1999,53 +1976,30 @@ class City {
             return;
         }
 
-        int[][] distanceMatrix = getMatrixDistanceAlongRoad(selectedField, fireStationField, fields);
-
-        /*
-         * for (int i = 0; i < distanceMatrix.length; i++) {
-         * for (int j = 0; j < distanceMatrix[i].length; j++) {
-         * System.out.print((0 <= distanceMatrix[i][j] && distanceMatrix[i][j] < 10 ?
-         * "+" : "") + distanceMatrix[i][j] + " ");
-         * }
-         * System.out.println("");
-         * }
-         * System.out.println("-------------------------------------------------");
-         */
+        int[][] distanceMatrix = getMatrixDistanceAlongRoad(selectedField, fields);
 
         ArrayList<Road> route = new ArrayList<>();
-        int x = -1;
-        int y = -1;
-        for (int i = 0; i < fields.length; i++) {
-            for (int j = 0; j < fields[i].length; j++) {
-                if (fields[i][j].equals(fireStationField)) {
-                    x = i;
-                    y = j;
-                    break;
-                }
-            }
-            if (x != -1 && y != 1) {
-                break;
-            }
-        }
-
+        Coordinate c = indicesFor(fireStationField, fields);
+        int x = c.x, y = c.y;
+        
         int roadsLeft = distanceMatrix[x][y];
         while (roadsLeft > 1) {
-            if (y + 1 < fields[0].length && distanceMatrix[x][y + 1] == distanceMatrix[x][y] - 1) {
+            if (y + 1 < fields[0].length && fields[x][y + 1].getBuilding() instanceof Road && distanceMatrix[x][y + 1] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[x][++y].getBuilding());
                 roadsLeft--;
-                // System.out.println("Jobbra");
-            } else if (x + 1 < fields.length && distanceMatrix[x + 1][y] == distanceMatrix[x][y] - 1) {
+                // rigth
+            } else if (x + 1 < fields.length && fields[x + 1][y].getBuilding() instanceof Road && distanceMatrix[x + 1][y] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[++x][y].getBuilding());
                 roadsLeft--;
-                // System.out.println("Lefele");
-            } else if (y - 1 >= 0 && distanceMatrix[x][y - 1] == distanceMatrix[x][y] - 1) {
+                // down
+            } else if (y - 1 >= 0 && fields[x][y - 1].getBuilding() instanceof Road && distanceMatrix[x][y - 1] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[x][--y].getBuilding());
                 roadsLeft--;
-                // System.out.println("Balra");
-            } else if (x - 1 >= 0 && distanceMatrix[x - 1][y] == distanceMatrix[x][y] - 1) {
+                //left
+            } else if (x - 1 >= 0 && fields[x - 1][y].getBuilding() instanceof Road && distanceMatrix[x - 1][y] == distanceMatrix[x][y] - 1) {
                 route.add((Road) fields[--x][y].getBuilding());
                 roadsLeft--;
-                // System.out.println("Felfele");
+                //up
             } else {
                 // -0 would be fire truck next position
                 for (int i = 0; i < distanceMatrix.length; i++) {
@@ -2062,11 +2016,7 @@ class City {
 
                 throw new IllegalArgumentException("Fire truck cannot move to destination!");
             }
-
-            // System.out.println("hátralevő: " + roadsLeft);
         }
-
-        // System.out.println(route.size());
 
         // set up route for fire engine
         ((FireStation) fireStationField.getBuilding()).getFireEngine().setRouteAndDestination(route,
@@ -2080,8 +2030,8 @@ class City {
     private Field findClosestFireStation() {
         Field closestFireStation = null;
         int minDistance = Integer.MAX_VALUE;
-        for (Field[] fields : this.fields) {
-            for (Field field : fields) {
+        for (Field[] allFields : this.fields) {
+            for (Field field : allFields) {
                 if (!field.isFree() && field.getBuilding() instanceof FireStation fireStation) {
                     if (fireStation.getFireEngine().isAvailable()) {
                         int distance = getDistanceAlongRoad(selectedField, field, this.fields);
@@ -2096,6 +2046,10 @@ class City {
         return closestFireStation;
     }
 
+    /**
+     * move out all residents from zone
+     * @param zone 
+     */
     public void moveOut(Zone zone) {
         ArrayList<Resident> removeResidents = new ArrayList<>();
         for (Resident resident : residents) {

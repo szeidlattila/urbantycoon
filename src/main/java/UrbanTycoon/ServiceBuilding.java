@@ -1,15 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Image;
 
-/**
- *
- * @author Felhasználó
- */
 public abstract class ServiceBuilding extends PlayerBuildIt{
     protected int radius;
     
@@ -26,6 +19,8 @@ public abstract class ServiceBuilding extends PlayerBuildIt{
     public int getRadius() {
         return radius;
     }
+    
+    @Override
     public String asString(){
         return super.asString() + radius;
     }

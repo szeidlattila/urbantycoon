@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import javax.swing.JLabel;
 
+@SuppressWarnings("serial")
 public class CustomLabel extends JLabel {
 
     private String filePath = "data/graphics/other/font/Inter-";

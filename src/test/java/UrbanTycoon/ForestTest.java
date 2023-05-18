@@ -7,9 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class ForestTest {
 
-    private final int WIDTH = 80;
-    private final int HEIGHT = 80;
-    private final int FIELDSIZE = 20;
+    private final int FIELDSIZE = 60;
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
@@ -46,7 +44,7 @@ public class ForestTest {
 		city.build(Forest.class);
 								// FOREST  0   0
 								//    0  HOME 0
-		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
@@ -55,7 +53,7 @@ public class ForestTest {
 		city.build(Forest.class);
 								// 0 FOREST 0
 								// 0  HOME  0
-		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
@@ -65,7 +63,7 @@ public class ForestTest {
 								// FOREST 0  0
 								//    0   0  0
 								//    0   0 HOME
-		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
@@ -89,7 +87,7 @@ public class ForestTest {
 		city.build(Forest.class);
 								// FOREST  FOREST FOREST
 								//    0     HOME     0
-		assertEquals(city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]); // 10 marad, mert nem többszöröződik
+		assertEquals(city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]); // 10 marad, mert nem többszöröződik
 	}
 	
 	@Test
@@ -100,7 +98,7 @@ public class ForestTest {
 		city.yearElapsed();
 								// FOREST  0   0  (forest 2 éves)
 								//    0  HOME 0
-		assertEquals(2 * city.FORESTSATBONUS, city.calculateForestBonusResZone()[2][2]);
+		assertEquals(2 * city.getForestSatBonus(), city.calculateForestBonusResZone()[2][2]);
 	}
 	
 	@Test
@@ -128,7 +126,7 @@ public class ForestTest {
 	/* Ha apply-olva lesz a forest bonus a resident satisfaction-ökre akkor futtathatók:
 	 * (úgy van megcsinálva, hogy a rálátás 1-el növeli a satisfaction-t,
 	 * és felére csökkenti a gyár penalty-t a zónára
-	 * 
+	 * */
 	@Test
 	public void forestEffectTest1() {
 		ResidentialZone home = (ResidentialZone)city.getFields()[4][14].getBuilding();
@@ -172,16 +170,17 @@ public class ForestTest {
 		int satPrior = personInZone.getSatisfaction();
 		// ekörül alapból nincs IndustrialZone
 		
-		city.fieldSelect(4, 15);
+		city.fieldSelect(2, 14);
 		city.selectField(IndustrialZone.class);
-		assertEquals(satPrior - 5, personInZone.getSatisfaction());
+		assertEquals(satPrior - 4, personInZone.getSatisfaction());
 		satPrior = personInZone.getSatisfaction();
 		
 		//INDUSTRIALZONENEGATIVEEFFECT = 6 - Math.max(távolságVízszintesen, távolságFüggőlegesen)
 		//								(Minden 5 sugarú környezetben levő IndustrialZone-ra levonódik)
 		city.fieldSelect(3, 14);
-		city.build(Forest.class);
-		assertEquals(satPrior + 1 + INDUSTRIALZONENEGATIVEEFFECT/2, personInZone.getSatisfaction());
+		city.build(Forest.class);         // GYÁR
+										//  FOREST
+										// 	 HOME
+		assertEquals(satPrior + 1 + (6-2)/2, personInZone.getSatisfaction());
 	}
-	*/
 }

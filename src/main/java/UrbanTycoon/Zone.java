@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Image;
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author Felhasználó
- */
 abstract class Zone extends Buildable {
 
     protected final int capacity;
@@ -19,7 +12,7 @@ abstract class Zone extends Buildable {
     protected int satisfactionBonus;
     protected int selectPrice;
     protected int annualTaxPerPerson;
-    protected int forestBonus;
+    protected int forestBonus=0;
     protected int buildProgress = 0;
     protected boolean builtUp;
 
@@ -85,7 +78,6 @@ abstract class Zone extends Buildable {
         }
     }
 
-    
 
     /**
      * 
@@ -117,17 +109,15 @@ abstract class Zone extends Buildable {
     }
 
     @Override
-    public boolean progressBuilding(int progressInDays) {
+    public void progressBuilding(int progressInDays) {
         if (!builtUp) {
             buildProgress += progressInDays * 25;
             if (buildProgress >= 100) {
                 buildProgress = 100;
                 builtUp = true;
                 image = new ImageIcon("data/graphics/field/unselected/" + type() + ".png").getImage();
-                return true;
             }
         }
-        return false;
     }
 
     public int getPeopleNum() {
@@ -206,7 +196,7 @@ abstract class Zone extends Buildable {
     }
 
     @Override
-    public int destroy() {
+    public int getRefundMoney() {
         return selectPrice;
     }
 

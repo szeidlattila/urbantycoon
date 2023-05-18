@@ -1,25 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import javax.swing.JFrame;
-import javax.swing.text.ChangedCharSetException;
-import javax.security.auth.login.CredentialNotFoundException;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.awt.*;
 
-/**
- *
- * @author Felhasználó
- */
 public class UrbanTycoonGUI {
     // properties to change for UX
-    private int FIELDSIZE = 60;
-    private int addedX = 0;
-    private int addedY = 0;
+    private final int FIELDSIZE = 60;
+    private final int addedX = 0;
+    private final int addedY = 0;
 
     // properties to change in UI
     private int UIPADDING = 20;
@@ -178,24 +169,27 @@ public class UrbanTycoonGUI {
         frame.pack();
         frame.setVisible(true);
 
+        // changeCellsPositions(200, 200);
+        // changeCellsSize(30);
+
     }
 
     private void screenController(String screen) {
         switch (screen) {
-            case "mainMenu":
+            case "mainMenu" -> {
                 layeredPane.removeAll();
-                layeredPane.add(mainMenuWallpaper, new Integer(0));
-                layeredPane.add(mainMenuSidePanel, new Integer(1));
-                layeredPane.add(gameLogo, new Integer(2));
-                break;
-            case "game":
+                layeredPane.add(mainMenuWallpaper, Integer.valueOf(0));
+                layeredPane.add(mainMenuSidePanel, Integer.valueOf(1));
+                layeredPane.add(gameLogo, Integer.valueOf(2));
+            }
+            case "game" -> {
                 layeredPane.removeAll();
-                layeredPane.add(gameArea, new Integer(0));
-                layeredPane.add(controlPanel, new Integer(1));
-                layeredPane.add(actionPanel, new Integer(2));
-                layeredPane.add(infoPanel, new Integer(3));
-                layeredPane.add(uxPanel, new Integer(4));
-                layeredPane.add(menuButton, new Integer(5));
+                layeredPane.add(gameArea, Integer.valueOf(0));
+                layeredPane.add(controlPanel, Integer.valueOf(1));
+                layeredPane.add(actionPanel, Integer.valueOf(2));
+                layeredPane.add(infoPanel, Integer.valueOf(3));
+                layeredPane.add(uxPanel, Integer.valueOf(4));
+                layeredPane.add(menuButton, Integer.valueOf(5));
                 menuButton.setFunc(() -> {
                     screenController("sidePanel");
                 });
@@ -223,9 +217,9 @@ public class UrbanTycoonGUI {
         uxPanel.setOpaque(false);
         // uxPanel.setBackground(Color.RED);
         uxPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        for (int i = 0; i < uxButtonNames.length; i++) {
-            String filePath = buttonFilePath + uxButtonNames[i];
-            CustomButton uxButton = new CustomButton(filePath, CONTROLBSIZE, "uxButton", uxButtonNames[i]);
+        for (String uxButtonName : uxButtonNames) {
+            String filePath = buttonFilePath + uxButtonName;
+            CustomButton uxButton = new CustomButton(filePath, CONTROLBSIZE, "uxButton", uxButtonName);
             uxPanel.add(uxButton);
             uxButtons.add(uxButton);
         }
@@ -237,13 +231,13 @@ public class UrbanTycoonGUI {
         infoPanel.setBounds(infoPanelX, UIPADDING, INFOPANELWIDTH, INFOPANELHEIGHT);
         infoPanel.setBackground(new Color(0, 0, 0, 0));
         infoPanel.setImage(uiFilePath + "infoBackground");
-        for (int i = 0; i < infoIconNames.length; i++) {
-            String filePath = buttonFilePath + infoIconNames[i];
-            CustomButton iconButton = new CustomButton(filePath, INFOICONSIZE, "infoIcon", infoIconNames[i]);
+        for (String infoIconName : infoIconNames) {
+            String filePath = buttonFilePath + infoIconName;
+            CustomButton iconButton = new CustomButton(filePath, INFOICONSIZE, "infoIcon", infoIconName);
             iconButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             infoIcons.add(iconButton);
             infoPanel.add(iconButton);
-            CustomLabel infoLabel = new CustomLabel("No info", textSize, "Bold", "left", infoIconNames[i]);
+            CustomLabel infoLabel = new CustomLabel("No info", textSize, "Bold", "left", infoIconName);
             infoLabels.add(infoLabel);
             infoPanel.add(infoLabel);
         }
@@ -317,7 +311,6 @@ public class UrbanTycoonGUI {
         CustomLabelButton newGameButton = getLabelButtonByType("New game", mainMenuLabels);
         newGameButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         newGameButton.setFunc(() -> {
-            System.out.println("New game");
             screenController("game");
         });
         CustomLabelButton loadSavesButton = getLabelButtonByType("Load Saves", mainMenuLabels);
@@ -418,7 +411,7 @@ public class UrbanTycoonGUI {
         taxInc.setFunc(() -> gameArea.increaseTax());
         taxDec.setFunc(() -> gameArea.lowerTax());
         info.setFunc(() -> gameArea.zoneInfoPopup());
-        load.setFunc(() -> gameArea.initLoad(gameArea.savesList));
+        load.setFunc(() -> gameArea.initLoad());
         save.setFunc(() -> gameArea.initSave());
 
     }
@@ -469,9 +462,31 @@ public class UrbanTycoonGUI {
     }
 
     private void setUpInfoPanel() {
+        // private final String[] infoIconNames = { "time", "residents", "residentsSat",
+        // "selectedSat", "tax", "money" };
         CustomButton tax = getButtonByName("tax", infoIcons);
         tax.setFunc(() -> new PopupInfo(new JFrame(), gameArea.budgetInfo(), "Budget"));
         tax.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton time = getButtonByName("time", infoIcons);
+        time.setFunc(() -> {
+            changeCellsSize(10);
+        });
+        time.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton residents = getButtonByName("residents", infoIcons);
+        residents.setFunc(() -> {
+            changeCellsSize(-10);
+        });
+        residents.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton residentsSat = getButtonByName("residentsSat", infoIcons);
+        residentsSat.setFunc(() -> {
+            changeCellsPositions(10, 0);
+        });
+        residentsSat.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomButton selectedSat = getButtonByName("selectedSat", infoIcons);
+        selectedSat.setFunc(() -> {
+            changeCellsPositions(-10, 0);
+        });
+        selectedSat.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
     }
 
@@ -527,11 +542,12 @@ public class UrbanTycoonGUI {
         }
     }
 
-    public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
+    
+	public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
         CustomLabel time = getLabelByType("time", infoLabels);
         CustomLabel residents = getLabelByType("residents", infoLabels);
         CustomLabel residentsSat = getLabelByType("residentsSat", infoLabels);
-        CustomLabel selectedSat = getLabelByType("selectedSat", infoLabels); // TODO
+        CustomLabel selectedSat = getLabelByType("selectedSat", infoLabels);
         CustomLabel tax = getLabelByType("tax", infoLabels);
         CustomLabel money = getLabelByType("money", infoLabels);
         time.setText(timeS);
@@ -578,10 +594,10 @@ public class UrbanTycoonGUI {
 
     public void changeCellsPositions(int x, int y) {
         Field fields[][] = gameArea.getCity().getFields();
-        for (int i = 0; i < fields.length; i++) {
+        for (Field[] field1 : fields) {
             for (int j = 0; j < fields[0].length; j++) {
-                Field field = fields[i][j];
-                if (!fields[i][j].isFree()) {
+                Field field = field1[j];
+                if (!field1[j].isFree()) {
                     field.getBuilding().changeX(x);
                     field.getBuilding().changeY(y);
                     field.changeX(x);

@@ -1,18 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package UrbanTycoon;
 
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 
-/**
- *
- * @author bli
- */
 public class Sprite {
     /**
      * The coordinates of the top left corner of the sprite
@@ -35,6 +27,10 @@ public class Sprite {
         this.image = image;
     }
 
+    /**
+     * draw image
+     * @param g 
+     */
     public void draw(Graphics g) {
         if (x > -width && y > -height) {
             g.drawImage(image, x, y, width, height, null);
@@ -42,10 +38,9 @@ public class Sprite {
     }
 
     /**
-     * Returns true if this sprite collides with the other sprite
      * 
      * @param other
-     * @return
+     * @return true if this sprite collides with the other sprite
      */
     public boolean collides(Sprite other) {
         Rectangle rect = new Rectangle(x, y, width, height);
@@ -93,6 +88,10 @@ public class Sprite {
         this.height = height;
     }
 
+    /**
+     * increase widht and height by size
+     * @param size 
+     */
     public void changeSize(int size) {
         this.width += size;
         this.height += size;

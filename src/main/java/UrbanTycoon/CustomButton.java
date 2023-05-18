@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 
+@SuppressWarnings("serial")
 public class CustomButton extends JButton {
     private boolean selected = false;
     private boolean disabled = false;

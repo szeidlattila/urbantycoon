@@ -1,24 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
-import java.util.ArrayList;
 import java.util.Scanner;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-//tryagain commit
 
-
-/**
- *
- * @author Felhasználó
- */
 
 public class PersistenceTest {
     private final int FIELDSIZE = 80;
@@ -63,7 +50,7 @@ public class PersistenceTest {
         for(int i=0;i<city.getFields().length;i++)
             for(int j=0; j<city.getFields()[0].length;j++)
                 assertEquals(city.getFields()[i][j],city2.getFields()[i][j]);
-        String str = city.saveGame();
+        String str = city.gameStateAsString();
         Scanner sc = new Scanner(str);
         city.loadGame(sc, false);
         for(int i=0;i<city.getFields().length;i++)
@@ -78,7 +65,7 @@ public class PersistenceTest {
         city.selectField(IndustrialZone.class);
         city.yearElapsed();
         city.moveInOneResident(false);
-        String str = city.saveGame();
+        String str = city.gameStateAsString();
         city2.loadGame(new Scanner(str), false);
         for(int i=0;i<city.getFields().length;i++)
             for(int j=0; j<city.getFields()[0].length;j++)

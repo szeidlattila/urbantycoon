@@ -1,14 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 import java.awt.Image;
 import java.util.ArrayList;
-/**
- *
- * @author Felhasználó
- */
+
 class FireEngine extends Sprite {
     private ArrayList<Road> route = new ArrayList<>();
     private final ArrayList<Road> routeBack = new ArrayList<>();
@@ -33,6 +27,12 @@ class FireEngine extends Sprite {
         return destination;
     }
     
+    /**
+     * if route and destination is not null set available to false, set route, set destination
+     * otherwise return
+     * @param route
+     * @param destination 
+     */
     public void setRouteAndDestination(ArrayList<Road> route, Buildable destination) {
         if (route == null || route.isEmpty() || destination == null)    return;
         this.available = false;

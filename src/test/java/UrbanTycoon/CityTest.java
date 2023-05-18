@@ -1,26 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- *
- * @author ati
- */
 public class CityTest {
     
-    private final int WIDTH = 80;
-    private final int HEIGHT = 80;
-    private final int FIELDSIZE = 20;
+    private final int FIELDSIZE = 60;
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
     private final int INITIALMONEY = 100000;
@@ -42,16 +30,6 @@ public class CityTest {
     
     static City city;
     
-    public CityTest() {
-    }
-    
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
     
     @BeforeEach
     public void newCity() {
@@ -62,13 +40,6 @@ public class CityTest {
                 RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, null);
     }
     
-    @AfterEach
-    public void tearDown() {
-    }
-
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
     @Test
     public void fieldSelectTest(){
         city.fieldSelect(0, 0);
@@ -545,7 +516,7 @@ public class CityTest {
     	city.fieldSelect(3,1);
     	city.build(Stadium.class);
     	
-    	assertEquals(zone.getSatisfactionBonus(), 1);
+    	assertEquals(1, zone.getSatisfactionBonus());
     	assertEquals(zoneFar.getSatisfactionBonus(), 0);
     	assertTrue(satPrior < personInZone.getSatisfaction());
     	
@@ -554,7 +525,7 @@ public class CityTest {
     	city.fieldSelect(5,1);
     	city.build(Stadium.class);
     	
-    	assertEquals(zone.getSatisfactionBonus(), 2);
+    	assertEquals(2, zone.getSatisfactionBonus());
     	assertTrue(satPrior < personInZone.getSatisfaction());	
     }
     
@@ -595,7 +566,7 @@ public class CityTest {
     	city.fieldSelect(3,1);
     	city.build(Stadium.class);
     	
-    	assertEquals(zone.getSatisfactionBonus(), 1);
+    	assertEquals(1, zone.getSatisfactionBonus());
     	assertTrue(satPrior < personInZone.getSatisfaction());
     	
     	// lerombolja

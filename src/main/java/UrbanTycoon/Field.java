@@ -1,17 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Image;
 import java.util.Objects;
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author Felhasználó
- */
 class Field extends Sprite {
 
     private boolean free;
@@ -45,11 +38,23 @@ class Field extends Sprite {
         return building;
     }
 
+    /**
+     * set this.building to building, if buildin is null then set free to true otherwise false
+     * @param building
+     */
     public void setBuilding(Buildable building) {
         this.building = building;
         this.free = building == null;
     }
+    
+    public void setBurntDown(boolean burntDown) {
+        this.burntDown = burntDown;
+    }
 
+    /** 
+     * 
+     * @return zone info if zone is empty return null
+     */
     public String getInfo() {
         String out;
         if (building instanceof Zone zone) {
@@ -64,16 +69,23 @@ class Field extends Sprite {
         }
         return null;
     }
-
-    public int destroyOrDenominate() {
-        if (!free) {
-            int d = building.destroy();
-            if (d != 0) {
-                setBuilding(null);
-            }
-            return d;
-        }
-        return 0;
+    
+    /**
+     * 
+     * @return money from destroy
+     */
+    public int getDestroyMoney() {
+    	if (free) throw new IllegalArgumentException("Accessing destroy money, when field is free. call isFree() first.");
+    	return this.building.getRefundMoney();
+    }
+    
+    /**
+     * set building to null
+     */
+    public void destroyOrDenominate() {
+    	
+    	if (free) throw new IllegalArgumentException("Trying to destroy, when field is free. call isFree() first.");
+    	setBuilding(null);
     }
 
     /**
@@ -93,14 +105,23 @@ class Field extends Sprite {
         burntDown = false;
     }
 
+    /**
+     * change image to selected
+     */
     public void select() {
         image = new ImageIcon("data/graphics/field/selected/notBurning/" + type() + ".png").getImage();
     }
 
+    /**
+     * change image to unselected
+     */
     public void unselect() {
         image = new ImageIcon("data/graphics/field/unselected/notBurning/" + type() + ".png").getImage();
     }
 
+    /**
+     * set building to null and set burntDown to true
+     */
     public void burnsDown() {
         setBuilding(null);
         burntDown = true;
@@ -135,10 +156,6 @@ class Field extends Sprite {
 
     public String type() {
         return burntDown ? "burntDownField" : "field";
-    }
-
-    public void setBurntDown(boolean burntDown) {
-        this.burntDown = burntDown;
     }
 
     public String asString() {

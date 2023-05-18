@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UrbanTycoon;
 
 import java.awt.Dimension;
@@ -23,16 +20,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.JTextField;
-//tryagain commit
 
-/**
- *
- * @author Felhasználó
- */
+@SuppressWarnings("serial")
 class GameEngine extends JPanel {
 
     private final int FPS = 240;
-    private int FIELDSIZE;
+    private final int FIELDSIZE;
 
     private final int FIELDROWSNUM = 8;
     private final int FIELDCOLSNUM = 16;
@@ -57,17 +50,16 @@ class GameEngine extends JPanel {
     private final JPanel saveGamePanel = new JPanel();
     private final JPanel loadGamePanel = new JPanel();
 
-    private City city;
+    private final City city;
     private Date time;
 
     private boolean paused = false;
 
     private int speed;
-    private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 ora, 2 nap, 30 nap
+    private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 hours, 2 days, 30 days
     private final Timer newFrameTimer;
     private final Timer gameTickTimer;
-    private final Dimension screenSize;
-    public JComboBox<String> savesList;
+    private final  JComboBox<String> savesList = new JComboBox<>();
 
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
@@ -75,14 +67,10 @@ class GameEngine extends JPanel {
     public GameEngine(Dimension screenSize, int fieldSize) {
         super();
         this.FIELDSIZE = fieldSize;
-        this.screenSize = screenSize;
-
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (!paused) {
-                    // System.out.println("Clicked! Position: x = " + e.getX() + " y = " +
-                    // e.getY());
                     fieldSelect(e.getX(), e.getY());
                 }
             }
@@ -96,7 +84,6 @@ class GameEngine extends JPanel {
         time = new Date(1980, 1, 1, 0, 0);
         speed = 1;
 
-        savesList = new JComboBox();
         JTextField saveNameTextField = new JTextField();
         JButton confirmSaveButton = new JButton("Save");
         confirmSaveButton.addActionListener((var ae) -> saveGame(saveNameTextField.getText() + ".sav"));
@@ -138,30 +125,40 @@ class GameEngine extends JPanel {
         }
     }
 
+    /**
+     * set up city and date for new game (set attributes to initial)
+     */
     void newGame() {
         city.restart(INITIALRESIDENT, FIELDROWSNUM, FIELDCOLSNUM, INITIALMONEY);
-        // date alaphelyzetbe
         time = new Date(1980, 1, 1, 0, 0);
         paused = false;
         speed = 1;
     }
-
+    
+    /**
+     * preparation for save (persistence)
+     */
     public void initSave() {
         paused = true;
         saveGameFrame.pack();
         saveGameFrame.setVisible(true);
     }
-
+    
+    /**
+     * called when trying to save a game under a certain name.
+     * checks the name, and handles conflicting names, then saves.
+     * @param saveName
+     */
     private void saveGame(String saveName) {
         File[] usedFiles = getFiles();
         for (File f : usedFiles)
             if (f.getName().equals(saveName)) {
-                JFrame frame = new JFrame("Létező mentés!");
+                JFrame frame = new JFrame("Save with given name already exists!");
                 JPanel panel = new JPanel();
                 frame.add(panel);
-                panel.add(new JLabel("Felülírod?"));
-                JButton confirmButton = new JButton("Igen");
-                JButton rejectButton = new JButton("Nem");
+                panel.add(new JLabel("Override?"));
+                JButton confirmButton = new JButton("Yes");
+                JButton rejectButton = new JButton("No");
                 confirmButton.addActionListener((var ae) -> {
                     frame.dispose();
                     saveInto(f);
@@ -186,35 +183,41 @@ class GameEngine extends JPanel {
         paused = false;
         saveGameFrame.setVisible(false);
     }
+    
+    private File[] getFiles() {
+        return new File("data/persistence/saves").listFiles();
+    }
 
     private void saveInto(File f) {
         try (PrintWriter pw = new PrintWriter(f)) {
             pw.println(time.toString());
-            pw.print(city.saveGame());
+            pw.print(city.gameStateAsString());
         } catch (Exception e) {
             System.exit(1);
         }
     }
-
-    public void initLoad(JComboBox<String> savesList) {
+    
+    /**
+     * fills up loadGameFrame with accessible saves, then displays it
+     */
+    public void initLoad() {
         paused = true;
         savesList.removeAllItems();
         File[] saves = getFiles();
         for (File f : saves) {
-            savesList.addItem(f.getName().substring(0, f.getName().length() - 4));
+            savesList.addItem(f.getName().substring(0, f.getName().length() - 4)); // gets rid of ".sav" extension
         }
         loadGameFrame.pack();
         loadGameFrame.setVisible(true);
     }
 
+    /**
+     * gets called when the intention to load a game has been confirmed
+     * @param fileName without extension
+     */
     private void loadGame(String fileName) {
         try (Scanner s = new Scanner(new File("data/persistence/saves/" + fileName + ".sav"))) {
-            time = new Date(s.nextLine());
-            city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION,
-                    MOVEINATLEASTSATISFACTION, INITIALMONEY,
-                    ZONEPRICE, ROADPRICE, STADIUMPRICE, POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE,
-                    ANNUALFEEPERCENTAGE,
-                    RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, screenSize);
+            time = Date.parseDate(s.nextLine());
             city.loadGame(s, true);
             loadGameFrame.setVisible(false);
             paused = false;
@@ -259,9 +262,6 @@ class GameEngine extends JPanel {
         return FORESTPRICE;
     }
 
-    private File[] getFiles() {
-        return new File("data/persistence/saves").listFiles();
-    }
 
     public boolean isPaused() {
         return paused;
@@ -291,6 +291,11 @@ class GameEngine extends JPanel {
         city.lowerTax();
     }
 
+    /**
+     * select field at (x;y) coordinate
+     * @param mouseX x
+     * @param mouseY y
+     */
     private void fieldSelect(int mouseX, int mouseY) {
         int fieldIndexX, fieldIndexY;
 
@@ -323,19 +328,22 @@ class GameEngine extends JPanel {
             }
 
             city.fieldSelect(fieldIndexY, fieldIndexX);
-            // elmenteni x, y indexeket, hogy legközelebbi kiválasztáskor visszarakja
+            // save x, y indexes, hogy legközelebbi kiválasztáskor visszarakja
             // unselected-re
             prevSelectedFieldX = fieldIndexX;
             prevSelectedFieldY = fieldIndexY;
         }
     }
 
-    // itt minden a ( city.selectedField : Field )-del dolgozik
-
+    // here everything works with ( city.selectedField : Field )
     public void tryDenominateOrDestroyZone() {
         city.tryDenominateOrDestroyZone();
     }
 
+    /**
+     * 
+     * @return colored budget info
+     */
     public String budgetInfo() {
         return "<html><h2><font color=#00a605>Annual incomes</font><h2></html>\nResident tax: " + city.getTax()
                 + "$/residential  (" + city.getResidentsNum() +
@@ -351,7 +359,7 @@ class GameEngine extends JPanel {
                 + city.countField(FireStation.class) + " fire stations)\n\n" +
                 "<html><h3><font color=#00a605>Annual income:</font></h3></html>\n+ $"
                 + city.getTax() * city.getResidentsNum() * 2 +
-                "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee();
+                "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee(); 
     }
 
     public void zoneInfoPopup() {
@@ -365,11 +373,21 @@ class GameEngine extends JPanel {
         new PopupInfo(null, zoneInfo(), title);
     }
 
+    /**
+     * show confirmation dialog with given message and titel
+     * @param message
+     * @param title
+     * @return true if yes otherwise false
+     */
     public static boolean showConfirmationDialog(String message, String title) {
         int result = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
         return result == JOptionPane.YES_OPTION;
     }
 
+    /**
+     * 
+     * @return resindents info at selected zone
+     */
     private String zoneInfo() {
         if (prevSelectedFieldX != -1 && prevSelectedFieldY != -1
                 && !city.getFields()[prevSelectedFieldY][prevSelectedFieldX].isFree()
@@ -401,6 +419,9 @@ class GameEngine extends JPanel {
         return "";
     }
 
+    /**
+     * popup then start new game
+     */
     private void gameOver() {
         new PopupInfo(new JFrame(), "You lost!\nCity satisfaction is critical.", "Game over");
         newGame();
@@ -411,7 +432,6 @@ class GameEngine extends JPanel {
         @Override
         public void actionPerformed(ActionEvent ae) {
             if (!paused) {
-
                 repaint();
             }
         }
