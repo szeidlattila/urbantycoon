@@ -682,66 +682,11 @@ class City {
      * @return true if field is accessible on road
      */
     public boolean isAccessibleOnRoad(Field field) {
-        int x = -1, y = -1;
-        boolean voltemar[][] = new boolean[fields.length][fields[0].length];
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                voltemar[i][j] = false;
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
-        if (x == -1 && y == -1)
-            throw new IllegalArgumentException("First Field not Found in getDistance");
-        Queue<Coordinate> Q = new LinkedList<>();
-        voltemar[x][y] = true;
-        
-        // adds the 4 fields next to it, to the queue, if they are a road.
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++)
-                if (Math.abs(i - x) + Math.abs(j - y) == 1 && i >= 0 && i < fields.length && j >= 0
-                        && j < fields[0].length)
-                    if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof Road) {
-                        Q.add(new Coordinate(i, j));
-                        voltemar[i][j] = true;
-                    }
-        }
-        while (!Q.isEmpty()) {
-            Coordinate o = (Coordinate) Q.remove();
-            if (o.x + 1 < fields.length && ((!voltemar[o.x + 1][o.y] && !fields[o.x + 1][o.y].isFree()
-                    && fields[o.x + 1][o.y].getBuilding() instanceof Road)
-                    || (!fields[o.x + 1][o.y].isFree() && fields[o.x + 1][o.y].getBuilding() instanceof Zone))) {
-                if (fields[o.x + 1][o.y].getBuilding() instanceof Zone zone && zone.isBuiltUp())
-                    return true;
-                Q.add(new Coordinate(o.x + 1, o.y));
-                voltemar[o.x + 1][o.y] = true;
-            }
-            if (o.x - 1 >= 0 && ((!voltemar[o.x - 1][o.y] && !fields[o.x - 1][o.y].isFree()
-                    && fields[o.x - 1][o.y].getBuilding() instanceof Road)
-                    || (!fields[o.x - 1][o.y].isFree() && fields[o.x - 1][o.y].getBuilding() instanceof Zone))) {
-                if (fields[o.x - 1][o.y].getBuilding() instanceof Zone zone && zone.isBuiltUp())
-                    return true;
-                Q.add(new Coordinate(o.x - 1, o.y));
-                voltemar[o.x - 1][o.y] = true;
-            }
-            if (o.y + 1 < fields[0].length && ((!voltemar[o.x][o.y + 1] && !fields[o.x][o.y + 1].isFree()
-                    && fields[o.x][o.y + 1].getBuilding() instanceof Road)
-                    || (!fields[o.x][o.y + 1].isFree() && fields[o.x][o.y + 1].getBuilding() instanceof Zone))) {
-                if (fields[o.x][o.y + 1].getBuilding() instanceof Zone zone && zone.isBuiltUp())
-                    return true;
-                Q.add(new Coordinate(o.x, o.y + 1));
-                voltemar[o.x][o.y + 1] = true;
-            }
-            if (o.y - 1 >= 0 && ((!voltemar[o.x][o.y - 1] && !fields[o.x][o.y - 1].isFree()
-                    && fields[o.x][o.y - 1].getBuilding() instanceof Road)
-                    || (!fields[o.x][o.y - 1].isFree() && fields[o.x][o.y - 1].getBuilding() instanceof Zone))) {
-                if (fields[o.x][o.y - 1].getBuilding() instanceof Zone zone && zone.isBuiltUp())
-                    return true;
-                Q.add(new Coordinate(o.x, o.y - 1));
-                voltemar[o.x][o.y - 1] = true;
-            }
-        }
+    	int[][] distancesAround = getMatrixDistanceAlongRoad(field, fields);
+        for(int i=0;i<fields.length;i++)
+        	for(int j=0;j<fields[0].length;j++)
+        		if(fields[i][j].getBuilding() instanceof Zone z && z.isBuiltUp() && distancesAround[i][j] > 0)
+        			return true;
         return false;
     }
 
