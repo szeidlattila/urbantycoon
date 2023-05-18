@@ -522,7 +522,7 @@ public class CityTest {
     	city.fieldSelect(3,1);
     	city.build(Stadium.class);
     	
-    	assertEquals(zone.getSatisfactionBonus(), 1);
+    	assertEquals(1, zone.getSatisfactionBonus());
     	assertEquals(zoneFar.getSatisfactionBonus(), 0);
     	assertTrue(satPrior < personInZone.getSatisfaction());
     	
@@ -531,7 +531,7 @@ public class CityTest {
     	city.fieldSelect(5,1);
     	city.build(Stadium.class);
     	
-    	assertEquals(zone.getSatisfactionBonus(), 2);
+    	assertEquals(2, zone.getSatisfactionBonus());
     	assertTrue(satPrior < personInZone.getSatisfaction());	
     }
     
@@ -572,7 +572,7 @@ public class CityTest {
     	city.fieldSelect(3,1);
     	city.build(Stadium.class);
     	
-    	assertEquals(zone.getSatisfactionBonus(), 1);
+    	assertEquals(1, zone.getSatisfactionBonus());
     	assertTrue(satPrior < personInZone.getSatisfaction());
     	
     	// lerombolja

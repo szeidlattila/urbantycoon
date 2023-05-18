@@ -318,31 +318,46 @@ class City {
      * @param r
      * @return r satisfaction
      */
+    private Coordinate indicesFor(Field field, Field[][] fields) {
+    	for(int i=0;i<fields.length;i++)
+    		for(int j=0;j<fields[0].length;j++)
+    			if(fields[i][j]==field)
+    				return new Coordinate(i,j);
+    	return null;
+    }
+    
+    private Coordinate indicesFor(Buildable b, Field[][] fields) {
+    	if(b == null) throw new IllegalArgumentException("Searching for null buildable!");
+    	for(int i=0;i<fields.length;i++)
+    		for(int j=0;j<fields[0].length;j++)
+    			if(fields[i][j].getBuilding() == b)
+    				return new Coordinate(i,j);
+    	return null;
+    }
+    
     private int whatSatisfactionFor(Resident r) {
-        int workIndexX = -1, workIndexY = -1, homeIndexX = -1, homeIndexY = -1;
+        
+    	Coordinate c = indicesFor(r.getHome(), fields);
+        
+        if(c == null) 
+        	throw new IllegalArgumentException("Home not Found!");
+        
+        int homeIndexX = c.x, homeIndexY = c.y;
+
         int sat = 0;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (!fields[i][j].isFree() && r.getWorkplace() == fields[i][j].getBuilding()) {
-                    workIndexX = i;
-                    workIndexY = j;
-                } else if (!fields[i][j].isFree() && r.getHome() == fields[i][j].getBuilding()) {
-                    homeIndexX = i;
-                    homeIndexY = j;
-                }
-            }
-        if (homeIndexX == -1)
-            throw new IllegalArgumentException("Home not Found!");
         sat += r.getHome().getSatisfactionBonus();
         sat += r.getHome().getSafety();
         sat -= r.getHome().getIndustrialPenalty();
         
         if (r.isRetired())
             return sat;
-
+        
+        c = indicesFor(r.getWorkplace(), fields);
         // if have not retired yet
-        if (workIndexX == -1)
+        if (c == null)
             throw new IllegalArgumentException("Workplace not Found!");
+        
+        int workIndexX = c.x, workIndexY = c.y;
         int d = getDistanceAlongRoad(fields[workIndexX][workIndexY], fields[homeIndexX][homeIndexY], fields);
         if (d == -1)
             throw new IllegalArgumentException("Work and home not connected! work: " + workIndexX + " " + workIndexY
@@ -970,15 +985,10 @@ class City {
                     FIELDSIZE,
                     FIELDSIZE, new ImageIcon("data/graphics/field/selected/notBurning/road.png").getImage(), REFUND));
         } else if (playerBuildItClass == Stadium.class) {
-            int iIndex = 0, jIndex = 0;
-            for (int i = 0; i < fields.length; i++) {
-                for (int j = 0; j < fields[0].length; j++) {
-                    if (selectedField == fields[i][j]) {
-                        iIndex = i;
-                        jIndex = j;
-                    }
-                }
-            }
+
+        	Coordinate c = indicesFor(selectedField, fields);
+            int iIndex = c.x, jIndex = c.y;
+            
             if (iIndex > 0 && jIndex > 0) {
                 if (fields[iIndex - 1][jIndex - 1].isFree() && fields[iIndex - 1][jIndex].isFree()
                         && fields[iIndex][jIndex - 1].isFree()) {
@@ -999,8 +1009,6 @@ class City {
                     return;
 
                 }
-            } else {
-                return;
             }
         } else if (playerBuildItClass == PoliceStation.class) {
             selectedField.build(
@@ -1019,7 +1027,6 @@ class City {
                     new Forest(price, getAnnualFee(price), selectedField.getX(), selectedField.getY(),
                             FIELDSIZE, FIELDSIZE, new ImageIcon("data/graphics/field/selected/forest.png").getImage(),
                             REFUND, CHANCEOFFIRE));
-            calculateForestBonusResZone();
         }
         updateSatisfaction();
 
@@ -1050,15 +1057,15 @@ class City {
         }
         int homeX = -1, homeY = -1, workX = -1, workY = -1;
         for (Resident r : residents) {
-            for (int i = 0; i < fields.length; i++)
-                for (int j = 0; j < fields[0].length; j++)
-                    if (fields[i][j].getBuilding() == r.getHome()) {
-                        homeX = i;
-                        homeY = j;
-                    } else if (fields[i][j].getBuilding() == r.getWorkplace()) {
-                        workX = i;
-                        workY = j;
-                    }
+            Coordinate c = indicesFor(r.getHome(), fields);
+            if(c == null) throw new IllegalArgumentException("There is a resident in residents with no home");
+            homeX = c.x;
+            homeY = c.y;
+            c = indicesFor(r.getWorkplace(), fields);
+            if(c != null) {
+            	workX = c.x;
+            	workY = c.y;
+            }
             b.append(r.asString(homeX, homeY, workX, workY));
             b.append('\n');
         }
@@ -1297,10 +1304,10 @@ class City {
      * set the values of fields that are dependent on the surrounding fields.
      */
     private void setFieldsDependentValues() {
+    	int[][] forestBonuses = calculateForestBonusResZone();
     	for (int i=0;i<fields.length;i++)
             for (int j=0; j<fields[0].length;j++) {
             	Field field = fields[i][j];
-            	int[][] forestBonuses = calculateForestBonusResZone();
                 if (!field.isFree() && field.getBuilding() instanceof Zone zone) {
                     zone.setSafety(Math.min(Math.max(calculateSafety(field), -10), 10));
         			zone.setSatisfactionBonus(Math.min(Math.max(calculateSatBonus(field), -10), 10));
@@ -1313,14 +1320,9 @@ class City {
     }
     
     private int calculateIndustrialPenalty(Field field) {
-    	int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
+    	Coordinate c = indicesFor(field, fields);
+    	int x = c.x, y = c.y;
+    	
         int penalty = 0;
         for(int i=Math.max(0, x - 5); i< Math.min(x + 6, fields.length); i++)
         	for(int j=Math.max(0, y - 5); j<Math.min(y + 6, fields[0].length); j++)
@@ -1382,15 +1384,10 @@ class City {
      * @return 
      */
     private int calculateSafety(Field field) {
-        int safety = 0;
-        int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
+    	Coordinate c = indicesFor(field, fields);
+    	int x = c.x, y = c.y;
+    	
+    	int safety = 0;
         // if there are PoliceStation close by, and accessible on road,
         // then increase the bonus for each
         for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
@@ -1409,15 +1406,11 @@ class City {
      * @return 
      */
     private int calculateSatBonus(Field field) {
-        int bonus = 0;
-        int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
+        
+        Coordinate c = indicesFor(field, fields);
+    	int x = c.x, y = c.y;
+    	
+    	int bonus = 0;
         ArrayList<Stadium> usedStadiums = new ArrayList<>();
         for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
             for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
@@ -1439,16 +1432,11 @@ class City {
      * @return 
      */
     private double calculateChanceOfFire(Field field) {
-        int x = -1, y = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                }
-            }
 
-        for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
+    	Coordinate c = indicesFor(field, fields);
+    	int x = c.x, y = c.y;
+
+    	for (int i = Math.max(0, x - RADIUS); i <= Math.min(fields.length - 1, x + RADIUS); i++)
             for (int j = Math.max(0, y - RADIUS); j <= Math.min(fields[0].length - 1, y + RADIUS); j++)
                 if (!fields[i][j].isFree() && fields[i][j].getBuilding() instanceof FireStation
                         && getDistanceAlongRoad(field, fields[i][j], fields) != -1) {
@@ -1718,22 +1706,63 @@ class City {
      * @return shortest distances from field along road, or -1 if unaccessible
      */
     private int[][] getMatrixDistanceAlongRoad(Field field, Field[][] fields) {
-        int x = -1, y = -1;
-        int[][] distances = new int[fields.length][fields[0].length];
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                distances[i][j] = -1;
-                if (fields[i][j] == field) {
-                    x = i;
-                    y = j;
-                    distances[i][j] = 0;
-                }
-            }
-        if (x == -1 && y == -1)
-            throw new IllegalArgumentException("Field not Found in getMatrixDistance");
-        
+    	int[][] distances = new int[fields.length][];
+    	int x,y;
+    	{
+	    	Coordinate c = indicesFor(field, fields);
+	    	if(c == null)
+	    		throw new IllegalArgumentException("Field not Found in getMatrixDistance");
+	    	x = c.x;
+	    	y = c.y;
+    	}
+    	for(int i=0;i<fields.length; i++) {
+    		int[] row = new int[fields[0].length];
+    		Arrays.fill(row, -1);
+    		distances[i] = row;
+    	}
+    	
+    	distances[x][y] = 0;
         Queue<Coordinate> Q = new LinkedList<>();
         
+        // if stadium then stadium 4 fields distance is 0 and every adjacent road distance is 1
+        if(field.getBuilding() instanceof Stadium s) {
+        	int fieldNumber = -1;
+        	for (int k=0; k<4; k++) {
+        		if (field == s.fields[k])   fieldNumber = k;
+        	}
+        	// position to the upper left corner of stadium
+        	switch(fieldNumber) {
+	    		// lower right
+	    		case 0 -> {
+	    			x = x-1;
+	    			y = y-1;
+	    		}
+	    		// upper left
+	    		case 1 -> {}
+	    		// upper right
+	    		case 2 -> {
+	    			y = y-1;
+	    		}
+	    		// lower left
+	    		case 3 -> {
+	    			x = x-1;
+	    		}
+	    		default -> throw new IllegalArgumentException("MatrixDistance stadium: field not in stadium.fields");
+        	}
+        	Arrays.asList(new Coordinate(x - 1, y + 1), new Coordinate(x, y + 2), new Coordinate(x + 1, y + 2), new Coordinate(x + 2, y + 1), new Coordinate(x + 2, y), new Coordinate(x + 1, y - 1))
+        		.stream()
+        		.forEach(c -> {
+        				if(c.x>=0 && c.x < fields.length && c.y >= 0 && c.y < fields[0].length && fields[c.x][c.y].getBuilding() instanceof Road){
+        					Q.add(c);
+        					distances[c.x][c.y] = 1;
+        				}
+       					}
+        				);
+        	distances[x][y] = 0;
+        	distances[x][y+1] = 0;
+        	distances[x+1][y+1] = 0;
+        	distances[x+1][y] = 0;
+        }
         // adds the 4 fields next to it, to the queue, if they are a road.
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++)
@@ -1743,52 +1772,7 @@ class City {
                         Q.add(new Coordinate(i, j));
                         distances[i][j] = 1;
                     }
-        }
-        
-        // if stadium then stadium 4 fields distance is 0 and every adjacent road distance is 1
-        if(field.getBuilding() instanceof Stadium s) {
-        	int currentLastFieldNumber = -1;
-        	for (int k=0; k<4; k++) {
-        		if (field == s.fields[k])   currentLastFieldNumber = k;
-        	}
-        	ArrayList<Coordinate> fieldsToAddToQueue = new ArrayList<>();
-        	switch(currentLastFieldNumber) {
-        		// right down
-        		case 0 -> {
-        			fieldsToAddToQueue.addAll(Arrays.asList(new Coordinate(x - 1,y + 1), new Coordinate(x - 2, y), new Coordinate(x - 2, y - 1), new Coordinate(x - 1, y - 2), new Coordinate(x, y - 2), new Coordinate(x + 1, y - 1)));
-        			distances[x - 1][y - 1] = 0;
-        			distances[x - 1][y] = 0;
-        			distances[x][y - 1] = 0;
-        		}
-        		// left up
-        		case 1 -> {
-        			fieldsToAddToQueue.addAll(Arrays.asList(new Coordinate(x - 1, y + 1), new Coordinate(x, y + 2), new Coordinate(x + 1, y + 2), new Coordinate(x + 2, y + 1), new Coordinate(x + 2, y), new Coordinate(x + 1, y - 1)));
-        			distances[x][y + 1] = 0;
-        			distances[x + 1][y] = 0;
-        			distances[x + 1][y + 1] = 0;
-        		}
-        		// right up
-        		case 2 -> {
-        			fieldsToAddToQueue.addAll(Arrays.asList(new Coordinate(x + 1, y + 1), new Coordinate(x + 2, y), new Coordinate(x + 2, y - 1), new Coordinate(x + 1, y - 2), new Coordinate(x, y - 2), new Coordinate(x - 1, y - 1)));
-        			distances[x][y - 1] = 0;
-        			distances[x + 1][y - 1] = 0;
-        			distances[x + 1][y] = 0;
-        		}
-        		// right down
-        		case 3 -> {
-        			fieldsToAddToQueue.addAll(Arrays.asList(new Coordinate(x - 1, y - 1), new Coordinate(x - 2, y), new Coordinate(x - 2, y + 1), new Coordinate(x - 1,y + 2), new Coordinate(x, y + 2), new Coordinate(x + 1, y + 1)));
-        			distances[x - 1][y] = 0;
-        			distances[x - 1][y + 1] = 0;
-        			distances[x][y + 1] = 0;
-        		}
-        		default -> throw new IllegalArgumentException("MatrixDistance stadium: field not in stadium.fields");
-        	}
-        	for(Coordinate c : fieldsToAddToQueue)
-        		if(c.x >= 0 && c.y >= 0 && c.x < fields.length && c.y < fields[0].length && fields[c.x][c.y].getBuilding() instanceof Road) {
-        			Q.add(c);
-        			distances[c.x][c.y] = 1;
-        		}
-        }
+        }	
         
         while (!Q.isEmpty()) {
             Coordinate o = (Coordinate) Q.remove();
@@ -1827,15 +1811,9 @@ class City {
     private int getDistanceAlongRoad(Field one, Field other, Field[][] fields) {
         if (one == other)
             return 0;
-        int x2 = -1;
-        int y2 = -1;
-        for (int i = 0; i < fields.length; i++)
-            for (int j = 0; j < fields[0].length; j++) {
-                if (fields[i][j] == other) {
-                    x2 = i;
-                    y2 = j;
-                }
-            }
+
+        Coordinate c = indicesFor(other, fields);
+        int x2 = c.x, y2 = c.y;
 
         return getMatrixDistanceAlongRoad(one, fields)[x2][y2];
     }
@@ -2001,16 +1979,8 @@ class City {
         int[][] distanceMatrix = getMatrixDistanceAlongRoad(selectedField, fields);
 
         ArrayList<Road> route = new ArrayList<>();
-        int x = -1;
-        int y = -1;
-        for (int i = 0; i < fields.length; i++) {
-            for (int j = 0; j < fields[i].length; j++) {
-                if (fields[i][j].equals(fireStationField)) {
-                    x = i;
-                    y = j;
-                }
-            }
-        }
+        Coordinate c = indicesFor(fireStationField, fields);
+        int x = c.x, y = c.y;
         
         int roadsLeft = distanceMatrix[x][y];
         while (roadsLeft > 1) {

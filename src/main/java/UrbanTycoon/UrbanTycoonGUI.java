@@ -319,7 +319,6 @@ public class UrbanTycoonGUI {
         CustomLabelButton newGameButton = getLabelButtonByType("New game", mainMenuLabels);
         newGameButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         newGameButton.setFunc(() -> {
-            System.out.println("New game");
             screenController("game");
         });
         CustomLabelButton loadSavesButton = getLabelButtonByType("Load Saves", mainMenuLabels);
