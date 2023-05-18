@@ -195,8 +195,8 @@ public class UrbanTycoonGUI {
                 gameArea.togglePause();
             }
             case "sidePanel" -> {
-                layeredPane.add(darkenBackground, new Integer(6));
-                layeredPane.add(sidePanel, new Integer(7));
+                layeredPane.add(darkenBackground, Integer.valueOf(6));
+                layeredPane.add(sidePanel, Integer.valueOf(7));
             }
             case "removeSidePanel" -> {
                 layeredPane.remove(darkenBackground);
