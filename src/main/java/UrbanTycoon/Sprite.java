@@ -4,6 +4,7 @@ package UrbanTycoon;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.Dimension;
 
 public class Sprite {
     /**
@@ -29,10 +30,11 @@ public class Sprite {
 
     /**
      * draw image
-     * @param g 
+     * 
+     * @param g
      */
-    public void draw(Graphics g) {
-        if (x > -width && y > -height) {
+    public void draw(Graphics g, Dimension dimension) {
+        if (x > -width && y > -height && x < dimension.getWidth() + width && y < dimension.getHeight() + height) {
             g.drawImage(image, x, y, width, height, null);
         }
     }
@@ -90,7 +92,8 @@ public class Sprite {
 
     /**
      * increase widht and height by size
-     * @param size 
+     * 
+     * @param size
      */
     public void changeSize(int size) {
         this.width += size;
