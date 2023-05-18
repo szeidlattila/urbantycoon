@@ -28,8 +28,8 @@ class GameEngine extends JPanel {
     private final int FIELDSIZE;
     private final Dimension SCREENSIZE;
 
-    private final int FIELDROWSNUM = 8;
-    private final int FIELDCOLSNUM = 16;
+    private final int FIELDROWSNUM = 150;
+    private final int FIELDCOLSNUM = 150;
     private final int INITIALMONEY = 100000;
     private final int INITIALRESIDENT = 20;
     private final int ZONEPRICE = 250;

@@ -306,7 +306,7 @@ class City {
     }
 
     /**
-     * calculate city's (iniversial) satisfaction depends on residentials
+     * calculate city's (universial) satisfaction depends on residentials
      * satisfaction
      */
     private void calculateUniversialSatisfaction() {
