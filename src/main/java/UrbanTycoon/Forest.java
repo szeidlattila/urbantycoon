@@ -4,7 +4,7 @@ package UrbanTycoon;
 import java.awt.Image;
 
 public class Forest extends PlayerBuildIt{
-    private int age=0;
+    private int age = 0;
 
     public Forest(int buildingPrice, int annualFee, int x, int y, int width, int height, Image image, double refund, double chanceOfFire) {
         super(buildingPrice, annualFee, x, y, width, height, image, refund, chanceOfFire);
@@ -29,21 +29,16 @@ public class Forest extends PlayerBuildIt{
 
     }
     
+    /**
+     * inc age by one if age would be 10 then set annual fee to 0
+     */
     public void increaseAgeBy1(){
         age++;
-        if(age==10) setAnnualFeeTo0();
+        if (age == 10) setAnnualFeeTo0();
     }
     
     private void setAnnualFeeTo0(){
-        annualFee=0;
-    }
-    
-    public void increaseResidentSatisfaction(){
-        
-    }
-    
-    public void increaseMoveInChance(){
-        
+        annualFee = 0;
     }
 
     @Override

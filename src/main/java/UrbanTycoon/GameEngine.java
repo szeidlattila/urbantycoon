@@ -50,7 +50,7 @@ class GameEngine extends JPanel {
     private final JPanel saveGamePanel = new JPanel();
     private final JPanel loadGamePanel = new JPanel();
 
-    private City city;
+    private final City city;
     private Date time;
 
     private boolean paused = false;
@@ -135,6 +135,9 @@ class GameEngine extends JPanel {
         speed = 1;
     }
     
+    /**
+     * preparation for save (persistence)
+     */
     public void initSave() {
         paused = true;
         saveGameFrame.pack();
@@ -370,6 +373,12 @@ class GameEngine extends JPanel {
         new PopupInfo(null, zoneInfo(), title);
     }
 
+    /**
+     * show confirmation dialog with given message and titel
+     * @param message
+     * @param title
+     * @return true if yes otherwise false
+     */
     public static boolean showConfirmationDialog(String message, String title) {
         int result = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
         return result == JOptionPane.YES_OPTION;
@@ -423,7 +432,6 @@ class GameEngine extends JPanel {
         @Override
         public void actionPerformed(ActionEvent ae) {
             if (!paused) {
-
                 repaint();
             }
         }

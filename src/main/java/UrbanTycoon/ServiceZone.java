@@ -9,11 +9,12 @@ public class ServiceZone extends Workplace{
     }
     
     @Override
-    protected String type(){
+    protected String type() {
         if (peopleNum == 0)         return (burning ? "burning" : "notBurning") + "/serviceZoneEmpty";
         if (peopleNum == capacity)  return (burning ? "burning" : "notBurning") + "/serviceZoneFull";
         return (burning ? "burning" : "notBurning") + "/serviceZone";
     }
+    
     @Override
     public String asString(){
         return "sz;" + super.asString();
