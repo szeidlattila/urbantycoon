@@ -59,7 +59,7 @@ class GameEngine extends JPanel {
     private final int[] minutesPerSecondIfSpeedIsIndex = { 180, 2880, 43200 }; // 3 hours, 2 days, 30 days
     private final Timer newFrameTimer;
     private final Timer gameTickTimer;
-    private final  JComboBox<String> savesList = new JComboBox<>();
+    private final JComboBox<String> savesList = new JComboBox<>();
 
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
@@ -83,6 +83,15 @@ class GameEngine extends JPanel {
                 RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, screenSize);
         time = new Date(1980, 1, 1, 0, 0);
         speed = 1;
+
+        city.getFieldsToDraw().clear();
+        for (Field[] row : city.getFields()) {
+            for (Field field : row) {
+                if (!field.isFree()) {
+                    city.getFieldsToDraw().add(field);
+                }
+            }
+        }
 
         JTextField saveNameTextField = new JTextField();
         JButton confirmSaveButton = new JButton("Save");
@@ -109,20 +118,35 @@ class GameEngine extends JPanel {
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
-        for (int i = 0; i < FIELDROWSNUM; i++) {
-            for (int j = 0; j < FIELDCOLSNUM; j++) {
-                if (!city.getFields()[i][j].isFree()) {
-                    city.getFields()[i][j].getBuilding().draw(grphcs);
-                } else { // Buildable is null so cannot draw it -> have to call Field draw method
-                    city.getFields()[i][j].draw(grphcs);
-                }
-                // would be better to call this methods outside of paintcomponent
-                UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(),
-                        city.getTax() + "$", city.getBudget() + "$");
-                UrbanTycoonGUI.checkActionPrice(city.getBudget(), ZONEPRICE, ROADPRICE, STADIUMPRICE,
-                        POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE);
+        /*
+         * for (int i = 0; i < FIELDROWSNUM; i++) {
+         * for (int j = 0; j < FIELDCOLSNUM; j++) {
+         * if (!city.getFields()[i][j].isFree()) {
+         * city.getFields()[i][j].getBuilding().draw(grphcs);
+         * } else { // Buildable is null so cannot draw it -> have to call Field draw
+         * method
+         * city.getFields()[i][j].draw(grphcs);
+         * }
+         * // would be better to call this methods outside of paintcomponent
+         * }
+         * }
+         */
+        for (Field field : city.getFieldsToDraw()) {
+            if (field != city.getSelectedField()) {
+                field.getBuilding().draw(grphcs);
             }
         }
+        if (city.getSelectedField() != null) {
+            if (!city.getSelectedField().isFree()) {
+                city.getSelectedField().getBuilding().draw(grphcs);
+            } else {
+                city.getSelectedField().draw(grphcs);
+            }
+        }
+        UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(),
+                city.getTax() + "$", city.getBudget() + "$");
+        UrbanTycoonGUI.checkActionPrice(city.getBudget(), ZONEPRICE, ROADPRICE, STADIUMPRICE,
+                POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE);
     }
 
     /**
@@ -134,7 +158,7 @@ class GameEngine extends JPanel {
         paused = false;
         speed = 1;
     }
-    
+
     /**
      * preparation for save (persistence)
      */
@@ -143,10 +167,11 @@ class GameEngine extends JPanel {
         saveGameFrame.pack();
         saveGameFrame.setVisible(true);
     }
-    
+
     /**
      * called when trying to save a game under a certain name.
      * checks the name, and handles conflicting names, then saves.
+     * 
      * @param saveName
      */
     private void saveGame(String saveName) {
@@ -183,7 +208,7 @@ class GameEngine extends JPanel {
         paused = false;
         saveGameFrame.setVisible(false);
     }
-    
+
     private File[] getFiles() {
         return new File("data/persistence/saves").listFiles();
     }
@@ -196,7 +221,7 @@ class GameEngine extends JPanel {
             System.exit(1);
         }
     }
-    
+
     /**
      * fills up loadGameFrame with accessible saves, then displays it
      */
@@ -213,6 +238,7 @@ class GameEngine extends JPanel {
 
     /**
      * gets called when the intention to load a game has been confirmed
+     * 
      * @param fileName without extension
      */
     private void loadGame(String fileName) {
@@ -262,7 +288,6 @@ class GameEngine extends JPanel {
         return FORESTPRICE;
     }
 
-
     public boolean isPaused() {
         return paused;
     }
@@ -293,6 +318,7 @@ class GameEngine extends JPanel {
 
     /**
      * select field at (x;y) coordinate
+     * 
      * @param mouseX x
      * @param mouseY y
      */
@@ -359,7 +385,7 @@ class GameEngine extends JPanel {
                 + city.countField(FireStation.class) + " fire stations)\n\n" +
                 "<html><h3><font color=#00a605>Annual income:</font></h3></html>\n+ $"
                 + city.getTax() * city.getResidentsNum() * 2 +
-                "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee(); 
+                "\n<html><h3><font color=#fc1c03>Annual outcome:</font></h3></html>\n- $" + city.calculateAnnualFee();
     }
 
     public void zoneInfoPopup() {
@@ -375,6 +401,7 @@ class GameEngine extends JPanel {
 
     /**
      * show confirmation dialog with given message and titel
+     * 
      * @param message
      * @param title
      * @return true if yes otherwise false
