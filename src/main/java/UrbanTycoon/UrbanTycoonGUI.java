@@ -24,7 +24,7 @@ public class UrbanTycoonGUI {
     // properties to change in UI
     private int UIPADDING = 20;
     private int ACTIONBSIZE = 60;
-    private int CONTROLBSIZE = 50;
+    private int CONTROLBSIZE = 60;
     private int INFOICONSIZE = 36;
     private int BUTTONPADDING = 10;
     private int INFOPANELWIDTH = 784;
@@ -93,9 +93,10 @@ public class UrbanTycoonGUI {
         gameArea = new GameEngine(screenSize, FIELDSIZE);
         gameArea.setBackground(Color.decode("#4DC25F"));
         gameArea.setBounds(0, 0, screenWidth, screenHeight);
+        gameArea.togglePause();
 
         // control buttons
-        int panelX = UIPADDING; 
+        int panelX = UIPADDING;
         controlPanel = new JPanel();
         createButtonPanel(controlButtonNames, CONTROLBSIZE, panelX, controlPanel, 1, "controlButton", controlButtons);
 
@@ -116,7 +117,7 @@ public class UrbanTycoonGUI {
         menuButton = new CustomButton(buttonFilePath + "menu", CONTROLBSIZE, "menu",
                 "menu");
         menuButton.setBounds(UIPADDING, UIPADDING, CONTROLBSIZE, CONTROLBSIZE);
-        
+
         // darken background
         darkenBackground = new CustomPanel();
         darkenBackground.setBounds(0, 0, screenWidth, screenHeight);
@@ -162,7 +163,7 @@ public class UrbanTycoonGUI {
         }
         // main menu logo
         gameLogo = new CustomButton(uiFilePath + "gameLogo", 300, "logo", "logo");
-        gameLogo.setBounds(45, 45, 300, 300);
+        gameLogo.setBounds(45, 75, 300, 300);
         gameLogo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
         setUpControlButtons();
@@ -198,24 +199,15 @@ public class UrbanTycoonGUI {
                 menuButton.setFunc(() -> {
                     screenController("sidePanel");
                 });
+                gameArea.togglePause();
                 break;
             case "sidePanel":
-                layeredPane.remove(menuButton);
-                layeredPane.add(darkenBackground, new Integer(5));
-                layeredPane.add(sidePanel, new Integer(6));
-                layeredPane.add(menuButton, new Integer(7));
-                menuButton.setFunc(() -> {
-                    screenController("removeSidePanel");
-                });
+                layeredPane.add(darkenBackground, new Integer(6));
+                layeredPane.add(sidePanel, new Integer(7));
                 break;
             case "removeSidePanel":
                 layeredPane.remove(darkenBackground);
                 layeredPane.remove(sidePanel);
-                layeredPane.remove(menuButton);
-                layeredPane.add(menuButton, new Integer(5));
-                menuButton.setFunc(() -> {
-                    screenController("sidePanel");
-                });
                 break;
             default:
                 break;
@@ -571,6 +563,9 @@ public class UrbanTycoonGUI {
                     field.getBuilding().changeSize(size);
                     field.getBuilding().setX(newX);
                     field.getBuilding().setY(newY);
+                    field.changeSize(size);
+                    field.setX(newX);
+                    field.setY(newY);
                 } else {
                     field.changeSize(size);
                     field.setX(newX);
@@ -589,6 +584,8 @@ public class UrbanTycoonGUI {
                 if (!fields[i][j].isFree()) {
                     field.getBuilding().changeX(x);
                     field.getBuilding().changeY(y);
+                    field.changeX(x);
+                    field.changeY(y);
                 } else {
                     field.changeX(x);
                     field.changeY(y);
