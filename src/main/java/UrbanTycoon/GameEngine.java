@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.JTextField;
+import java.awt.event.WindowAdapter;
 
 @SuppressWarnings("serial")
 class GameEngine extends JPanel {
@@ -103,14 +104,26 @@ class GameEngine extends JPanel {
         saveGamePanel.add(confirmSaveButton);
         saveGameFrame.add(saveGamePanel);
         saveGameFrame.setPreferredSize(new Dimension(300, 100));
-
+        saveGameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                newFrameTimer.start();
+                gameTickTimer.start();
+            }
+        });
+        
         JButton confirmLoadButton = new JButton("Load");
         confirmLoadButton.addActionListener((var ae) -> loadGame(savesList.getItemAt(savesList.getSelectedIndex())));
         loadGamePanel.add(confirmLoadButton);
         loadGamePanel.add(savesList);
         loadGameFrame.add(loadGamePanel);
         loadGameFrame.setPreferredSize(new Dimension(300, 100));
-
+        loadGameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                newFrameTimer.start();
+                gameTickTimer.start();
+            }
+        });
+        
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
         gameTickTimer = new Timer(1000, new GameTickListener());
@@ -165,7 +178,8 @@ class GameEngine extends JPanel {
      * preparation for save (persistence)
      */
     public void initSave() {
-        paused = true;
+    	gameTickTimer.stop();
+    	newFrameTimer.stop();
         saveGameFrame.pack();
         saveGameFrame.setVisible(true);
     }
@@ -189,8 +203,9 @@ class GameEngine extends JPanel {
                 confirmButton.addActionListener((var ae) -> {
                     frame.dispose();
                     saveInto(f);
-                    paused = false;
                     saveGameFrame.setVisible(false);
+                    gameTickTimer.start();
+                    newFrameTimer.start();
                 });
                 rejectButton.addActionListener((var ae) -> frame.dispose());
                 panel.add(confirmButton);
@@ -207,7 +222,8 @@ class GameEngine extends JPanel {
             System.exit(1);
         }
         saveInto(f);
-        paused = false;
+        gameTickTimer.start();
+        newFrameTimer.start();
         saveGameFrame.setVisible(false);
     }
 
@@ -228,7 +244,8 @@ class GameEngine extends JPanel {
      * fills up loadGameFrame with accessible saves, then displays it
      */
     public void initLoad() {
-        paused = true;
+    	this.gameTickTimer.stop();
+    	this.newFrameTimer.stop();
         savesList.removeAllItems();
         File[] saves = getFiles();
         for (File f : saves) {
@@ -248,7 +265,8 @@ class GameEngine extends JPanel {
             time = Date.parseDate(s.nextLine());
             city.loadGame(s, true);
             loadGameFrame.setVisible(false);
-            paused = false;
+            newFrameTimer.start();
+            gameTickTimer.start();
             speed = 1;
             prevSelectedFieldX = -1;
             prevSelectedFieldY = -1;
