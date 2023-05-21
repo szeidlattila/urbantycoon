@@ -30,6 +30,10 @@ class Field extends Sprite {
         return free;
     }
 
+    public boolean isCoordinateInsideCell(int x, int y) {
+        return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+    }
+
     public boolean isBurntDown() {
         return burntDown;
     }
