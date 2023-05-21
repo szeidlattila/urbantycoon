@@ -110,7 +110,7 @@ class GameEngine extends JPanel {
                 gameTickTimer.start();
             }
         });
-        
+
         JButton confirmLoadButton = new JButton("Load");
         confirmLoadButton.addActionListener((var ae) -> loadGame(savesList.getItemAt(savesList.getSelectedIndex())));
         loadGamePanel.add(confirmLoadButton);
@@ -123,7 +123,7 @@ class GameEngine extends JPanel {
                 gameTickTimer.start();
             }
         });
-        
+
         newFrameTimer = new Timer(1000 / FPS, new NewFrameListener());
         newFrameTimer.start();
         gameTickTimer = new Timer(1000, new GameTickListener());
@@ -147,16 +147,18 @@ class GameEngine extends JPanel {
          * }
          */
         for (Field field : city.getFieldsToDraw()) {
-            if (field != city.getSelectedField()) {
+            field.draw(grphcs, SCREENSIZE);
+            if (field != city.getSelectedField() && field.getBuilding() != null) {
                 field.getBuilding().draw(grphcs, SCREENSIZE);
             }
+
         }
         if (city.getSelectedField() != null) {
+            city.getSelectedField().draw(grphcs, SCREENSIZE);
             if (!city.getSelectedField().isFree()) {
                 city.getSelectedField().getBuilding().draw(grphcs, SCREENSIZE);
-            } else {
-                city.getSelectedField().draw(grphcs, SCREENSIZE);
             }
+
         }
         UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(),
                 city.getTax() + "$", city.getBudget() + "$");
@@ -178,8 +180,8 @@ class GameEngine extends JPanel {
      * preparation for save (persistence)
      */
     public void initSave() {
-    	gameTickTimer.stop();
-    	newFrameTimer.stop();
+        gameTickTimer.stop();
+        newFrameTimer.stop();
         saveGameFrame.pack();
         saveGameFrame.setVisible(true);
     }
@@ -244,8 +246,8 @@ class GameEngine extends JPanel {
      * fills up loadGameFrame with accessible saves, then displays it
      */
     public void initLoad() {
-    	this.gameTickTimer.stop();
-    	this.newFrameTimer.stop();
+        this.gameTickTimer.stop();
+        this.newFrameTimer.stop();
         savesList.removeAllItems();
         File[] saves = getFiles();
         for (File f : saves) {
