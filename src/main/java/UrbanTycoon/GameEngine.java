@@ -69,6 +69,7 @@ class GameEngine extends JPanel {
 
     private boolean isMousePressed = false;
     private Runnable selectedFunction;
+    private String gameName;
 
     public GameEngine(Dimension screenSize, int fieldSize) {
         super();
@@ -210,31 +211,33 @@ class GameEngine extends JPanel {
      * 
      * @param saveName
      */
-    private void saveGame(String saveName) {
-        File[] usedFiles = getFiles();
-        for (File f : usedFiles)
-            if (f.getName().equals(saveName)) {
-                JFrame frame = new JFrame("Save with given name already exists!");
-                JPanel panel = new JPanel();
-                frame.add(panel);
-                panel.add(new JLabel("Override?"));
-                JButton confirmButton = new JButton("Yes");
-                JButton rejectButton = new JButton("No");
-                confirmButton.addActionListener((var ae) -> {
-                    frame.dispose();
-                    saveInto(f);
-                    saveGameFrame.setVisible(false);
-                    gameTickTimer.start();
-                    newFrameTimer.start();
-                });
-                rejectButton.addActionListener((var ae) -> frame.dispose());
-                panel.add(confirmButton);
-                panel.add(rejectButton);
-                frame.setPreferredSize(new Dimension(300, 100));
-                frame.pack();
-                frame.setVisible(true);
-                return;
-            }
+    public void saveGame(String saveName) {
+        /*
+         * File[] usedFiles = getFiles();
+         * for (File f : usedFiles)
+         * if (f.getName().equals(saveName)) {
+         * JFrame frame = new JFrame("Save with given name already exists!");
+         * JPanel panel = new JPanel();
+         * frame.add(panel);
+         * panel.add(new JLabel("Override?"));
+         * JButton confirmButton = new JButton("Yes");
+         * JButton rejectButton = new JButton("No");
+         * confirmButton.addActionListener((var ae) -> {
+         * frame.dispose();
+         * saveInto(f);
+         * saveGameFrame.setVisible(false);
+         * gameTickTimer.start();
+         * newFrameTimer.start();
+         * });
+         * rejectButton.addActionListener((var ae) -> frame.dispose());
+         * panel.add(confirmButton);
+         * panel.add(rejectButton);
+         * frame.setPreferredSize(new Dimension(300, 100));
+         * frame.pack();
+         * frame.setVisible(true);
+         * return;
+         * }
+         */
         File f = new File("data/persistence/saves/" + saveName);
         try {
             f.createNewFile();
@@ -247,7 +250,7 @@ class GameEngine extends JPanel {
         saveGameFrame.setVisible(false);
     }
 
-    private File[] getFiles() {
+    public File[] getFiles() {
         return new File("data/persistence/saves").listFiles();
     }
 
@@ -280,7 +283,7 @@ class GameEngine extends JPanel {
      * 
      * @param fileName without extension
      */
-    private void loadGame(String fileName) {
+    public void loadGame(String fileName) {
         try (Scanner s = new Scanner(new File("data/persistence/saves/" + fileName + ".sav"))) {
             time = Date.parseDate(s.nextLine());
             city.loadGame(s, true);
@@ -294,6 +297,14 @@ class GameEngine extends JPanel {
         } catch (FileNotFoundException e) {
             System.exit(100);
         }
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
     }
 
     public Runnable getSelectedFunction() {

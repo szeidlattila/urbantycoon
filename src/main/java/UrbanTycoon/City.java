@@ -196,6 +196,7 @@ class City {
         updateSatisfaction();
     }
 
+
     public ArrayList<Field> getFieldsToDraw() {
         return fieldsToDraw;
     }

@@ -27,7 +27,7 @@ public class CustomLabel extends JLabel {
 
         switch (alignment.toLowerCase()) {
             case "left" -> setHorizontalAlignment(JLabel.LEFT);
-            case "middle" -> setHorizontalAlignment(JLabel.CENTER);
+            case "center" -> setHorizontalAlignment(JLabel.CENTER);
             case "right" -> setHorizontalAlignment(JLabel.RIGHT);
             default -> throw new IllegalArgumentException("Invalid alignment: " + alignment);
         }

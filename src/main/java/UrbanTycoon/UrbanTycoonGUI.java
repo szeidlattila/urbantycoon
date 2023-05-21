@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.awt.*;
+import java.io.File;
 
 public class UrbanTycoonGUI {
     // properties to change for UX
@@ -26,8 +27,9 @@ public class UrbanTycoonGUI {
 
     private final JFrame frame;
     private final JLayeredPane layeredPane;
-    private final GameEngine gameArea;
-    private final JPanel controlPanel, actionPanel, uxPanel, sidePanel, mainMenuSidePanel;
+    private GameEngine gameArea;
+    private final JPanel controlPanel, actionPanel, uxPanel, sidePanel, mainMenuSidePanel, interactionPanel,
+            loadSavePanel;
     private final CustomPanel darkenBackground, mainMenuWallpaper, infoPanel;
     private final CustomButton menuButton, gameLogo;
 
@@ -43,9 +45,7 @@ public class UrbanTycoonGUI {
     private static CustomButton selectedButton;
 
     // control buttons
-    private final String[] controlButtonNames = { "play", "pause", "accTime", "deaccTime", "taxInc", "taxDec", "info",
-            "load",
-            "save" };
+    private final String[] controlButtonNames = { "play", "pause", "accTime", "deaccTime", "taxInc", "taxDec", "info" };
     private final ArrayList<CustomButton> controlButtons = new ArrayList<>();
 
     // info icons
@@ -111,58 +111,22 @@ public class UrbanTycoonGUI {
 
         // darken background
         darkenBackground = new CustomPanel();
-        darkenBackground.setBounds(0, 0, screenWidth, screenHeight);
-        darkenBackground.setOpaque(false);
-        darkenBackground.setImage(uiFilePath + "darkenBackground");
-        // side panel
         sidePanel = new JPanel();
-        sidePanel.setBounds(0, 0, SIDEPANELWIDTH, screenHeight);
-        sidePanel.setBackground(Color.decode("#404040"));
-        sidePanel.setBorder(
-                BorderFactory.createEmptyBorder((screenHeight) - 75 - (sidePanelLabelNames.length * 50), 45, 75, 0));
-        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
-        for (int index = 0; index < sidePanelLabelNames.length; index++) {
-            CustomLabelButton sidePanelLabel = new CustomLabelButton(sidePanelLabelNames[index], 33, "Bold", "left",
-                    sidePanelLabelNames[index]);
-            sidePanelLabels.add(sidePanelLabel);
-            sidePanel.add(sidePanelLabel);
-            if (index != sidePanelLabelNames.length - 1) {
-                // sidePanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
-            }
-        }
+        createSidePanel(darkenBackground, sidePanel);
 
         // main menu
         mainMenuWallpaper = new CustomPanel();
-        mainMenuWallpaper.setBounds(0, 0, screenWidth, screenHeight);
-        mainMenuWallpaper.setBackground(new Color(0, 0, 0, 0));
-        mainMenuWallpaper.setImage(uiFilePath + "wallpaper");
-        // main menu sidepanel
         mainMenuSidePanel = new JPanel();
-        mainMenuSidePanel.setBounds(0, 0, SIDEPANELWIDTH, screenHeight);
-        mainMenuSidePanel.setBackground(Color.decode("#404040"));
-        mainMenuSidePanel.setBorder(
-                BorderFactory.createEmptyBorder((screenHeight) - 75 - (mainMenuLabelNames.length * 50), 45, 75, 0));
-        mainMenuSidePanel.setLayout(new BoxLayout(mainMenuSidePanel, BoxLayout.Y_AXIS));
-        for (int index = 0; index < mainMenuLabelNames.length; index++) {
-            CustomLabelButton mainMenuLabel = new CustomLabelButton(mainMenuLabelNames[index], 33, "Bold", "left",
-                    mainMenuLabelNames[index]);
-            mainMenuLabels.add(mainMenuLabel);
-            mainMenuSidePanel.add(mainMenuLabel);
-            if (index != mainMenuLabelNames.length - 1) {
-                // mainMenuSidePanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
-            }
-        }
-        // main menu logo
         gameLogo = new CustomButton(uiFilePath + "gameLogo", 300, "logo", "logo");
-        gameLogo.setBounds(45, 75, 300, 300);
-        gameLogo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        createMainMenu(mainMenuWallpaper, mainMenuSidePanel, gameLogo);
 
-        setUpControlButtons();
-        setUpActionButtons();
-        setUpInfoPanel();
-        setUpUxButtons();
-        setUpLabelButtons();
-        screenController("mainMenu");
+        // new game panel
+        interactionPanel = new JPanel();
+        createNewGamePanel(interactionPanel);
+
+        // load saves panel
+        loadSavePanel = new JPanel();
+        createSavesPanel(loadSavePanel);
 
         // add the layered pane to the frame and make it visible
         frame.add(layeredPane);
@@ -176,6 +140,16 @@ public class UrbanTycoonGUI {
 
     private void screenController(String screen) {
         switch (screen) {
+            case "loadSavePanel" -> {
+                layeredPane.removeAll();
+                layeredPane.add(mainMenuWallpaper, Integer.valueOf(0));
+                layeredPane.add(loadSavePanel, Integer.valueOf(1));
+            }
+            case "interactionPanel" -> {
+                layeredPane.removeAll();
+                layeredPane.add(mainMenuWallpaper, Integer.valueOf(0));
+                layeredPane.add(interactionPanel, Integer.valueOf(1));
+            }
             case "mainMenu" -> {
                 layeredPane.removeAll();
                 layeredPane.add(mainMenuWallpaper, Integer.valueOf(0));
@@ -206,6 +180,184 @@ public class UrbanTycoonGUI {
             default -> {
             }
         }
+    }
+
+    private void createSavesPanel(JPanel savesPanel) {
+        int panelX = centerPanelPosition(1000, screenWidth);
+        savesPanel.setBounds(panelX, 0, 1000, screenHeight);
+        savesPanel.setBackground(Color.decode("#404040"));
+        savesPanel.setBorder(BorderFactory.createEmptyBorder(200, 261, 0, 261));
+        savesPanel.setLayout(new BorderLayout());
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setBackground(Color.decode("#404040"));
+        innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+
+        CustomLabel loadSavedGame = new CustomLabel("Load a saved game", 33, "Bold", "center", "loadSavedGame");
+        loadSavedGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loadSavedGame.setPreferredSize(new Dimension(478, 40));
+        loadSavedGame.setMaximumSize(new Dimension(478, 40));
+        loadSavedGame.setMinimumSize(new Dimension(478, 40));
+        innerPanel.add(loadSavedGame);
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+
+        File[] saves = gameArea.getFiles();
+        for (File f : saves) {
+            String saveName = f.getName().substring(0, f.getName().length() - 4);
+            CustomLabelButton save = new CustomLabelButton(saveName, 30, "Bold", "center", saveName);
+            save.setAlignmentX(Component.CENTER_ALIGNMENT);
+            save.setPreferredSize(new Dimension(478, 40));
+            save.setMaximumSize(new Dimension(478, 40));
+            save.setMinimumSize(new Dimension(478, 40));
+            save.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            save.setFunc(() -> {
+                gameArea.loadGame(saveName);
+                screenController("game");
+            });
+            innerPanel.add(save);
+            innerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        }
+        savesPanel.add(innerPanel);
+    }
+
+    private void createMainMenu(CustomPanel mainMenuWallpaper, JPanel mainMenuSidePanel, CustomButton gameLogo) {
+
+        mainMenuWallpaper.setBounds(0, 0, screenWidth, screenHeight);
+        mainMenuWallpaper.setBackground(new Color(0, 0, 0, 0));
+        mainMenuWallpaper.setImage(uiFilePath + "wallpaper");
+        // main menu sidepanel
+
+        mainMenuSidePanel.setBounds(0, 0, SIDEPANELWIDTH, screenHeight);
+        mainMenuSidePanel.setBackground(Color.decode("#404040"));
+        mainMenuSidePanel.setBorder(
+                BorderFactory.createEmptyBorder((screenHeight) - 75 - (mainMenuLabelNames.length * 50), 45, 75, 0));
+        mainMenuSidePanel.setLayout(new BoxLayout(mainMenuSidePanel, BoxLayout.Y_AXIS));
+        for (int index = 0; index < mainMenuLabelNames.length; index++) {
+            CustomLabelButton mainMenuLabel = new CustomLabelButton(mainMenuLabelNames[index], 33, "Bold", "left",
+                    mainMenuLabelNames[index]);
+            mainMenuLabels.add(mainMenuLabel);
+            mainMenuSidePanel.add(mainMenuLabel);
+            if (index != mainMenuLabelNames.length - 1) {
+                // mainMenuSidePanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
+            }
+        }
+        // main menu logo
+        gameLogo.setBounds(45, 75, 300, 300);
+        gameLogo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+    }
+
+    private void createSidePanel(CustomPanel darkenBackground, JPanel sidePanel) {
+        darkenBackground.setBounds(0, 0, screenWidth, screenHeight);
+        darkenBackground.setOpaque(false);
+        darkenBackground.setImage(uiFilePath + "darkenBackground");
+        // side panel
+        sidePanel.setBounds(0, 0, SIDEPANELWIDTH, screenHeight);
+        sidePanel.setBackground(Color.decode("#404040"));
+        sidePanel.setBorder(
+                BorderFactory.createEmptyBorder((screenHeight) - 75 - (sidePanelLabelNames.length * 50), 45, 75, 0));
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        for (int index = 0; index < sidePanelLabelNames.length; index++) {
+            CustomLabelButton sidePanelLabel = new CustomLabelButton(sidePanelLabelNames[index], 33, "Bold", "left",
+                    sidePanelLabelNames[index]);
+            sidePanelLabels.add(sidePanelLabel);
+            sidePanel.add(sidePanelLabel);
+            if (index != sidePanelLabelNames.length - 1) {
+                // sidePanel.add(Box.createRigidArea(new Dimension(0, BUTTONPADDING)));
+            }
+        }
+    }
+
+    private void createNewGamePanel(JPanel interactionPanel) {
+
+        // main menu enter game name
+        int panelX = centerPanelPosition(1000, screenWidth);
+        interactionPanel.setBounds(panelX, 0, 1000, screenHeight);
+        interactionPanel.setBackground(Color.decode("#404040"));
+        interactionPanel.setBorder(BorderFactory.createEmptyBorder(500, 261, 300, 261));
+        interactionPanel.setLayout(new BorderLayout());
+
+        JPanel innerPanel = new JPanel();
+        innerPanel.setBackground(Color.decode("#404040"));
+        innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+
+        CustomLabel enterGameName = new CustomLabel("Name your game", 33, "Bold", "center", "enterGameName");
+        enterGameName.setAlignmentX(Component.CENTER_ALIGNMENT);
+        enterGameName.setPreferredSize(new Dimension(478, 40));
+        enterGameName.setMaximumSize(new Dimension(478, 40));
+        enterGameName.setMinimumSize(new Dimension(478, 40));
+
+        CustomTextfield gameName = new CustomTextfield(30, "Medium", "center");
+        gameName.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gameName.setPreferredSize(new Dimension(478, 59));
+        gameName.setMaximumSize(new Dimension(478, 59));
+        gameName.setMinimumSize(new Dimension(478, 59));
+        gameName.setBackground(new Color(0, 0, 0, 0));
+        gameName.setBackgroundImage(uiFilePath + "textFieldBackground");
+
+        CustomLabelButton startGame = new CustomLabelButton("Start Game", 40, "Bold", "center", "startGame");
+        startGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+        startGame.setPreferredSize(new Dimension(478, 60));
+        startGame.setMaximumSize(new Dimension(478, 60));
+        startGame.setMinimumSize(new Dimension(478, 60));
+        startGame.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        startGame.setFunc(() -> {
+            screenController("game");
+        });
+        CustomLabelButton back = new CustomLabelButton("Back", 40, "Bold", "center", "back");
+        back.setAlignmentX(Component.CENTER_ALIGNMENT);
+        back.setPreferredSize(new Dimension(478, 60));
+        back.setMaximumSize(new Dimension(478, 60));
+        back.setMinimumSize(new Dimension(478, 60));
+        back.setFunc(() -> {
+            screenController("mainMenu");
+        });
+        back.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        CustomLabelButton invalidName = new CustomLabelButton("", 33, "Bold", "center", "invalidName");
+        invalidName.setAlignmentX(Component.CENTER_ALIGNMENT);
+        invalidName.setPreferredSize(new Dimension(478, 40));
+        invalidName.setMaximumSize(new Dimension(478, 40));
+        invalidName.setMinimumSize(new Dimension(478, 40));
+        invalidName.setForeground(Color.RED);
+
+        innerPanel.add(enterGameName);
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        innerPanel.add(gameName);
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        innerPanel.add(startGame);
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        innerPanel.add(back);
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        innerPanel.add(invalidName);
+        startGame.setFunc(() -> {
+            if (gameName.getText().equals("")) {
+                invalidName.setText("Invalid name");
+            } else {
+                Boolean canStartgame = true;
+                File[] usedFiles = gameArea.getFiles();
+                for (File file : usedFiles) {
+                    if (file.getName().equals(gameName.getText() + ".sav")) {
+                        invalidName.setText("Name already used");
+                        gameName.setText("");
+                        canStartgame = false;
+                    }
+                }
+                if (canStartgame) {
+                    gameArea.setGameName(gameName.getText());
+                    screenController("game");
+                    invalidName.setText("");
+                    gameName.setText("");
+                }
+            }
+
+        });
+        interactionPanel.add(innerPanel, BorderLayout.CENTER);
+
+        setUpControlButtons();
+        setUpActionButtons();
+        setUpInfoPanel();
+        setUpUxButtons();
+        setUpLabelButtons();
+        screenController("mainMenu");
     }
 
     private void createUXPanel(JPanel uxPanel, int paneIndex) {
@@ -311,9 +463,14 @@ public class UrbanTycoonGUI {
         CustomLabelButton newGameButton = getLabelButtonByType("New game", mainMenuLabels);
         newGameButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         newGameButton.setFunc(() -> {
-            screenController("game");
+            // screenController("game");
+            screenController("interactionPanel");
         });
         CustomLabelButton loadSavesButton = getLabelButtonByType("Load Saves", mainMenuLabels);
+        loadSavesButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        loadSavesButton.setFunc(() -> {
+            screenController("loadSavePanel");
+        });
         CustomLabelButton creditsButton = getLabelButtonByType("Credits", mainMenuLabels);
         CustomLabelButton settingsButtonSide = getLabelButtonByType("Settings", mainMenuLabels);
         CustomLabelButton exitGameButton = getLabelButtonByType("Exit Game", mainMenuLabels);
@@ -332,6 +489,7 @@ public class UrbanTycoonGUI {
         CustomLabelButton exitSaveButton = getLabelButtonByType("Exit & Save", sidePanelLabels);
         exitSaveButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         exitSaveButton.setFunc(() -> {
+            gameArea.saveGame(gameArea.getGameName() + ".sav");
             screenController("mainMenu");
         });
     }
@@ -406,13 +564,9 @@ public class UrbanTycoonGUI {
         CustomButton taxInc = getButtonByName("taxInc", controlButtons);
         CustomButton taxDec = getButtonByName("taxDec", controlButtons);
         CustomButton info = getButtonByName("info", controlButtons);
-        CustomButton load = getButtonByName("load", controlButtons);
-        CustomButton save = getButtonByName("save", controlButtons);
         taxInc.setFunc(() -> gameArea.increaseTax());
         taxDec.setFunc(() -> gameArea.lowerTax());
         info.setFunc(() -> gameArea.zoneInfoPopup());
-        load.setFunc(() -> gameArea.initLoad());
-        save.setFunc(() -> gameArea.initSave());
 
     }
 
