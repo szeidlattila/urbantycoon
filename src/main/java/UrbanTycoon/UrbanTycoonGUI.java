@@ -81,7 +81,7 @@ public class UrbanTycoonGUI {
 
         // game area
         gameArea = new GameEngine(screenSize, FIELDSIZE);
-        gameArea.setBackground(Color.decode("#4DC25F"));
+        gameArea.setBackground(Color.decode("#78C877"));
         gameArea.setBounds(0, 0, screenWidth, screenHeight);
         gameArea.togglePause();
 
