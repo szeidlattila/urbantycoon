@@ -1163,6 +1163,17 @@ class City {
             residents.add(residentByString(s.nextLine()));
         }
         updateSatisfaction();
+        
+        // update fieldsToDraw
+        fieldsToDraw.clear();
+        
+        for (Field[] allFields : fields) {
+            for (Field field : allFields) {
+                if (!field.isFree()) {
+                    fieldsToDraw.add(field);
+                }
+            }
+        }
     }
 
     /**
