@@ -40,6 +40,7 @@ public class UrbanTycoonGUI {
     private final String[] actionButtonNames = { "industrial", "service", "residental", "road", "stadium", "police",
             "firestation", "forest", "firefighting", "delete" };
     private static ArrayList<CustomButton> actionButtons = new ArrayList<CustomButton>();
+    private static CustomButton selectedButton;
 
     // control buttons
     private final String[] controlButtonNames = { "play", "pause", "accTime", "deaccTime", "taxInc", "taxDec", "info",
@@ -420,43 +421,157 @@ public class UrbanTycoonGUI {
         City city = gameArea.getCity();
         CustomButton industrial = getButtonByName("industrial", actionButtons);
         industrial.setFunc(() -> {
-            city.selectField(IndustrialZone.class);
+            if (!industrial.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = industrial;
+                industrial.select();
+                gameArea.setSelectedFunction(
+                        () -> city.selectField(IndustrialZone.class));
+            } else {
+                selectedButton = null;
+                industrial.unselect();
+                gameArea.setSelectedFunction(null);
+            }
         });
         CustomButton service = getButtonByName("service", actionButtons);
         service.setFunc(() -> {
-            city.selectField(ServiceZone.class);
+            if (!service.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = service;
+                service.select();
+                gameArea.setSelectedFunction(
+                        () -> city.selectField(ServiceZone.class));
+            } else {
+                selectedButton = null;
+                service.unselect();
+                gameArea.setSelectedFunction(null);
+            }
         });
         CustomButton residential = getButtonByName("residental", actionButtons);
         residential.setFunc(() -> {
-            city.selectField(ResidentialZone.class);
+            if (!residential.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = residential;
+                residential.select();
+                gameArea.setSelectedFunction(
+                        () -> city.selectField(ResidentialZone.class));
+            } else {
+                selectedButton = null;
+                residential.unselect();
+                gameArea.setSelectedFunction(null);
+            }
         });
         CustomButton road = getButtonByName("road", actionButtons);
         road.setFunc(() -> {
-            city.build(Road.class);
+            if (!road.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = road;
+                road.select();
+                gameArea.setSelectedFunction(
+                        () -> city.build(Road.class));
+            } else {
+                selectedButton = null;
+                road.unselect();
+                gameArea.setSelectedFunction(null);
+            }
         });
         CustomButton stadium = getButtonByName("stadium", actionButtons);
         stadium.setFunc(() -> {
-            city.build(Stadium.class);
+            if (!stadium.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = stadium;
+                stadium.select();
+                gameArea.setSelectedFunction(
+                        () -> city.build(Stadium.class));
+            } else {
+                selectedButton = null;
+                stadium.unselect();
+                gameArea.setSelectedFunction(null);
+            }
         });
         CustomButton police = getButtonByName("police", actionButtons);
         police.setFunc(() -> {
-            city.build(PoliceStation.class);
+            if (!police.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = police;
+                police.select();
+                gameArea.setSelectedFunction(
+                        () -> city.build(PoliceStation.class));
+            } else {
+                selectedButton = null;
+                police.unselect();
+                gameArea.setSelectedFunction(null);
+            }
         });
         CustomButton fireStation = getButtonByName("firestation", actionButtons);
         fireStation.setFunc(() -> {
-            city.build(FireStation.class);
+            if (!fireStation.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = fireStation;
+                fireStation.select();
+                gameArea.setSelectedFunction(
+                        () -> city.build(FireStation.class));
+            } else {
+                if (selectedButton != null)
+                    selectedButton = null;
+                fireStation.unselect();
+                gameArea.setSelectedFunction(null);
+            }
         });
         CustomButton forest = getButtonByName("forest", actionButtons);
         forest.setFunc(() -> {
-            city.build(Forest.class);
+            if (!forest.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = forest;
+                forest.select();
+                gameArea.setSelectedFunction(
+                        () -> city.build(Forest.class));
+            } else {
+                selectedButton = null;
+                forest.unselect();
+                gameArea.setSelectedFunction(null);
+            }
         });
         CustomButton firefighting = getButtonByName("firefighting", actionButtons);
         firefighting.setFunc(() -> {
-            city.fireFighting();
+            if (!firefighting.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = firefighting;
+                firefighting.select();
+                gameArea.setSelectedFunction(
+                        () -> city.fireFighting());
+            } else {
+                selectedButton = null;
+                firefighting.unselect();
+                gameArea.setSelectedFunction(null);
+            }
+
         });
+
         CustomButton delete = getButtonByName("delete", actionButtons);
         delete.setFunc(() -> {
-            gameArea.tryDenominateOrDestroyZone();
+            if (!delete.isSelected()) {
+                if (selectedButton != null)
+                    selectedButton.unselect();
+                selectedButton = delete;
+                delete.select();
+                gameArea.setSelectedFunction(
+                        () -> gameArea.tryDenominateOrDestroyZone());
+            } else {
+                selectedButton = null;
+                delete.unselect();
+                gameArea.setSelectedFunction(null);
+            }
+
         });
     }
 
@@ -500,43 +615,43 @@ public class UrbanTycoonGUI {
         CustomButton fireStation = getButtonByName("firestation", actionButtons);
         CustomButton forest = getButtonByName("forest", actionButtons);
 
-        if (currentMoney < zonePrice) {
+        if (currentMoney < zonePrice && industrial.isEnabled() && service.isEnabled() && residental.isEnabled()) {
             industrial.disable();
             service.disable();
             residental.disable();
-        } else {
+        } else if (!industrial.isEnabled() && !service.isEnabled() && !residental.isEnabled()) {
             industrial.enable();
             service.enable();
             residental.enable();
         }
 
-        if (currentMoney < roadPrice) {
+        if (currentMoney < roadPrice && road.isEnabled()) {
             road.disable();
-        } else {
+        } else if (!road.isEnabled()) {
             road.enable();
         }
 
-        if (currentMoney < stadiumPrice) {
+        if (currentMoney < stadiumPrice && stadium.isEnabled()) {
             stadium.disable();
-        } else {
+        } else if (!stadium.isEnabled()) {
             stadium.enable();
         }
 
-        if (currentMoney < policePrice) {
+        if (currentMoney < policePrice && police.isEnabled()) {
             police.disable();
-        } else {
+        } else if (!police.isEnabled()) {
             police.enable();
         }
 
-        if (currentMoney < firestationPrice) {
+        if (currentMoney < firestationPrice && fireStation.isEnabled()) {
             fireStation.disable();
-        } else {
+        } else if (!fireStation.isEnabled()) {
             fireStation.enable();
         }
 
-        if (currentMoney < forestPrice) {
+        if (currentMoney < forestPrice && forest.isEnabled()) {
             forest.disable();
-        } else {
+        } else if (!forest.isEnabled()) {
             forest.enable();
         }
     }

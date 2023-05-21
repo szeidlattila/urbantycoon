@@ -24,16 +24,23 @@ public class CustomButton extends JButton {
         this.name = name;
         icon = new ImageIcon(
                 new ImageIcon(pictureName + ".png").getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH));
-        dIcon = new ImageIcon(
-                new ImageIcon(pictureName + "Disabled.png").getImage().getScaledInstance(size, size,
-                        Image.SCALE_SMOOTH));
-        if ("actionButton".equals(type)) {
-            sIcon = new ImageIcon(
-                    new ImageIcon(pictureName + "Selected.png").getImage().getScaledInstance(size, size,
-                            Image.SCALE_SMOOTH));
+        try {
+            dIcon = new ImageIcon(new ImageIcon(pictureName + "Disabled.png").getImage().getScaledInstance(size, size,
+                    Image.SCALE_SMOOTH));
+        } catch (Exception e) {
+            System.out.println("No disabled icon for " + pictureName);
         }
-        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        try {
+            sIcon = new ImageIcon(
+                    new ImageIcon(pictureName + "S.png").getImage().getScaledInstance(size, size,
+                            Image.SCALE_SMOOTH));
+
+        } catch (Exception e) {
+            System.out.println("No selected icon for " + pictureName);
+        }
+
         setIcon(icon);
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
         setBorderPainted(false);
         setContentAreaFilled(false);
         setFocusPainted(false);

@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -66,6 +67,9 @@ class GameEngine extends JPanel {
     private int prevSelectedFieldX = -1;
     private int prevSelectedFieldY = -1;
 
+    private boolean isMousePressed = false;
+    private Runnable selectedFunction;
+
     public GameEngine(Dimension screenSize, int fieldSize) {
         super();
         this.FIELDSIZE = fieldSize;
@@ -73,10 +77,20 @@ class GameEngine extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                isMousePressed = true;
                 if (!paused) {
                     fieldSelect(e.getX(), e.getY());
+                    if (selectedFunction != null) {
+                        selectedFunction.run();
+                    }
                 }
             }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                isMousePressed = false;
+            }
+
         });
 
         city = new City(INITIALRESIDENT, FIELDSIZE, FIELDROWSNUM, FIELDCOLSNUM, CRITSATISFACTION,
@@ -86,6 +100,21 @@ class GameEngine extends JPanel {
                 RESIDENTCAPACITY, WORKPLACECAPACITY, REFUND, CHANCEOFFIRE, RADIUS, screenSize);
         time = new Date(1980, 1, 1, 0, 0);
         speed = 1;
+
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (!paused && isMousePressed) {
+                    if (city.getSelectedField() != null
+                            && !city.getSelectedField().isCoordinateInsideCell(e.getX(), e.getY())) {
+                        fieldSelect(e.getX(), e.getY());
+                        if (selectedFunction != null) {
+                            selectedFunction.run();
+                        }
+                    }
+                }
+            }
+        });
 
         city.getFieldsToDraw().clear();
         for (Field[] row : city.getFields()) {
@@ -133,19 +162,6 @@ class GameEngine extends JPanel {
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
-        /*
-         * for (int i = 0; i < FIELDROWSNUM; i++) {
-         * for (int j = 0; j < FIELDCOLSNUM; j++) {
-         * if (!city.getFields()[i][j].isFree()) {
-         * city.getFields()[i][j].getBuilding().draw(grphcs);
-         * } else { // Buildable is null so cannot draw it -> have to call Field draw
-         * method
-         * city.getFields()[i][j].draw(grphcs);
-         * }
-         * // would be better to call this methods outside of paintcomponent
-         * }
-         * }
-         */
         for (Field field : city.getFieldsToDraw()) {
             if (field != city.getSelectedField() && field.getBuilding() != null) {
                 field.getBuilding().draw(grphcs, SCREENSIZE);
@@ -280,6 +296,14 @@ class GameEngine extends JPanel {
         }
     }
 
+    public Runnable getSelectedFunction() {
+        return selectedFunction;
+    }
+
+    public void setSelectedFunction(Runnable selectedFunction) {
+        this.selectedFunction = selectedFunction;
+    }
+
     public int getSpeed() {
         return speed;
     }
@@ -348,7 +372,6 @@ class GameEngine extends JPanel {
      */
     private void fieldSelect(int mouseX, int mouseY) {
         int fieldIndexX, fieldIndexY;
-
         fieldIndexX = (int) Math
                 .floor((mouseX - city.getFields()[0][0].getX()) / (double) city.getFields()[0][0].getWidth());
         fieldIndexY = (int) Math
