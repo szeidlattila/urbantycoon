@@ -202,7 +202,8 @@ public class UrbanTycoonGUI {
                 layeredPane.remove(darkenBackground);
                 layeredPane.remove(sidePanel);
             }
-            default -> {}
+            default -> {
+            }
         }
     }
 
@@ -540,8 +541,7 @@ public class UrbanTycoonGUI {
         }
     }
 
-    
-	public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
+    public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
         CustomLabel time = getLabelByType("time", infoLabels);
         CustomLabel residents = getLabelByType("residents", infoLabels);
         CustomLabel residentsSat = getLabelByType("residentsSat", infoLabels);
@@ -571,7 +571,18 @@ public class UrbanTycoonGUI {
                 Field field = fields[i][j];
                 int newX = NewOffsetX + (j * (field.getWidth() + size));
                 int newY = NewOffsetY + (i * (field.getHeight() + size));
-                if (!field.isFree()) {
+                if (field.getBuilding() instanceof Stadium) {
+                    if (fields[i][j + 1].getBuilding() == field.getBuilding()
+                            && fields[i + 1][j].getBuilding() == field.getBuilding()
+                            && fields[i + 1][j + 1].getBuilding() == field.getBuilding()) {
+                        field.getBuilding().changeSize(size * 2);
+                        field.getBuilding().setX(newX);
+                        field.getBuilding().setY(newY);
+                        field.changeSize(size);
+                        field.setX(newX);
+                        field.setY(newY);
+                    }
+                } else if (!field.isFree()) {
                     newX = NewOffsetX + (j * (field.getBuilding().getWidth() + size));
                     newY = NewOffsetY + (i * (field.getBuilding().getHeight() + size));
                     field.getBuilding().changeSize(size);
@@ -592,10 +603,19 @@ public class UrbanTycoonGUI {
 
     public void changeCellsPositions(int x, int y) {
         Field fields[][] = gameArea.getCity().getFields();
-        for (Field[] field1 : fields) {
+        for (int i = 0; i < fields.length; i++) {
             for (int j = 0; j < fields[0].length; j++) {
-                Field field = field1[j];
-                if (!field1[j].isFree()) {
+                Field field = fields[i][j];
+                if (field.getBuilding() instanceof Stadium) {
+                    if (fields[i][j + 1].getBuilding() == field.getBuilding()
+                            && fields[i + 1][j].getBuilding() == field.getBuilding()
+                            && fields[i + 1][j + 1].getBuilding() == field.getBuilding()) {
+                        field.getBuilding().changeX(x);
+                        field.getBuilding().changeY(y);
+                        field.changeX(x);
+                        field.changeY(y);
+                    }
+                } else if (!field.isFree()) {
                     field.getBuilding().changeX(x);
                     field.getBuilding().changeY(y);
                     field.changeX(x);

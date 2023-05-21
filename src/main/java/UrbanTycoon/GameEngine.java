@@ -147,16 +147,18 @@ class GameEngine extends JPanel {
          * }
          */
         for (Field field : city.getFieldsToDraw()) {
-            field.draw(grphcs, SCREENSIZE);
             if (field != city.getSelectedField() && field.getBuilding() != null) {
                 field.getBuilding().draw(grphcs, SCREENSIZE);
+            } else if (field.isBurntDown()) {
+                field.draw(grphcs, SCREENSIZE);
             }
 
         }
         if (city.getSelectedField() != null) {
-            city.getSelectedField().draw(grphcs, SCREENSIZE);
             if (!city.getSelectedField().isFree()) {
                 city.getSelectedField().getBuilding().draw(grphcs, SCREENSIZE);
+            } else {
+                city.getSelectedField().draw(grphcs, SCREENSIZE);
             }
 
         }
