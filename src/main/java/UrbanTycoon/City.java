@@ -2148,4 +2148,25 @@ class City {
             residents.remove(removeResident);
         }
     }
+    
+    public double zoneAvarageSat() { 
+        if (selectedField == null) return -100.0;
+        if (selectedField.isFree() &&!(selectedField.getBuilding() instanceof Zone)) return -100.0;
+        double sum = 0.0;
+        int count = 0;
+        for (Resident r : residents) {
+            if (r.getHome().equals(selectedField.getBuilding())) {
+                
+            }
+            if (r.getWorkplace().equals(selectedField.getBuilding())) {
+                sum += r.getSatisfaction();
+                count++;
+            } else if (r.getHome().equals(selectedField.getBuilding())) {
+                sum += r.getSatisfaction();
+                count++;
+            }
+        }
+        if (count == 0) return -100.0;
+        return sum / count;
+    }
 }

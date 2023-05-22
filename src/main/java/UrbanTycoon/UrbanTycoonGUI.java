@@ -982,13 +982,14 @@ public class UrbanTycoonGUI {
         }
     }
 
-    public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS) {
+    public static void changeLabels(String timeS, int residentsS, int rSatS, String taxS, String moneyS, double avgSat) {
         CustomLabel time = getLabelByType("time", infoLabels);
         CustomLabel residents = getLabelByType("residents", infoLabels);
         CustomLabel residentsSat = getLabelByType("residentsSat", infoLabels);
         CustomLabel selectedSat = getLabelByType("selectedSat", infoLabels);
         CustomLabel tax = getLabelByType("tax", infoLabels);
         CustomLabel money = getLabelByType("money", infoLabels);
+        selectedSat.setText(avgSat == -100.0 ? "No info" : ((int)(Math.floor(avgSat)) + ""));
         time.setText(timeS);
         residents.setText(residentsS + "");
         residentsSat.setText(rSatS + "");

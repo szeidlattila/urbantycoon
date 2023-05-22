@@ -170,7 +170,7 @@ class GameEngine extends JPanel {
 
         }
         UrbanTycoonGUI.changeLabels(time.toString(), city.getResidents().size(), city.getSatisfaction(),
-                city.getTax() + "$", city.getBudget() + "$");
+                city.getTax() + "$", city.getBudget() + "$", city.zoneAvarageSat());
         UrbanTycoonGUI.checkActionPrice(city.getBudget(), ZONEPRICE, ROADPRICE, STADIUMPRICE,
                 POLICESTATIONPRICE, FIRESTATIONPRICE, FORESTPRICE);
     }
