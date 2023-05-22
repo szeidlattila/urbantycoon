@@ -764,11 +764,14 @@ class City {
         } catch (FileNotFoundException e) {
             System.out.println("File not found!");
         }
-
+        fieldsToDraw.clear();
         for (Field[] row : fields) {
             for (Field field : row) {
                 if (!field.isFree() && field.getBuilding() instanceof Zone zone)
                     zone.setBuiltUp(true);
+                if (!field.isFree()) {
+                    fieldsToDraw.add(field);
+                }
             }
         }
     }

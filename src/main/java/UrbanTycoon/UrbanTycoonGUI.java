@@ -9,28 +9,26 @@ import java.io.File;
 public class UrbanTycoonGUI {
     // properties to change for UX
     private final int FIELDSIZE = 60;
-    private final int addedX = 0;
-    private final int addedY = 0;
 
     // properties to change in UI
-    private int UIPADDING = 20;
-    private int ACTIONBSIZE = 60;
-    private int CONTROLBSIZE = 60;
-    private int INFOICONSIZE = 36;
-    private int BUTTONPADDING = 10;
-    private int INFOPANELWIDTH = 784;
-    private int INFOPANELHEIGHT = 50;
-    private int SIDEPANELWIDTH = 500;
-    private int INFOPANELPADDING = (INFOPANELHEIGHT - INFOICONSIZE) / 2;
-    private String buttonFilePath = "data/graphics/other/buttons/";
-    private String uiFilePath = "data/graphics/other/UIelements/";
+    private final int UIPADDING = 20;
+    private final int ACTIONBSIZE = 60;
+    private final int CONTROLBSIZE = 60;
+    private final int INFOICONSIZE = 36;
+    private final int BUTTONPADDING = 10;
+    private final int INFOPANELWIDTH = 784;
+    private final int INFOPANELHEIGHT = 50;
+    private final int SIDEPANELWIDTH = 500;
+    private final int INFOPANELPADDING = (INFOPANELHEIGHT - INFOICONSIZE) / 2;
+    private final String buttonFilePath = "data/graphics/other/buttons/";
+    private final String uiFilePath = "data/graphics/other/UIelements/";
 
     private final JFrame frame;
     private final JLayeredPane layeredPane;
     private GameEngine gameArea;
     private final JPanel controlPanel, actionPanel, uxPanel, sidePanel, mainMenuSidePanel, interactionPanel,
-            loadSavePanel;
-    private final CustomPanel darkenBackground, mainMenuWallpaper, infoPanel;
+            loadSavePanel, creditsPanel;
+    private final CustomPanel darkenBackground, mainMenuWallpaper, infoPanel, helpPanel;
     private final CustomButton menuButton, gameLogo;
 
     // screen properties
@@ -58,11 +56,11 @@ public class UrbanTycoonGUI {
     private final ArrayList<CustomButton> uxButtons = new ArrayList<>();
 
     // side panel
-    private final String[] sidePanelLabelNames = { "Continue", "Restart Level", "Help", "Settings", "Exit & Save" };
+    private final String[] sidePanelLabelNames = { "Continue", "Restart Level", "Help", "Exit & Save" };
     private final ArrayList<CustomLabelButton> sidePanelLabels = new ArrayList<>();
 
     // main menu
-    private final String[] mainMenuLabelNames = { "New game", "Load Saves", "Credits", "Settings", "Exit Game" };
+    private final String[] mainMenuLabelNames = { "New game", "Load Saves", "Credits", "Exit Game" };
     private final ArrayList<CustomLabelButton> mainMenuLabels = new ArrayList<>();
 
     public UrbanTycoonGUI() {
@@ -128,22 +126,42 @@ public class UrbanTycoonGUI {
         loadSavePanel = new JPanel();
         createSavesPanel(loadSavePanel);
 
+        // credits panel
+        creditsPanel = new JPanel();
+        createCreditsPanel(creditsPanel);
+
+        // help panel
+        helpPanel = new CustomPanel();
+        createHelpPanel(helpPanel);
+
         // add the layered pane to the frame and make it visible
         frame.add(layeredPane);
         frame.pack();
         frame.setVisible(true);
 
-        // changeCellsPositions(200, 200);
-        // changeCellsSize(30);
-
     }
 
     /**
      * add component to layered pane
-     * @param screen 
+     * 
+     * @param screen
      */
     private void screenController(String screen) {
         switch (screen) {
+            case "creditsPanel" -> {
+                layeredPane.removeAll();
+                layeredPane.add(mainMenuWallpaper, Integer.valueOf(0));
+                layeredPane.add(creditsPanel, Integer.valueOf(1));
+            }
+            case "removeHelpPanel" -> {
+                layeredPane.remove(helpPanel);
+                layeredPane.add(sidePanel, Integer.valueOf(7));
+            }
+            case "helpPanel" -> {
+                layeredPane.remove(sidePanel);
+                layeredPane.add(helpPanel, Integer.valueOf(7));
+            }
+
             case "loadSavePanel" -> {
                 layeredPane.removeAll();
                 layeredPane.add(mainMenuWallpaper, Integer.valueOf(0));
@@ -187,14 +205,113 @@ public class UrbanTycoonGUI {
     }
 
     /**
+     * create panel for credits
+     * 
+     * @param creditsPanel
+     */
+
+    private void createCreditsPanel(JPanel creditsPanel) {
+        int panelX = centerPanelPosition(1000, screenWidth);
+        creditsPanel.setBounds(panelX, 0, 1000, screenHeight);
+        creditsPanel.setBackground(Color.decode("#404040"));
+        creditsPanel.setBorder(BorderFactory.createEmptyBorder(300, 0, 0, 0));
+        creditsPanel.setLayout(new BoxLayout(creditsPanel, BoxLayout.Y_AXIS));
+
+        CustomLabel name1 = new CustomLabel("Fekete Martin", 33, "Bold", "center", "loadSavedGame");
+        name1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        name1.setPreferredSize(new Dimension(1000, 40));
+        name1.setMaximumSize(new Dimension(1000, 40));
+        name1.setMinimumSize(new Dimension(1000, 40));
+        CustomLabel title1 = new CustomLabel("Graphics & UX", 28, "Medium", "center", "loadSavedGame");
+        title1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title1.setPreferredSize(new Dimension(1000, 32));
+        title1.setMaximumSize(new Dimension(1000, 32));
+        title1.setMinimumSize(new Dimension(1000, 32));
+
+        CustomLabel name2 = new CustomLabel("Sándor Kornél", 33, "Bold", "center", "loadSavedGame");
+        name2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        name2.setPreferredSize(new Dimension(1000, 40));
+        name2.setMaximumSize(new Dimension(1000, 40));
+        name2.setMinimumSize(new Dimension(1000, 40));
+        CustomLabel title2 = new CustomLabel("Game mechanics", 28, "Medium", "center", "loadSavedGame");
+        title2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title2.setPreferredSize(new Dimension(1000, 32));
+        title2.setMaximumSize(new Dimension(1000, 32));
+        title2.setMinimumSize(new Dimension(1000, 32));
+
+        CustomLabel name3 = new CustomLabel("Szeidl Attila", 33, "Bold", "center", "loadSavedGame");
+        name3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        name3.setPreferredSize(new Dimension(1000, 40));
+        name3.setMaximumSize(new Dimension(1000, 40));
+        name3.setMinimumSize(new Dimension(1000, 40));
+        CustomLabel title3 = new CustomLabel("Model & JUnit", 28, "Medium", "center", "loadSavedGame");
+        title3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title3.setPreferredSize(new Dimension(1000, 32));
+        title3.setMaximumSize(new Dimension(1000, 32));
+        title3.setMinimumSize(new Dimension(1000, 32));
+
+        CustomLabelButton back = new CustomLabelButton("Back", 33, "Bold", "center", "back");
+        back.setAlignmentX(Component.CENTER_ALIGNMENT);
+        back.setPreferredSize(new Dimension(1000, 40));
+        back.setMaximumSize(new Dimension(1000, 40));
+        back.setMinimumSize(new Dimension(1000, 40));
+        back.setFunc(() -> {
+            screenController("mainMenu");
+        });
+        back.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        creditsPanel.add(name1);
+        creditsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        creditsPanel.add(title1);
+        creditsPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        creditsPanel.add(name2);
+        creditsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        creditsPanel.add(title2);
+        creditsPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        creditsPanel.add(name3);
+        creditsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        creditsPanel.add(title3);
+        creditsPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        creditsPanel.add(back);
+
+    }
+
+    /**
+     * create panel for info
+     * 
+     * @param helpPanel
+     */
+    private void createHelpPanel(CustomPanel helpPanel) {
+        int panelX = centerPanelPosition(1400, screenWidth);
+        int panelY = centerPanelPosition(1000, screenHeight);
+        helpPanel.setBounds(panelX, panelY, 1400, 1000);
+        helpPanel.setBackground(new Color(0, 0, 0, 0));
+        helpPanel.setImage(uiFilePath + "helpPanel");
+        helpPanel.setBorder(BorderFactory.createEmptyBorder(900, 0, 0, 0));
+        helpPanel.setLayout(new BoxLayout(helpPanel, BoxLayout.Y_AXIS));
+        CustomLabelButton back = new CustomLabelButton("Back", 33, "Bold", "center", "back");
+        back.setAlignmentX(Component.CENTER_ALIGNMENT);
+        back.setPreferredSize(new Dimension(1000, 40));
+        back.setMaximumSize(new Dimension(1000, 40));
+        back.setMinimumSize(new Dimension(1000, 40));
+        back.setFunc(() -> {
+            screenController("removeHelpPanel");
+        });
+        back.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        helpPanel.add(back);
+
+    }
+
+    /**
      * create panel for saved games
-     * @param savesPanel 
+     * 
+     * @param savesPanel
      */
     private void createSavesPanel(JPanel savesPanel) {
         int panelX = centerPanelPosition(1000, screenWidth);
         savesPanel.setBounds(panelX, 0, 1000, screenHeight);
         savesPanel.setBackground(Color.decode("#404040"));
-        savesPanel.setBorder(BorderFactory.createEmptyBorder(200, 261, 0, 261));
+        savesPanel.setBorder(BorderFactory.createEmptyBorder(100, 261, 0, 261));
         savesPanel.setLayout(new BorderLayout());
 
         JPanel innerPanel = new JPanel();
@@ -219,12 +336,24 @@ public class UrbanTycoonGUI {
             save.setMinimumSize(new Dimension(478, 40));
             save.setCursor(new Cursor(Cursor.HAND_CURSOR));
             save.setFunc(() -> {
+                gameArea.setGameName(saveName);
                 gameArea.loadGame(saveName);
                 screenController("game");
             });
             innerPanel.add(save);
             innerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         }
+
+        CustomLabelButton back = new CustomLabelButton("Back", 33, "Bold", "center", "back");
+        back.setAlignmentX(Component.CENTER_ALIGNMENT);
+        back.setPreferredSize(new Dimension(478, 40));
+        back.setMaximumSize(new Dimension(478, 40));
+        back.setMinimumSize(new Dimension(478, 40));
+        back.setFunc(() -> {
+            screenController("mainMenu");
+        });
+        back.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        innerPanel.add(back);
         savesPanel.add(innerPanel);
     }
 
@@ -256,8 +385,9 @@ public class UrbanTycoonGUI {
 
     /**
      * create panel for side menu
+     * 
      * @param darkenBackground
-     * @param sidePanel 
+     * @param sidePanel
      */
     private void createSidePanel(CustomPanel darkenBackground, JPanel sidePanel) {
         darkenBackground.setBounds(0, 0, screenWidth, screenHeight);
@@ -282,7 +412,8 @@ public class UrbanTycoonGUI {
 
     /**
      * create panel to init new game
-     * @param interactionPanel 
+     * 
+     * @param interactionPanel
      */
     private void createNewGamePanel(JPanel interactionPanel) {
 
@@ -290,7 +421,7 @@ public class UrbanTycoonGUI {
         int panelX = centerPanelPosition(1000, screenWidth);
         interactionPanel.setBounds(panelX, 0, 1000, screenHeight);
         interactionPanel.setBackground(Color.decode("#404040"));
-        interactionPanel.setBorder(BorderFactory.createEmptyBorder(500, 261, 300, 261));
+        interactionPanel.setBorder(BorderFactory.createEmptyBorder(100, 261, 300, 261));
         interactionPanel.setLayout(new BorderLayout());
 
         JPanel innerPanel = new JPanel();
@@ -311,25 +442,25 @@ public class UrbanTycoonGUI {
         gameName.setBackground(new Color(0, 0, 0, 0));
         gameName.setBackgroundImage(uiFilePath + "textFieldBackground");
 
-        CustomLabelButton startGame = new CustomLabelButton("Start Game", 40, "Bold", "center", "startGame");
+        CustomLabelButton startGame = new CustomLabelButton("Start Game", 33, "Medium", "center", "startGame");
         startGame.setAlignmentX(Component.CENTER_ALIGNMENT);
-        startGame.setPreferredSize(new Dimension(478, 60));
-        startGame.setMaximumSize(new Dimension(478, 60));
-        startGame.setMinimumSize(new Dimension(478, 60));
+        startGame.setPreferredSize(new Dimension(478, 40));
+        startGame.setMaximumSize(new Dimension(478, 40));
+        startGame.setMinimumSize(new Dimension(478, 40));
         startGame.setCursor(new Cursor(Cursor.HAND_CURSOR));
         startGame.setFunc(() -> {
             screenController("game");
         });
-        CustomLabelButton back = new CustomLabelButton("Back", 40, "Bold", "center", "back");
+        CustomLabelButton back = new CustomLabelButton("Back", 33, "Medium", "center", "back");
         back.setAlignmentX(Component.CENTER_ALIGNMENT);
-        back.setPreferredSize(new Dimension(478, 60));
-        back.setMaximumSize(new Dimension(478, 60));
-        back.setMinimumSize(new Dimension(478, 60));
+        back.setPreferredSize(new Dimension(478, 40));
+        back.setMaximumSize(new Dimension(478, 40));
+        back.setMinimumSize(new Dimension(478, 40));
         back.setFunc(() -> {
             screenController("mainMenu");
         });
         back.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        CustomLabelButton invalidName = new CustomLabelButton("", 33, "Bold", "center", "invalidName");
+        CustomLabelButton invalidName = new CustomLabelButton("", 33, "Medium", "center", "invalidName");
         invalidName.setAlignmentX(Component.CENTER_ALIGNMENT);
         invalidName.setPreferredSize(new Dimension(478, 40));
         invalidName.setMaximumSize(new Dimension(478, 40));
@@ -337,13 +468,13 @@ public class UrbanTycoonGUI {
         invalidName.setForeground(Color.RED);
 
         innerPanel.add(enterGameName);
-        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         innerPanel.add(gameName);
-        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         innerPanel.add(startGame);
-        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         innerPanel.add(back);
-        innerPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        innerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         innerPanel.add(invalidName);
         startGame.setFunc(() -> {
             if (gameName.getText().equals("")) {
@@ -489,7 +620,10 @@ public class UrbanTycoonGUI {
             screenController("loadSavePanel");
         });
         CustomLabelButton creditsButton = getLabelButtonByType("Credits", mainMenuLabels);
-        CustomLabelButton settingsButtonSide = getLabelButtonByType("Settings", mainMenuLabels);
+        creditsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        creditsButton.setFunc(() -> {
+            screenController("creditsPanel");
+        });
         CustomLabelButton exitGameButton = getLabelButtonByType("Exit Game", mainMenuLabels);
         exitGameButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         exitGameButton.setFunc(() -> {
@@ -501,12 +635,22 @@ public class UrbanTycoonGUI {
             screenController("removeSidePanel");
         });
         CustomLabelButton restartLevelButton = getLabelButtonByType("Restart Level", sidePanelLabels);
+        restartLevelButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        restartLevelButton.setFunc(() -> {
+            gameArea.newGame();
+            screenController("removeSidePanel");
+        });
         CustomLabelButton helpButton = getLabelButtonByType("Help", sidePanelLabels);
-        CustomLabelButton settingsButtonMain = getLabelButtonByType("Settings", sidePanelLabels);
+        helpButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        helpButton.setFunc(() -> {
+            screenController("helpPanel");
+        });
         CustomLabelButton exitSaveButton = getLabelButtonByType("Exit & Save", sidePanelLabels);
         exitSaveButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         exitSaveButton.setFunc(() -> {
             gameArea.saveGame(gameArea.getGameName() + ".sav");
+            loadSavePanel.removeAll();
+            createSavesPanel(loadSavePanel);
             screenController("mainMenu");
         });
     }
@@ -777,13 +921,14 @@ public class UrbanTycoonGUI {
 
     /**
      * disable buttons if player has not got enough money
+     * 
      * @param currentMoney
      * @param zonePrice
      * @param roadPrice
      * @param stadiumPrice
      * @param policePrice
      * @param firestationPrice
-     * @param forestPrice 
+     * @param forestPrice
      */
     public static void checkActionPrice(long currentMoney, int zonePrice, int roadPrice, int stadiumPrice,
             int policePrice, int firestationPrice, int forestPrice) {
@@ -853,7 +998,8 @@ public class UrbanTycoonGUI {
 
     /**
      * zoom in / out
-     * @param size 
+     * 
+     * @param size
      */
     public void changeCellsSize(int size) {
         Field fields[][] = gameArea.getCity().getFields();
@@ -903,8 +1049,9 @@ public class UrbanTycoonGUI {
 
     /**
      * move view left / right
+     * 
      * @param x
-     * @param y 
+     * @param y
      */
     public void changeCellsPositions(int x, int y) {
         Field fields[][] = gameArea.getCity().getFields();
