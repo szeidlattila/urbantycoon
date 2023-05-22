@@ -212,7 +212,7 @@ public class UrbanTycoonGUI {
         File[] saves = gameArea.getFiles();
         for (File f : saves) {
             String saveName = f.getName().substring(0, f.getName().length() - 4);
-            CustomLabelButton save = new CustomLabelButton(saveName, 30, "Bold", "center", saveName);
+            CustomLabelButton save = new CustomLabelButton(saveName, 30, "Medium", "center", saveName);
             save.setAlignmentX(Component.CENTER_ALIGNMENT);
             save.setPreferredSize(new Dimension(478, 40));
             save.setMaximumSize(new Dimension(478, 40));
