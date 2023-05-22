@@ -211,32 +211,6 @@ class GameEngine extends JPanel {
      * @param saveName
      */
     public void saveGame(String saveName) {
-        /*
-         * File[] usedFiles = getFiles();
-         * for (File f : usedFiles)
-         * if (f.getName().equals(saveName)) {
-         * JFrame frame = new JFrame("Save with given name already exists!");
-         * JPanel panel = new JPanel();
-         * frame.add(panel);
-         * panel.add(new JLabel("Override?"));
-         * JButton confirmButton = new JButton("Yes");
-         * JButton rejectButton = new JButton("No");
-         * confirmButton.addActionListener((var ae) -> {
-         * frame.dispose();
-         * saveInto(f);
-         * saveGameFrame.setVisible(false);
-         * gameTickTimer.start();
-         * newFrameTimer.start();
-         * });
-         * rejectButton.addActionListener((var ae) -> frame.dispose());
-         * panel.add(confirmButton);
-         * panel.add(rejectButton);
-         * frame.setPreferredSize(new Dimension(300, 100));
-         * frame.pack();
-         * frame.setVisible(true);
-         * return;
-         * }
-         */
         File f = new File("data/persistence/saves/" + saveName);
         try {
             f.createNewFile();
