@@ -138,6 +138,10 @@ public class UrbanTycoonGUI {
 
     }
 
+    /**
+     * add component to layered pane
+     * @param screen 
+     */
     private void screenController(String screen) {
         switch (screen) {
             case "loadSavePanel" -> {
@@ -182,6 +186,10 @@ public class UrbanTycoonGUI {
         }
     }
 
+    /**
+     * create panel for saved games
+     * @param savesPanel 
+     */
     private void createSavesPanel(JPanel savesPanel) {
         int panelX = centerPanelPosition(1000, screenWidth);
         savesPanel.setBounds(panelX, 0, 1000, screenHeight);
@@ -246,6 +254,11 @@ public class UrbanTycoonGUI {
         gameLogo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     }
 
+    /**
+     * create panel for side menu
+     * @param darkenBackground
+     * @param sidePanel 
+     */
     private void createSidePanel(CustomPanel darkenBackground, JPanel sidePanel) {
         darkenBackground.setBounds(0, 0, screenWidth, screenHeight);
         darkenBackground.setOpaque(false);
@@ -267,6 +280,10 @@ public class UrbanTycoonGUI {
         }
     }
 
+    /**
+     * create panel to init new game
+     * @param interactionPanel 
+     */
     private void createNewGamePanel(JPanel interactionPanel) {
 
         // main menu enter game name
@@ -758,6 +775,16 @@ public class UrbanTycoonGUI {
 
     }
 
+    /**
+     * disable buttons if player has not got enough money
+     * @param currentMoney
+     * @param zonePrice
+     * @param roadPrice
+     * @param stadiumPrice
+     * @param policePrice
+     * @param firestationPrice
+     * @param forestPrice 
+     */
     public static void checkActionPrice(long currentMoney, int zonePrice, int roadPrice, int stadiumPrice,
             int policePrice, int firestationPrice, int forestPrice) {
         CustomButton industrial = getButtonByName("industrial", actionButtons);
@@ -824,6 +851,10 @@ public class UrbanTycoonGUI {
         money.setText(moneyS);
     }
 
+    /**
+     * zoom in / out
+     * @param size 
+     */
     public void changeCellsSize(int size) {
         Field fields[][] = gameArea.getCity().getFields();
         int CurrentOffsetX = fields[0][0].getX();
@@ -870,6 +901,11 @@ public class UrbanTycoonGUI {
 
     }
 
+    /**
+     * move view left / right
+     * @param x
+     * @param y 
+     */
     public void changeCellsPositions(int x, int y) {
         Field fields[][] = gameArea.getCity().getFields();
         for (int i = 0; i < fields.length; i++) {

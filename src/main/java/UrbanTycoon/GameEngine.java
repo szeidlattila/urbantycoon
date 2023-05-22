@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,12 +15,10 @@ import java.util.Scanner;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.JTextField;
-import java.awt.event.WindowAdapter;
 
 @SuppressWarnings("serial")
 class GameEngine extends JPanel {
@@ -32,7 +29,7 @@ class GameEngine extends JPanel {
 
     private final int FIELDROWSNUM = 150;
     private final int FIELDCOLSNUM = 150;
-    private final int INITIALMONEY = 100000;
+    private final int INITIALMONEY = 30000;
     private final int INITIALRESIDENT = 20;
     private final int ZONEPRICE = 250;
     private final int ROADPRICE = 75;
@@ -135,6 +132,7 @@ class GameEngine extends JPanel {
         saveGameFrame.add(saveGamePanel);
         saveGameFrame.setPreferredSize(new Dimension(300, 100));
         saveGameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
                 newFrameTimer.start();
                 gameTickTimer.start();
@@ -148,6 +146,7 @@ class GameEngine extends JPanel {
         loadGameFrame.add(loadGamePanel);
         loadGameFrame.setPreferredSize(new Dimension(300, 100));
         loadGameFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
                 newFrameTimer.start();
                 gameTickTimer.start();

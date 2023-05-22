@@ -32,6 +32,7 @@ public class Sprite {
      * draw image
      * 
      * @param g
+     * @param dimension
      */
     public void draw(Graphics g, Dimension dimension) {
         if (x > -width && y > -height && x < dimension.getWidth() + width && y < dimension.getHeight() + height) {

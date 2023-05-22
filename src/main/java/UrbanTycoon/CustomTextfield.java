@@ -64,14 +64,16 @@ public class CustomTextfield extends JTextField {
 
     private int getAlignmentConstant(String alignment) {
         switch (alignment.toLowerCase()) {
-            case "left":
+            case "left" -> {
                 return JTextField.LEFT;
-            case "center":
+            }
+            case "center" -> {
                 return JTextField.CENTER;
-            case "right":
+            }
+            case "right" -> {
                 return JTextField.RIGHT;
-            default:
-                throw new IllegalArgumentException("Invalid alignment: " + alignment);
+            }
+            default -> throw new IllegalArgumentException("Invalid alignment: " + alignment);
         }
     }
 }
