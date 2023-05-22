@@ -114,15 +114,6 @@ class GameEngine extends JPanel {
             }
         });
 
-        city.getFieldsToDraw().clear();
-        for (Field[] row : city.getFields()) {
-            for (Field field : row) {
-                if (!field.isFree()) {
-                    city.getFieldsToDraw().add(field);
-                }
-            }
-        }
-
         JTextField saveNameTextField = new JTextField();
         JButton confirmSaveButton = new JButton("Save");
         confirmSaveButton.addActionListener((var ae) -> saveGame(saveNameTextField.getText() + ".sav"));
@@ -187,7 +178,7 @@ class GameEngine extends JPanel {
     /**
      * set up city and date for new game (set attributes to initial)
      */
-    void newGame() {
+    public void newGame() {
         city.restart(INITIALRESIDENT, FIELDROWSNUM, FIELDCOLSNUM, INITIALMONEY);
         time = new Date(1980, 1, 1, 0, 0);
         paused = false;
