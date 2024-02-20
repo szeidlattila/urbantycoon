@@ -81,4 +81,4 @@ dolgoznak. A játékban lehetőség van a költségvetés (bevétel és kiadáso
 ![](./data/screenshots/screenshot.png)
 
 ## További információ
-- A dokumentáció, és a kiválasztott részfeladatok a [Wiki](https://github.com/szeidlattila/urbantycoon/wiki) oldalon találhatók.
+- A dokumentáció, és egyéb információk a [Wiki](https://github.com/szeidlattila/urbantycoon/wiki) oldalon találhatók.
