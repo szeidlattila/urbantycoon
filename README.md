@@ -1,6 +1,6 @@
 # UrbanTycoon
 ## Dokumentáció
-- A [Wiki](https://github.com/szeidlattila/urbantycoon/wiki) oldalon érhető el a dokumentáció, illetve képernyőképek a játékról.
+A [Wiki](https://github.com/szeidlattila/urbantycoon/wiki) oldalon érhető el a dokumentáció, illetve képernyőképek a játékról.
 ## Játék rövid leírása
 A játékban, a játékosnak fel kell építenie saját városát és menedzselnie azt egy széles jogkörökkel bíró polgármesterként. A város különböző típusú zónákból (amelyeken a lakók
 automatikusan építkeznek), a játékos által külön megépítendő kiszolgáló épületekből és az ezeket
